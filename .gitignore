@@ -1,5 +1,6 @@
 # Prerequisites
 *.d
+*.cmake
 
 # Compiled Object files
 *.slo
@@ -30,3 +31,14 @@
 *.exe
 *.out
 *.app
+
+# Installation directories
+/.vscode/
+/build/
+/bin/
+/lib/
+
+# Testing and output files
+/tests/
+*.pdf
+*.dat
