@@ -8,7 +8,12 @@
 #define AMPLITUDE
 
 #include "reaction_kinematics.hpp"
+
 #include <vector>
+
+#include "Math/GSLIntegrator.h"
+#include "Math/IntegrationTypes.h"
+#include "Math/Functor.h"
 
 // Abstract class for a generic amplitude of the e+e- -> abc process
 class amplitude 
@@ -19,7 +24,11 @@ class amplitude
     amplitude(reaction_kinematics * xkinem, int n, string classname, string id = "")
     : _kinematics(xkinem), _nparams(n), _id(id),
       _classname(classname)
-    {};
+    {
+        array<double, 3> m = xkinem->get_masses();
+        _ma  = m[0];      _mb  = m[1];      _mc  = m[2];
+        _ma2 = m[0]*m[0]; _mb2 = m[1]*m[1]; _mc2 = m[2]*m[2];
+    };
 
     // This pointer holds all kinematic information
     reaction_kinematics * _kinematics; 
@@ -40,6 +49,25 @@ class amplitude
     // The total invariant mass, s (mass of decaying particle)
     // and we choose sigma_ab and sigma_bc to be the independent variables
     virtual complex<double> helicity_amplitude(array<int,2> helicities, double s, double sab, double sbc) = 0;
+    inline  complex<double> helicity_amplitude(int n, double s, double sab, double sbc)
+    {
+        return helicity_amplitude( get_helicities(n, _kinematics->is_photon()), s, sab, sbc);
+    };
+
+
+    // Spin-summed amplitude squared
+    double probability_distribution(double s, double sab, double sbc);
+
+    // Doubly differential partial-width
+    double d2Gamma(double s, double sab, double sbc);
+
+    // Integrated widths into given subsystem
+    double dGamma_ab(double s, double sab);
+    double dGamma_bc(double s, double sbc);
+    double dGamma_ac(double s, double sac);
+
+    // Fully integrated decay width
+    double Gamma(double s);
     
     // -----------------------------------------------------------------------
     protected:
@@ -48,7 +76,7 @@ class amplitude
     int _debug; 
 
     // Quantites related to paramaters accepted
-    int _nparams = 0;           // Number of parameters to expect
+    int _nparams = 0;       // Number of parameters to expect
     vector<double> _params; // Saved parameter values
     
     // Check that passes vector is correct size for expected number of parameters
@@ -57,9 +85,26 @@ class amplitude
         if (params.size() != _nparams) warning(get_id(), "Invalid number of parameters passed!");
     };
 
-    // String identifier for this amplitude
-    string _id;
-    string _classname = "amplitude"; // Name of the class and 
+    string _id;                      // String identifier for this amplitude
+    string _classname = "amplitude"; // Name of the class
+
+    // Kinematic quantites below are saved so they do not need to be passed around inside amplitudes
+    inline void update(double s, double sab, double sbc)
+    {
+        _W = sqrt(s); _s = s;
+        _sab = sab; _sbc = sbc;
+        _sac = _ma2 + _mb2 + _mc2 + s - sab - sbc;
+    };
+
+    // Total invairant energies
+    double _W, _s;
+
+    // Sub-channel energies
+    double _sab, _sbc, _sac;
+
+    // Masses of the particles
+    double _ma,  _mb,  _mc;
+    double _ma2, _mb2, _mc2;
 };
 
 // Simply amplitude with no energy dependence. 
