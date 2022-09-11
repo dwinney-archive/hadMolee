@@ -30,4 +30,24 @@ void Load()
     {
         Warning("Load", "ee3Body library not found! Path given: %s", CORE_LIB.Data());
     }
+
+     //----------------------------------------------------------------------
+    // Plotting library
+
+    TString JPACSTYLE_DIR  = gSystem->Getenv("JPACSTYLE");
+    TString JPACSTYLE_INC  = JPACSTYLE_DIR;
+            JPACSTYLE_INC += "/include/";
+    TString JPACSTYLE_LIB  = JPACSTYLE_DIR;
+            JPACSTYLE_LIB += "/lib/libjpacStyle.";
+            JPACSTYLE_LIB += LIB_EXT;
+
+    if (!gSystem->AccessPathName(JPACSTYLE_LIB.Data()))
+    {
+        gInterpreter->AddIncludePath( JPACSTYLE_INC.Data());
+        Int_t stylib = gSystem->Load( JPACSTYLE_LIB.Data());
+    }
+    else
+    {
+        Warning("Load", "jpacStyle library not found! Path given: %s", JPACSTYLE_LIB.Data());
+    }
 }

@@ -43,6 +43,20 @@ else()
     message(SEND_ERROR "-- Root not found")
 endif()
 
+##-----------------------------------------------------------------------
+## Look for jpacStyle to build the cling executable 
+
+# Find the jpacStyle library
+find_library(JSTYLELIB NAMES jpacStyle libjpacStyle 
+                       HINTS "$ENV{JPACSTYLE}/lib")
+if (JSTYLELIB)
+    option(BUILD_CLING "" ON)
+    include_directories($ENV{JPACSTYLE}/include)
+    message("-- jpacStyle found! (${JSTYLELIB})")
+else()
+    message("-- jpacStyle not found!")
+endif()
+
 
 ##-----------------------------------------------------------------------
 # Build core physics library 
