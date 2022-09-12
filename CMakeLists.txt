@@ -57,6 +57,11 @@ else()
     message("-- jpacStyle not found!")
 endif()
 
+##-----------------------------------------------------------------------
+## Look for BOOST needed for jpacBox
+
+set(BOOST_MIN_VERSION 1.68.0) # Need complex Gauss-Kronrod integration
+find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
 
 ##-----------------------------------------------------------------------
 # Build core physics library 
