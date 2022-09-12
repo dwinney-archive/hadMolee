@@ -41,9 +41,13 @@ double amplitude::d2Gamma(double s, double sab, double sbc)
     else                          amp_squared /= 3.;
 
     // General prefactors for 1->3 decay width in GeV
-    double prefactors  = 32.*pow(2.*PI*sqrt(s), 3.);
+    double prefactors = 1. / (32.*pow(2.*PI*sqrt(s), 3.));
 
-    return amp_squared / prefactors;
+    // Additional prefactors since we incorporate the leptonic production here 
+    // i.e. the e+ e- -> \gamma vertex at high energies gives
+    prefactors /= E*E * pow(sqrt(s), 3.);
+
+    return amp_squared * prefactors;
 };
 
 // ---------------------------------------------------------------------------
