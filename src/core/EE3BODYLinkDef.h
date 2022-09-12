@@ -7,5 +7,6 @@
 
 #pragma link C++ defined_in "reaction_kinematics.hpp";
 #pragma link C++ defined_in "amplitude.hpp";
+#pragma link C++ defined_in "propagator.hpp";
 
 #endif
