@@ -24,12 +24,12 @@ const double E        = sqrt(4. * PI * ALPHA);
 const double EULER    = 0.57721566490153286060651209008240243104215933593992;
 
 // Unit complex and real values
-const std::complex<double> XR  (1., 0.);
-const std::complex<double> XI  (0., 1.);
+const complex<double> XR  (1., 0.);
+const complex<double> XI  (0., 1.);
 
 // Small offsets
-const double                EPS  = 1.E-6;
-const std::complex<double> IEPS  = XI*EPS;
+const double           EPS  = 1.E-6;
+const complex<double> IEPS  = XI*EPS;
 
 // ---------------------------------------------------------------------------
 // 2022 PDG masses in GeV
@@ -53,6 +53,20 @@ const double M_JPSI      = 3.096900;
 const double M_PSI2S     = 3.68610;
 const double M_HC1       = 3.52538;
 const double M_CHIC1     = 3.51067;
+
+// Overload of multiplcation for a bool and complex<double>
+inline complex<double> operator * (const bool & a, const complex<double> & b){
+    if (a != 0)
+        return b;
+     else
+        return complex<double>(0, 0);
+};
+inline complex<double> operator * (const complex<double> & b, const bool & a){
+    if (a != 0)
+        return b;
+     else
+        return complex<double>(0, 0);
+};
 
 // ---------------------------------------------------------------------------
 
