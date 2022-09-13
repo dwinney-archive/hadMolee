@@ -5,6 +5,9 @@
 // Email:        dwinney@scnu.edu.cn
 // ---------------------------------------------------------------------------
 
+#ifndef PROPAGATORS
+#define PROPAGATORS
+
 #include "constants.hpp"
 
 #include <boost/math/differentiation/finite_difference.hpp>
@@ -21,6 +24,7 @@ class propagator
 
     // Main function, evaluates as a function of one variable
     virtual complex<double> eval(double x) = 0;
+    inline double squared(double x){ return norm(eval(x)); };
 
     protected:
 
@@ -97,3 +101,5 @@ class hadronic_propagator : public propagator
     double _elastic;  // Coupling for elastic m1 m2 -> m1 m2 scattering
     double _nonmol_width;             // Constant other decays than into m1 m2
 };
+
+#endif
