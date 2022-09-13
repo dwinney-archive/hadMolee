@@ -57,6 +57,16 @@ else()
     message("-- jpacStyle not found!")
 endif()
 
+# Find the jpacStyle library
+find_library(CUBATURELIB NAMES cubature libcubature
+                       HINTS "$ENV{CUBATURE}/lib")
+if (CUBATURELIB)
+    include_directories($ENV{CUBATURE}/lib)
+    message("-- cubature found! (${CUBATURELIB})")
+else()
+    message("-- cubature not found!")
+endif()
+
 ##-----------------------------------------------------------------------
 ## Look for BOOST needed for jpacBox
 

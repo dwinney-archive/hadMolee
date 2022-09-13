@@ -12,6 +12,7 @@ ROOT_GENERATE_DICTIONARY(G__EE3BODY
 add_library( EE3BODY SHARED ${SRC} G__EE3BODY.cxx )
 target_link_libraries( EE3BODY ROOT::Core ROOT::MathMore )
 target_link_libraries( EE3BODY Boost::boost)
+target_link_libraries( EE3BODY ${CUBATURELIB} )
 
 install(TARGETS EE3BODY
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
