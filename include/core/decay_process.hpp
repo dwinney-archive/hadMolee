@@ -57,9 +57,6 @@ class decay_process
     // and we choose sigma_ab and sigma_bc to be the independent variables
     virtual double amplitude_squared(double s, double sab, double sbc) = 0;
 
-    // Spin-summed amplitude squared
-    double probability_distribution(double s, double sab, double sbc);
-
     // Doubly differential partial-width
     double d2Gamma(double s, double sab, double sbc);
 
@@ -70,6 +67,9 @@ class decay_process
 
     // Fully integrated decay width
     double Gamma(double s);
+
+    // Normalize the total width to some value
+    void normalize(double N, double s){ _normalize = true; _normalization = N / Gamma(s); };
 
     // ------------------------------------------------------------------------------------------------------------------
     // Kinematic quantities 
@@ -226,6 +226,10 @@ class decay_process
 
     // Particles can carry a string label
     string _a = "a", _b = "b", _c = "c";
+
+    // Normalization of the total decay width
+    bool   _normalize = false;
+    double _normalization = 1.;
 };
 
 // Simply amplitude with no energy dependence. 

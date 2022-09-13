@@ -29,6 +29,8 @@ double decay_process::d2Gamma(double s, double sab, double sbc)
     // i.e. the e+ e- -> \gamma vertex at high energies gives
     prefactors /= E*E * pow(sqrt(s), 3.);
 
+    if (_normalize) prefactors *= _normalization;
+
     return amp_squared * prefactors;
 };
 
@@ -103,8 +105,8 @@ double decay_process::Gamma(double s)
     ROOT::Math::Functor1D wF(F);
     ig.SetFunction(wF);
 
-    double sab_min = (_ma + _mb)*(_ma + _mb);
-    double sab_max = (  s - _mc)*(  s - _mc);
+    double sab_min = pow(_ma + _mb    , 2.);
+    double sab_max = pow(sqrt(s) - _mc, 2.);
 
     return ig.Integral(sab_min, sab_max);
 }
