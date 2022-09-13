@@ -68,6 +68,14 @@ inline complex<double> operator * (const complex<double> & b, const bool & a){
         return complex<double>(0, 0);
 };
 
+// Kallen triangle function
+template <typename T>
+inline T Kallen(T x, T y, T z)
+{
+    return x*x + y*y + z*z - 2. * (x*y + x*z + y*z);
+};
+
+
 // ---------------------------------------------------------------------------
 
 #endif

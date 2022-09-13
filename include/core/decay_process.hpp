@@ -16,14 +16,6 @@
 #include "Math/IntegrationTypes.h"
 #include "Math/Functor.h"
 
-// Kallen triangle function
-template <typename T>
-inline T Kallen(T x, T y, T z)
-{
-    return x*x + y*y + z*z - 2. * (x*y + x*z + y*z);
-};
-
-
 // Abstract class for a generic amplitude of the e+e- -> abc process
 class decay_process 
 {
