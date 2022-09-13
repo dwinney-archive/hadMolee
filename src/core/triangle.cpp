@@ -8,24 +8,44 @@
 
 complex<double> relativistic_triangle::eval()
 {
-    auto F = [&](double x)
-    {
-        complex<double> iEPS = _eps*XI;
-        complex<double> a, b, c, d, yp, ym;
-        a = _ema2 + iEPS;
-        b = - (_imb2 - _imc2) - (_ema2 + iEPS)*(x-1.) + (_emb2 - _emc2)*x;
-        c = _ima2*x + _imc2*(1.-x) - _emb2*(1.-x)*x;
+    // Desination for the result and assosiated errors
+    double val[2], err[2];
 
-        d = b*b - 4.*a*c;
+    // Integrate both x and y from 0 to 1
+    double min[2] = {0., 0.};
+    double max[2] = {1., 1.};
 
-        yp = (- b + sqrt(XR*d))/ (2.*a);
-        ym = (- b - sqrt(XR*d))/ (2.*a);
+    // Fix the "masses" s and t
+    integrand.update_masses({_ema2, _emb2, _emc2}, {_ima2, _imb2, _imc2});
 
-        return (log(1. - x + ym) - log(1. - x + yp) - log(ym) + log(yp)) / sqrt(XR*d);
-    };
+    // TODO: Set relative errors and max calls to actual good values
+    // Integrate over x and y
+    hcubature(2, wrapped_integrand, &integrand, 2, min, max, 2E7, 0, 1e-2, ERROR_INDIVIDUAL, val, err);
 
-    complex<double> result = gauss_kronrod<double, 61>::integrate(F, 0., 1., 0., 1.E-6, NULL);
+    // Assemble the result as a complex double
+    std::complex<double> result(val[0], val[1]);
+    result *= 2.;                  // Factor of 2 from the normalization of dF_3 integration measure
+    result /= 2. * pow(4.*PI, 2.); // Rest of left-over factors from covariant loop normalization
+
     return result;
+};
+
+int relativistic_triangle::wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval)
+{
+  triangle_integrand* integrand = (triangle_integrand *) fdata;
+
+  // Feynman parameters
+  double x = in[0] * in[1];
+  double y = in[0] * (1. - in[1]);
+  double z = 1. - x - y;
+
+  std::complex<double> result = in[0] * integrand->eval(x, y, z);
+
+  // Split up the real andi imaginary parts to get them out
+  fval[0] = std::real(result);
+  fval[1] = std::imag(result);
+
+  return 0.;
 };
 
 complex<double> nonrelativistic_triangle::eval()
@@ -38,13 +58,13 @@ complex<double> nonrelativistic_triangle::eval()
     complex<double> term1 = atan( XR*(c2 - c1)       / sqrt(4.*a*(c1 - IEPS))     );
     complex<double> term2 = atan( XR*(c2 - c1- 2.*a) / sqrt(4.*a*(c2 - a - IEPS)) );
 
-    debug("qb", qB());
-    debug("mu23", mu23());
-    debug("c1", c1);
-    debug("c2", c2);
-    debug("a", a);
-    debug("term1", term1);
-    debug("term2", term2);
+    // debug("qb", qB());
+    // debug("mu23", mu23());
+    // debug("c1", c1);
+    // debug("c2", c2);
+    // debug("a", a);
+    // debug("term1", term1);
+    // debug("term2", term2);
 
     return N / sqrt(XR*a)*(term1 - term2);
 };

@@ -7,11 +7,9 @@
 #ifndef TRIANGLE
 #define TRIANGLE
 
+#include "cubature.h"
 #include "constants.hpp"
-
-#include <boost/math/quadrature/gauss_kronrod.hpp>
-
-using namespace boost::math::quadrature;
+#include "loop_integrands.hpp"
 
 // ---------------------------------------------------------------------------
 // Generic triangle class
@@ -93,6 +91,8 @@ class nonrelativistic_triangle : public triangle
 
 class relativistic_triangle : public triangle
 {
+    // -----------------------------------------------------------------------
+
     public:
 
     // Empty constructor to set masses later
@@ -108,13 +108,17 @@ class relativistic_triangle : public triangle
     // Evaluate by integrating over Feynman parameters
     complex<double> eval();
 
-    // Integration can be picky so can change the EPS used in ieps perscription
-    void set_eps(double e){ _eps = e; };
+    // -----------------------------------------------------------------------
 
-    private:
+    private: 
 
-    // small epsilon to use in iepsilon perscription instead of the globall defined IEPS
-    double _eps = 1.E-3;
+    // Integrand object which will be used to evaluate the integral with the cubature library
+    triangle_integrand integrand;
+
+    // Wrapper for the integrand, callable function of feynman parameters
+    static int wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval);
 };
+
+
 
 #endif
