@@ -4,6 +4,7 @@ file(GLOB SRC "*.cpp")
 ROOT_GENERATE_DICTIONARY(G__EE3BODY
         decay_process.hpp
         propagator.hpp
+        triangle.hpp
         DsDpi_decay.hpp
         LINKDEF EE3BODYLinkDef.h
         )

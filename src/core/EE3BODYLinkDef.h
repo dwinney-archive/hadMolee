@@ -8,5 +8,6 @@
 #pragma link C++ defined_in "decay_process.hpp";
 #pragma link C++ defined_in "propagator.hpp";
 #pragma link C++ defined_in "DsDpi_decay.hpp";
+#pragma link C++ defined_in "triangle.hpp";
 
 #endif
