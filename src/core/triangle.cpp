@@ -16,11 +16,11 @@ complex<double> relativistic_triangle::eval()
     double max[2] = {1., 1.};
 
     // Fix the "masses" s and t
-    integrand.update_masses({_ema2, _emb2, _emc2}, {_ima2, _imb2, _imc2});
+    integrand.update_masses({_emA2, _emB2, _emC2}, {_imA2, _imB2, _imC2});
 
     // TODO: Set relative errors and max calls to actual good values
     // Integrate over x and y
-    hcubature(2, wrapped_integrand, &integrand, 2, min, max, 2E7, 0, 1e-2, ERROR_INDIVIDUAL, val, err);
+    hcubature(2, wrapped_integrand, &integrand, 2, min, max, _N, 0, 1e-6, ERROR_INDIVIDUAL, val, err);
 
     // Assemble the result as a complex double
     std::complex<double> result(val[0], val[1]);
@@ -50,21 +50,25 @@ int relativistic_triangle::wrapped_integrand(unsigned ndim, const double *in, vo
 
 complex<double> nonrelativistic_triangle::eval()
 {
-    complex<double> c1 = 2.*mu12()*b12();
-    complex<double> c2 = 2.*mu23()*b12() + 2.*qB()*qB()*mu23()/_imc;
-    complex<double> a = pow(qB()*mu23()/_imc, 2.);
-    complex<double> N = mu12()*mu23() / (16.*PI*_ima*_imb*_imc);
+    double mu_AB = _imA * _imB / (_imA + _imB);
+    double mu_BC = _imB * _imC / (_imB + _imC);
+    
+    // ieps perscription here is to make sure the cuts line up correctly
+    complex<double> q_B = sqrt((_emA2 + IEPS)-pow(_emB+_emC, 2.))*sqrt((_emA2 - IEPS)-pow(_emB-_emC, 2.))/(2.*_emA);
+    complex<double> E_B =  (_emA2 + _emB2 - _emC2)  / (2.*_emA);
 
-    complex<double> term1 = atan( XR*(c2 - c1)       / sqrt(4.*a*(c1 - IEPS))     );
-    complex<double> term2 = atan( XR*(c2 - c1- 2.*a) / sqrt(4.*a*(c2 - a - IEPS)) );
+    complex<double> a = pow(q_B*mu_AB/_imA, 2.);
 
-    // debug("qb", qB());
-    // debug("mu23", mu23());
-    // debug("c1", c1);
-    // debug("c2", c2);
-    // debug("a", a);
-    // debug("term1", term1);
-    // debug("term2", term2);
+    complex<double> b_AB = _imA + _imB + E_B - _emA;
+    complex<double> b_BC = _imB + _imC       - _emA;
 
-    return N / sqrt(XR*a)*(term1 - term2);
+    complex<double> c_1 = 2.*mu_BC*b_BC;
+    complex<double> c_2 = 2.*mu_AB*b_AB + q_B*q_B*mu_AB/_imA;
+
+    double prefactors = (mu_AB*mu_BC) / (16.*PI*_imA*_imB*_imC);
+
+    complex<double> cut_1 = atan( (c_2 - c_1)        / sqrt( 4.*a*(c_1     - IEPS) ));
+    complex<double> cut_2 = atan( (c_2 - c_1 - 2.*a) / sqrt( 4.*a*(c_2 - a - IEPS) ));
+
+    return prefactors / sqrt(a) * (cut_1 - cut_2);
 };

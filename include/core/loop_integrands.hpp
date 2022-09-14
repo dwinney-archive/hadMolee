@@ -30,12 +30,18 @@ class triangle_integrand
     inline complex<double> eval(double x1, double x2, double x3)
     {
         double D = x1*_ima2 + x2*_imb2 + x3*_imc2 - x1*x3*_emb2 - x1*x2*_emc2 - x2*x3*_ema2;
-        return 1. / (D - IEPS);
+        return 1. / (D - XI*_eps);
     };
+
+    // Set the numerical iepsilon used
+    inline void set_ieps(double e){ _eps = e; };
 
     // -------------------------------------------------------------------
 
     private:
+
+    // Default epsilon
+    double _eps = EPS;
 
     // Need to be able to access the masses
     double _ema2, _emb2, _emc2;

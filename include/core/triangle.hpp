@@ -34,21 +34,21 @@ class triangle
 
     // Setting functions for the masses
     inline void set_internal_masses(array<double,3> m)
-    { _ima  = m[0];      _imb  = m[1];      _imc  = m[2]; 
-      _ima2 = m[0]*m[0]; _imb2 = m[1]*m[1]; _imc2 = m[2]*m[2]; }
+    { _imA  = m[0];      _imB  = m[1];      _imC  = m[2]; 
+      _imA2 = m[0]*m[0]; _imB2 = m[1]*m[1]; _imC2 = m[2]*m[2]; }
     inline void set_external_masses(array<double,3> m)
-    { _ema  = m[0];      _emb  = m[1];      _emc  = m[2]; 
-      _ema2 = m[0]*m[0]; _emb2 = m[1]*m[1]; _emc2 = m[2]*m[2]; }
+    { _emA  = m[0];      _emB  = m[1];      _emC  = m[2]; 
+      _emA2 = m[0]*m[0]; _emB2 = m[1]*m[1]; _emC2 = m[2]*m[2]; }
 
     protected:
 
     // External masses
-    double _ema,  _emb,  _emc;
-    double _ema2, _emb2, _emc2;
+    double _emA,  _emB,  _emC;
+    double _emA2, _emB2, _emC2;
 
     // Internal masses
-    double _ima,  _imb,  _imc;
-    double _ima2, _imb2, _imc2;
+    double _imA,  _imB,  _imC;
+    double _imA2, _imB2, _imC2;
 };
 
 // ---------------------------------------------------------------------------
@@ -58,31 +58,8 @@ class nonrelativistic_triangle : public triangle
 {
     public:
 
-    // Empty constructor for setting masses later
-    nonrelativistic_triangle()
-    : triangle()
-    {};
-
-    // Else specify the internal masses
-    nonrelativistic_triangle(array<double,3> internal_masses)
-    : triangle({0., 0., 0.}, internal_masses)
-    {};
-
+    // Simple one function and thats it 
     complex<double> eval();
-
-    private:
-
-    // Reduced masses
-    inline complex<double> mu12(){ return _ima * _imb / (_ima + _imb); };
-    inline complex<double> mu23(){ return _imb * _imc / (_imb + _imc); };
-
-    // Mass differences
-    inline complex<double> b12() { return _ima + _imb - _ema; };
-    inline complex<double> b23() { return _imb + _imc + EB() - _ema; };
-
-    // Energy and momentum of external particle b in the rest frame of particle a
-    inline complex<double> qB() { return sqrt(Kallen(XR*_ema2, XR*_emb2, XR*_emc2)) / (2. * _ema); };
-    inline complex<double> EB() { return sqrt(qB()*qB() + _emb2); };
 };
 
 
@@ -95,22 +72,21 @@ class relativistic_triangle : public triangle
 
     public:
 
-    // Empty constructor to set masses later
-    relativistic_triangle()
-    : triangle()
-    {};
-
-    // Parameterized constructor with all masses
-    relativistic_triangle(array<double,3> external_masses, array<double,3> internal_masses)
-    : triangle(external_masses, internal_masses)
-    {}
-
     // Evaluate by integrating over Feynman parameters
     complex<double> eval();
+
+    // Option to change the numerical epsilon used
+    void set_ieps(double e){ integrand.set_ieps(e); };
+
+    // Set the maximum number of function calls the integrator is allowed
+    void set_max_calls(int n){ _N = n; };
 
     // -----------------------------------------------------------------------
 
     private: 
+
+    // Number of funciton calls 
+    int _N = 1E7;
 
     // Integrand object which will be used to evaluate the integral with the cubature library
     triangle_integrand integrand;
