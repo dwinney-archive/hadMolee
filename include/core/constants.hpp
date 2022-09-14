@@ -54,6 +54,10 @@ const double M_PSI2S     = 3.68610;
 const double M_HC1       = 3.52538;
 const double M_CHIC1     = 3.51067;
 
+// Exotics
+const double M_Y         = 4.2227;
+const double M_Z         = 3.8871;
+
 // Overload of multiplcation for a bool and complex<double>
 inline complex<double> operator * (const bool & a, const complex<double> & b){
     if (a != 0)
