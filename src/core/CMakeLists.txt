@@ -2,10 +2,11 @@
 file(GLOB SRC "*.cpp")
 
 ROOT_GENERATE_DICTIONARY(G__EE3BODY
-        decay_process.hpp
+        reaction_kinematics.hpp
+        amplitude.hpp
         propagator.hpp
         triangle.hpp
-        DsDpi_decay.hpp
+        hadronic_molecule.hpp
         LINKDEF EE3BODYLinkDef.h
         )
 
