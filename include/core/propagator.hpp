@@ -32,6 +32,27 @@ class propagator
     double _M;
 };
 
+// Relativistic BW with constant width
+class relativistic_BW : public propagator
+{
+    public: 
+    // Default constructor takes in a pole mass and a constant width
+    relativistic_BW(double mass, double width)
+    : propagator(mass), _Gamma(width)
+    {};
+
+    inline complex<double> eval(double s)
+    {
+        complex<double> D =  (s - _M*_M) + XI * _M*_Gamma;
+        return XI / D;
+    };
+
+    private:
+
+    // Constant width
+    double _Gamma;
+};
+
 // Non-relativistic BW with constant width
 class nonrelativistic_BW : public propagator
 {
