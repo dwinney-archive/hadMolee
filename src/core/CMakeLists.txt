@@ -6,6 +6,7 @@ ROOT_GENERATE_DICTIONARY(G__EE3BODY
         amplitude.hpp
         propagator.hpp
         triangle.hpp
+        hadronic_molecule.hpp
         LINKDEF EE3BODYLinkDef.h
         )
 

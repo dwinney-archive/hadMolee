@@ -9,5 +9,6 @@
 #pragma link C++ defined_in "amplitude.hpp";
 #pragma link C++ defined_in "propagator.hpp";
 #pragma link C++ defined_in "triangle.hpp";
+#pragma link C++ defined_in "hadronic_molecule.hpp";
 
 #endif
