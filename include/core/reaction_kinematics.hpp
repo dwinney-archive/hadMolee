@@ -156,15 +156,27 @@ class reaction_kinematics
     // Vectors and tensors
 
     // Lepton-tensor gives the e+ e- -> photon interaction
-    complex<double> production_tensor(int i, int j, double s)
+    // Given as a function of s and the pion angle z
+    inline complex<double> production_tensor(int i, int j, double s, double cos)
     {
         // In massless approximation, this reduces to the polarization sum of transverse vector meson
-        complex<double> lepton_tensor = E*E * 2.*s * XR*((i == j) - (i==3)*(j==3));
+        // We assume the final state pion defines the +z axis and cos is the cosine of the pi e- angle
+        double polarization_sum = (double(i == j) - (i==1)*(j==1)*(1. - cos*cos) - (i==3)*(j==3)*(cos*cos));
+
+        complex<double> lepton_tensor = E*E * 2.*s * polarization_sum;
         complex<double> photon_propagator = norm(XI / s);
         return lepton_tensor  * photon_propagator;
     };
 
+    // Without specifying an angle this produces the result integrated over the pion angle
+    // which is equivalent to setting cos = 0;
+    inline complex<double> production_tensor(int i, int j, double s)
+    {
+        return production_tensor(i, j, s, 0.);
+    };
+
     // -----------------------------------------------------------------------
+    
     protected:
 
     // Variable for setting cases for debugging messages
