@@ -5,9 +5,9 @@
 #pragma link off all functions;
 #pragma link C++ nestedclasses;
 
-#pragma link C++ defined_in "decay_process.hpp";
+#pragma link C++ defined_in "reaction_kinematics.hpp";
+#pragma link C++ defined_in "amplitude.hpp";
 #pragma link C++ defined_in "propagator.hpp";
-#pragma link C++ defined_in "DsDpi_decay.hpp";
 #pragma link C++ defined_in "triangle.hpp";
 
 #endif
