@@ -58,8 +58,16 @@ class nonrelativistic_triangle : public triangle
 {
     public:
 
-    // Simple one function and thats it 
+    // Simple 
     complex<double> eval();
+
+    // Option to change the numerical epsilon used
+    void set_ieps(double e){ _eps = e; };
+
+    private:
+
+    // Default iepsilon perscription
+    double _eps = EPS;
 };
 
 

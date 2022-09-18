@@ -67,8 +67,8 @@ complex<double> nonrelativistic_triangle::eval()
 
     double prefactors = (mu_AC*mu_BC) / (16.*PI*_imA*_imB*_imC);
 
-    complex<double> cut_1 = atan( (c_2 - c_1)        / sqrt( 4.*a*(c_1     - IEPS) ));
-    complex<double> cut_2 = atan( (c_2 - c_1 - 2.*a) / sqrt( 4.*a*(c_2 - a - IEPS) ));
+    complex<double> cut_1 = atan( (c_2 - c_1)        / sqrt( 4.*a*(c_1     - XI * _eps) ));
+    complex<double> cut_2 = atan( (c_2 - c_1 - 2.*a) / sqrt( 4.*a*(c_2 - a - XI * _eps) ));
 
     return prefactors / sqrt(a) * (cut_1 - cut_2);
 };
