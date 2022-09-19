@@ -4,7 +4,7 @@ file(GLOB SRC "*.cpp")
 ROOT_GENERATE_DICTIONARY(G__EE3BODY
         reaction_kinematics.hpp
         amplitude.hpp
-        propagator.hpp
+        breit_wigner.hpp
         triangle.hpp
         hadronic_molecule.hpp
         LINKDEF EE3BODYLinkDef.h
