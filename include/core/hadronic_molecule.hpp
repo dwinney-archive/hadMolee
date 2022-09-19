@@ -73,8 +73,8 @@ class DsD_molecule : public hadronic_molecule
     : hadronic_molecule(M_DSTAR, M_D, id)
     {
         // Mass and Width from PDG
-        _bare_mass          = M_Z;
-        _total_width        = 28.4E-3;
+        _bare_mass          = M_Z3900;
+        _total_width        = W_Z3900;
         
         // Coupling taken from [1]
         _bare_coupling      = 0.77;
