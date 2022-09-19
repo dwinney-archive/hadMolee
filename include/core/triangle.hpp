@@ -19,14 +19,19 @@ class triangle
 {
     public:
 
+    // Empty, default constructor
     triangle()
     {};
 
+    // Parameterized constructor that sets masses
     triangle(array<double,3> external_masses, array<double,3> internal_masses)
     {
         set_external_masses(external_masses);
         set_internal_masses(internal_masses);
     };
+
+    // Nothing special needed for destructor
+    virtual ~triangle() = default;
 
     // Evaluate as a function of the initial state invariant mass
     virtual complex<double> eval() = 0;
@@ -58,6 +63,14 @@ class nonrelativistic_triangle : public triangle
 {
     public:
 
+    nonrelativistic_triangle()
+    : triangle()
+    {};
+
+    nonrelativistic_triangle(array<double,3> external_masses, array<double,3> internal_masses)
+    : triangle(external_masses, internal_masses)
+    {};
+
     // Simple 
     complex<double> eval();
 
@@ -79,6 +92,15 @@ class relativistic_triangle : public triangle
     // -----------------------------------------------------------------------
 
     public:
+
+    relativistic_triangle()
+    : triangle()
+    {};
+
+    relativistic_triangle(array<double,3> external_masses, array<double,3> internal_masses)
+    : triangle(external_masses, internal_masses)
+    {};
+
 
     // Evaluate by integrating over Feynman parameters
     complex<double> eval();
