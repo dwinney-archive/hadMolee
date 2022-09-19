@@ -105,8 +105,8 @@ double amplitude::dGamma_ac(double s, double sac)
 {
     auto F = [&](double sbc)
     {
-        double sac = _ma2 + _mb2 + _mc2 + s - sac - sbc;
-        return d2Gamma(s, sac, sbc);
+        double sab = _ma2 + _mb2 + _mc2 + s - sac - sbc;
+        return d2Gamma(s, sab, sbc);
     };
 
     ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS31);

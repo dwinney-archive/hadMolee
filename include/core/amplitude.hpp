@@ -48,6 +48,9 @@ class amplitude
     // Debugging variable 
     inline void set_debug(int x){ _debug = x; };
 
+    // Every amplitude needs to be able to specify how set free parameters
+    virtual void set_parameters(vector<double> pars){ return; };
+
     // Output the amplitude at fixed helicities for photon and particle a 
     // Needs array of two helicities (inital vector and outgoing vector) 
     virtual complex<double> reduced_amplitude(int i, int j) = 0;
@@ -70,8 +73,11 @@ class amplitude
     // This is phase-space dependent so also must specify an s 
     inline void normalize(double N, double s)
     {
-        _normalize = true;
+        // If previously normalized, reset
+        if (_normalize == true) _normalization = 1.;
+
         _normalization = N / Gamma(s);
+        _normalize = true;
     }
     
     // -----------------------------------------------------------------------
@@ -137,9 +143,6 @@ class phase_space : public amplitude
     // The averaging factor for the Y meson is handled in the width definition
     inline complex<double> reduced_amplitude(int i, int j) 
     { return (i == j) * XR; };
-
-    // -----------------------------------------------------------------------
-    protected:
 };
 
 #endif 
