@@ -5,21 +5,19 @@
 // Email:        dwinney@scnu.edu.cn
 // ---------------------------------------------------------------------------
 
-#ifndef PROPAGATORS
-#define PROPAGATORS
+#ifndef BREITWIGNER
+#define BREITWIGNER
 
 #include "constants.hpp"
 
-#include <boost/math/differentiation/finite_difference.hpp>
-
 // First the abstract class that can be called from anywhere
-class propagator
+class breit_wigner
 {
     public: 
 
     // Default constructor only requires a 'bare' mass 
-    propagator(double mass)
-    : _M(mass)
+    breit_wigner(double mass, double width = 0.)
+    : _mass(mass), _width(width)
     {};
 
     // Main function, evaluates as a function of one variable
@@ -28,50 +26,43 @@ class propagator
 
     protected:
 
-    // Pole mass is the only 
-    double _M;
+    // Pole mass is only really needed parameter 
+    double _mass;
+
+    // But may also allow a width
+    double _width;
 };
 
 // Relativistic BW with constant width
-class relativistic_BW : public propagator
+class relativistic_BW : public breit_wigner
 {
     public: 
     // Default constructor takes in a pole mass and a constant width
     relativistic_BW(double mass, double width)
-    : propagator(mass), _Gamma(width)
+    : breit_wigner(mass, width)
     {};
 
     inline complex<double> eval(double s)
     {
-        complex<double> D =  (s - _M*_M) + XI * _M*_Gamma;
+        complex<double> D =  (s - _mass*_mass) + XI * _mass*_width + IEPS;
         return XI / D;
     };
-
-    private:
-
-    // Constant width
-    double _Gamma;
 };
 
 // Non-relativistic BW with constant width
-class nonrelativistic_BW : public propagator
+class nonrelativistic_BW : public breit_wigner
 {
     public: 
     // Default constructor takes in a pole mass and a constant width
     nonrelativistic_BW(double mass, double width)
-    : propagator(mass), _Gamma(width)
+    : breit_wigner(mass, width)
     {};
 
     inline complex<double> eval(double E)
     {
-        complex<double> D =  (E - _M) + XI * _Gamma/2.;
+        complex<double> D =  (E - _mass) + XI * _width/2. + IEPS;
         return XI / (2. * D);
     };
-
-    private:
-
-    // Constant width
-    double _Gamma;
 };
 
 #endif
