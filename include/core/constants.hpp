@@ -56,7 +56,7 @@ const double M_CHIC1     = 3.51067;
 
 // Exotics
 const double M_Y4260     = 4.2227;
-const double M_Z3900     = 3.8871;
+const double M_ZC3900    = 3.8871;
 
 // ---------------------------------------------------------------------------
 // 2022 PDG widths in GeV
@@ -64,7 +64,7 @@ const double M_Z3900     = 3.8871;
 const double W_D1       = 31.3E-3; // Charged (narrow) D1
 const double W_D10      = 314.E-3; // Neutral (wide) D1
 const double W_Y4260    = 49.E-3;  
-const double W_Z3900    = 28.4E-3;
+const double W_ZC3900   = 28.4E-3;
 
 // ---------------------------------------------------------------------------
 // Couplings associated with HQSS and previous analyses 
@@ -78,8 +78,11 @@ const double HP_D        = 1.17;     // GeV^-2 D-wave D1 Ds pi coupling
 const double HP_S        = 0.57;     //        S-wave D1 Ds pi coupling
 
 // Here we assume the full D1 width is saturated by the D-wave 
-const double HP          = 2.21394;     // GeV^-2 D-wave D1Dspi [from arXiv:2001.05884]
+const double HP          = 2.21394;  // GeV^-2 D-wave D1Dspi [from arXiv:2001.05884]
 
+// S-wave polynomial couplings from [from arXiv:2001.05884]
+const double S_A         = -6.72;     // GeV^-1
+const double S_B         = -15.28;    // GeV^-1
 
 // ---------------------------------------------------------------------------
 // Overload of multiplcation for a bool and complex<double>

@@ -73,11 +73,11 @@ class DsD_molecule : public hadronic_molecule
     : hadronic_molecule(M_DSTAR, M_D, id)
     {
         // Mass and Width from PDG
-        _bare_mass          = M_Z3900;
-        _total_width        = W_Z3900;
+        _bare_mass          = M_ZC3900;
+        _total_width        = W_ZC3900;
         
         // Coupling taken from [1]
-        _bare_coupling      = 0.77;
+        _bare_coupling      = C_Z;
         
         // residual width taken to recover the full PDG width at the pole
         _nonmolecular_width = _total_width - 2.* imag(self_energy(_bare_mass));

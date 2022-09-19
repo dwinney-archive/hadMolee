@@ -26,7 +26,7 @@ class DsDpi_swave : public amplitude
     inline complex<double> reduced_amplitude(int i, int j)
     {
         // sab is assumed to be DsD channel
-        complex<double> A_S = _a * (_sab + _b) * Z.propagator(_W);
+        complex<double> A_S = _a * (_sab + _b) * Z.propagator(sqrt(_sab));
 
         // Being S-wave the s-wave strength gets multiplied by a delta-function
         return A_S * (i == j);
@@ -45,7 +45,7 @@ class DsDpi_swave : public amplitude
     private:
 
     // Parameterize with two real polynomial coefficients
-    double _a, _b;
+    double _a = S_A, _b = S_B;
 
     // This channel recieves contribution from the Z(3900)
     DsD_molecule Z;
