@@ -22,6 +22,8 @@ class amplitude
     // -----------------------------------------------------------------------
     public: 
 
+    friend class amplitude_sum;
+
     amplitude(reaction_kinematics * xkinem, hadronic_molecule * Y, int n, string classname, string id = "")
     : _kinematics(xkinem), _Y_meson(Y),
       _nparams(n), _id(id), _classname(classname)
@@ -50,6 +52,9 @@ class amplitude
 
     // Every amplitude needs to be able to specify how set free parameters
     virtual void set_parameters(vector<double> pars){ return; };
+
+    // Function to output the number of parameters this amplitude takes
+    inline int get_nParams(){ return _nparams; };
 
     // Output the amplitude at fixed helicities for photon and particle a 
     // Needs array of two helicities (inital vector and outgoing vector) 
@@ -93,6 +98,9 @@ class amplitude
     // Whether or not to normalize the widths to a given constant
     bool _normalize = false;
     double _normalization = 1.;
+
+    // Set function but kept internal (really only used by the amplitude_sum class)
+    inline void set_nParams(int n){ _nparams = n; };
 
     // Check that passes vector is correct size for expected number of parameters
     inline void check_nParams(vector<double> params)

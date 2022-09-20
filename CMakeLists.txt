@@ -57,7 +57,8 @@ else()
     message("-- jpacStyle not found!")
 endif()
 
-# Find the jpacStyle library
+##-----------------------------------------------------------------------
+# Find the cubature  library
 find_library(CUBATURELIB NAMES cubature libcubature
                        HINTS "$ENV{CUBATURE}/lib")
 if (CUBATURELIB)
@@ -65,6 +66,17 @@ if (CUBATURELIB)
     message("-- cubature found! (${CUBATURELIB})")
 else()
     message("-- cubature not found!")
+endif()
+
+##-----------------------------------------------------------------------
+# Find the LoopTools library
+find_library(LOOPLIB NAMES LoopTools libooptools.a
+                       HINTS "$ENV{LOOPTOOLS}/lib")
+if (LOOPLIB)
+    include_directories($ENV{LOOPTOOLS}/include)
+    message("-- LoopTools found! (${LOOPLIB})")
+else()
+    message("-- LoopTools not found!")
 endif()
 
 ##-----------------------------------------------------------------------

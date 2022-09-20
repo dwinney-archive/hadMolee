@@ -79,6 +79,7 @@ double amplitude::dGamma_ab(double s, double sab)
     double sbc_min = _kinematics->sbc_from_sab(s, sab, -1.);
     double sbc_max = _kinematics->sbc_from_sab(s, sab, +1.);
 
+    if (abs(sbc_min - sbc_max) < EPS) return 0.;
     return ig.Integral(sbc_min, sbc_max);
 };
 
@@ -97,6 +98,7 @@ double amplitude::dGamma_bc(double s, double sbc)
     double sab_min = _kinematics->sab_from_sbc(s, sbc, -1.);
     double sab_max = _kinematics->sab_from_sbc(s, sbc, +1.);
 
+    if (abs(sab_min - sab_max) < EPS) return 0.;
     return ig.Integral(sab_min, sab_max);
 };
 
@@ -116,6 +118,7 @@ double amplitude::dGamma_ac(double s, double sac)
     double sbc_min = _kinematics->sbc_from_sac(s, sac, -1.);
     double sbc_max = _kinematics->sbc_from_sac(s, sac, +1.);
 
+    if (abs(sbc_min - sbc_max) < EPS) return 0.;
     return ig.Integral(sbc_min, sbc_max);
 };
 
