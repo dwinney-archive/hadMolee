@@ -25,7 +25,7 @@ class amplitude
     friend class amplitude_sum;
 
     amplitude(reaction_kinematics * xkinem, hadronic_molecule * Y, int n, string classname, string id = "")
-    : _kinematics(xkinem), _Y_meson(Y),
+    : _kinematics(xkinem), _Y(Y),
       _nparams(n), _id(id), _classname(classname)
     {
         array<double, 3> m = xkinem->get_masses();
@@ -37,7 +37,7 @@ class amplitude
     reaction_kinematics * _kinematics; 
 
     // Y-meson properties
-    hadronic_molecule * _Y_meson;
+    hadronic_molecule * _Y;
 
     // Access the id tag of this amplitude
     inline void   set_id(string id){ _id = id; };
@@ -117,7 +117,30 @@ class amplitude
         _W = sqrt(s); _s = s;
         _sab = sab; _sbc = sbc;
         _sac = _ma2 + _mb2 + _mc2 + s - sab - sbc;
+
+        _updated = true;
     };
+
+    // If recently updated, reset the _updated flag and return 1
+    // if not then return 0
+    // This is used to check if quantities need to be recalculated if energies have not changed
+    bool _updated = false;
+    inline bool updated()
+    {
+        if (_updated)
+        {
+            _updated = false;
+            return true;
+        }
+        return false;
+    }; 
+    virtual void recalculate(){ return; };
+
+    // Save all the components of the reduced amplitude at each step of sab and bc to avoid having to recalculate
+    vector< vector< complex<double> > > _cached_amplitudes;
+    double _cache_tolerance = EPS;
+    double _cached_s, _cached_sab, _cached_sbc;
+    void check_cache();
 
     // Total invairant energies
     double _W, _s;
@@ -143,7 +166,7 @@ class phase_space : public amplitude
 
     ~phase_space()
     {
-        delete _Y_meson;
+        delete _Y;
     }
 
     // Return a constant for all the amplitudes. 

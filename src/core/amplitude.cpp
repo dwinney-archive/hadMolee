@@ -7,29 +7,58 @@
 #include "amplitude.hpp"
 
 // ---------------------------------------------------------------------------
+// At each energy step we cach all the components of the reduced amplitude tensor to minimize re-calculation
+
+inline void amplitude::check_cache()
+{
+    bool need_recalculate;
+    need_recalculate = (_cached_amplitudes.size() != 3 || _cached_amplitudes[0].size() != 3 ) 
+                        || (abs(_cached_s - _s) > _cache_tolerance) 
+                        || (abs(_cached_sab - _sab) > _cache_tolerance) 
+                        || (abs(_cached_sbc - _sbc) > _cache_tolerance);
+    if (need_recalculate)
+    {
+        _cached_amplitudes.clear();
+        for (int i = 1; i < 4; i++)
+        {
+            vector<complex<double>> i_slice;
+            for (int j = 1; j < 4; j++)
+            {
+                i_slice.push_back( reduced_amplitude(i, j) );
+            }
+
+            _cached_amplitudes.push_back(i_slice);
+        };
+    };
+};
+
+// ---------------------------------------------------------------------------
 // Spin-summed amplitude squared. 
 double amplitude::probability_distribution(double s, double sab, double sbc)
 {
     // Update the saved energy values for easier access later
     update(s, sab, sbc);
 
+    // Check if we need to update our precalculated amplitudes 
+    check_cache();
+
     double sum = 0;
 
     // Contract over Cartesian indices
-    for (int i = 1; i < 4; i++)
+    for (int i = 0; i < 3; i++)
     {
-        for (int j = 1; j < 4; j++)
+        for (int j = 0; j < 3; j++)
         {
-            for (int k = 1; k < 4; k++)
+            for (int k = 0; k < 3; k++)
             {
                 complex<double> x;
-                x  = _kinematics->production_tensor(i, j, s);
-                x *= _Y_meson->propagator(s);
-                x *=      reduced_amplitude(j, k);
-                x *= conj(reduced_amplitude(k, i));
+                x  = _kinematics->production_tensor(i+1, j+1, s);
+                x *= _Y->propagator(s);
+                x *=      _cached_amplitudes[j][k];
+                x *= conj(_cached_amplitudes[k][i]);
 
                 if (imag(x) > 1.E-5) warning("probability_distribution", "Spin sum squared is imaginary!!!!");
-                
+
                 sum += real(x);
             };
         };
