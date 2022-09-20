@@ -44,6 +44,11 @@ class triangle
     inline void set_external_masses(array<double,3> m)
     { _emA  = m[0];      _emB  = m[1];      _emC  = m[2]; 
       _emA2 = m[0]*m[0]; _emB2 = m[1]*m[1]; _emC2 = m[2]*m[2]; }
+    
+    // Add a constant width to an internal propagator
+    inline void add_width_a(double g){ _wA = g; };
+    inline void add_width_b(double g){ _wB = g; };
+    inline void add_width_c(double g){ _wC = g; };
 
     protected:
 
@@ -54,6 +59,7 @@ class triangle
     // Internal masses
     double _imA,  _imB,  _imC;
     double _imA2, _imB2, _imC2;
+    double _wA = 0., _wB = 0., _wC = 0.; // Widths
 };
 
 // ---------------------------------------------------------------------------

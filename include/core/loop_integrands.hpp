@@ -20,16 +20,17 @@ class triangle_integrand
     triangle_integrand(){};
 
     // Get masses squared from the parent triangle function
-    inline void update_masses(array<double,3> ex_m2, array<double,3> in_m2)
+    inline void update_masses(array<double,3> ex_m2, array<double,3> in_m2, array<double,3> in_w)
     {
         _ema2 = ex_m2[0]; _emb2 = ex_m2[1]; _emc2 = ex_m2[2];
         _ima2 = in_m2[0]; _imb2 = in_m2[1]; _imc2 = in_m2[2];
+        _wa   =  in_w[0]; _wb   =  in_w[1]; _wc   =  in_w[2];
     };
 
     // Evaluate the integrand at fixed values of the feynman parameters
     inline complex<double> eval(double x1, double x2, double x3)
     {
-        double D = x1*_ima2 + x2*_imb2 + x3*_imc2 - x1*x3*_emb2 - x1*x2*_emc2 - x2*x3*_ema2;
+        complex<double> D = x1*(_ima2 - XI*sqrt(_ima2)*_wa) + x2*(_imb2 - XI*sqrt(_imb2)*_wb) + x3*(_imc2 - XI*sqrt(_imc2)*_wc) - x1*x3*_emb2 - x1*x2*_emc2 - x2*x3*_ema2;
         return 1. / (D - XI*_eps);
     };
 
@@ -46,6 +47,7 @@ class triangle_integrand
     // Need to be able to access the masses
     double _ema2, _emb2, _emc2;
     double _ima2, _imb2, _imc2;
+    double _wa, _wb, _wc;
 };
 
 #endif

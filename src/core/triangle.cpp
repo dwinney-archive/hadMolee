@@ -16,7 +16,7 @@ complex<double> relativistic_triangle::eval()
     double max[2] = {1., 1.};
 
     // Fix the "masses" s and t
-    integrand.update_masses({_emA2, _emB2, _emC2}, {_imA2, _imB2, _imC2});
+    integrand.update_masses({_emA2, _emB2, _emC2}, {_imA2, _imB2, _imC2}, {_wA, _wB, _wC});
 
     // TODO: Set relative errors and max calls to actual good values
     // Integrate over x and y
@@ -50,8 +50,12 @@ int relativistic_triangle::wrapped_integrand(unsigned ndim, const double *in, vo
 
 complex<double> nonrelativistic_triangle::eval()
 {
-    double mu_AC = _imA * _imC / (_imA + _imC);
-    double mu_BC = _imB * _imC / (_imB + _imC);
+    complex<double> imA = _imA - XI*_wA/2.;
+    complex<double> imB = _imB - XI*_wB/2.;
+    complex<double> imC = _imC - XI*_wC/2.;
+
+    complex<double> mu_AC = imA * imC / (imA + imC);
+    complex<double> mu_BC = imB * imC / (imB + imC);
     
     // ieps perscription here is to make sure the cuts line up correctly
     complex<double> q_C = sqrt((_emA2 + IEPS)-pow(_emB+_emC, 2.))*sqrt((_emA2 - IEPS)-pow(_emB-_emC, 2.))/(2.*_emA);
@@ -59,13 +63,13 @@ complex<double> nonrelativistic_triangle::eval()
 
     complex<double> a = pow(q_C*mu_AC/_imA, 2.);
 
-    complex<double> b_AC = _imA + _imC + E_C - _emA;
-    complex<double> b_BC = _imB + _imC       - _emA;
+    complex<double> b_AC = imA + imC + E_C - _emA;
+    complex<double> b_BC = imB + imC       - _emA;
 
     complex<double> c_1 = 2.*mu_BC*b_BC;
-    complex<double> c_2 = 2.*mu_AC*b_AC + q_C*q_C*mu_AC/_imA;
+    complex<double> c_2 = 2.*mu_AC*b_AC + q_C*q_C*mu_AC/imA;
 
-    double prefactors = (mu_AC*mu_BC) / (16.*PI*_imA*_imB*_imC);
+    complex<double> prefactors = (mu_AC*mu_BC) / (16.*PI*imA*imB*imC);
 
     complex<double> cut_1 = atan( (c_2 - c_1)        / sqrt( 4.*a*(c_1     - XI * _eps) ));
     complex<double> cut_2 = atan( (c_2 - c_1 - 2.*a) / sqrt( 4.*a*(c_2 - a - XI * _eps) ));
