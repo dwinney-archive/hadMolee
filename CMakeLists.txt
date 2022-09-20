@@ -8,6 +8,7 @@ set(CMAKE_BUILD_TYPE "Release")
 # Set output lib and bin locations
 set(CMAKE_INSTALL_BINDIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_INSTALL_LIBDIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_BINDIR})
 
 # Make sure executables are always built with the install RPATH 
@@ -59,13 +60,15 @@ endif()
 
 ##-----------------------------------------------------------------------
 # Find the cubature  library
-find_library(CUBATURELIB NAMES cubature libcubature
-                       HINTS "$ENV{CUBATURE}/lib")
-if (CUBATURELIB)
+if (DEFINED $ENV{CUBATURE})
+    find_library( cubature NAMES cubature libcubature
+                           HINTS "$ENV{CUBATURE}/lib")
     include_directories($ENV{CUBATURE}/lib)
-    message("-- cubature found! (${CUBATURELIB})")
+    message("-- cubature found! (${cubature})")
 else()
-    message("-- cubature not found!")
+    message("-- cubature not found! Building locally...")
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cubature)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cubature)
 endif()
 
 ##-----------------------------------------------------------------------
@@ -78,12 +81,6 @@ if (LOOPLIB)
 else()
     message("-- LoopTools not found!")
 endif()
-
-##-----------------------------------------------------------------------
-## Look for BOOST needed for jpacBox
-
-set(BOOST_MIN_VERSION 1.68.0) # Need complex Gauss-Kronrod integration
-find_package(Boost ${BOOST_MIN_VERSION} REQUIRED)
 
 ##-----------------------------------------------------------------------
 # Build core physics library 
