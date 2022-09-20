@@ -72,29 +72,34 @@ class DsDpi_tree : public amplitude
     // however it receives contributions from the propagator of the Z meson
     inline complex<double> reduced_amplitude(int i, int j)
     {
-        double p_pion = _kinematics->decay_momentum_c(_s, _sab);
-
-        // sab is assumed to be DsD channel
-        complex<double> A_S = XI * (_hS / F_PION) * (1./sqrt(6.)) * sqrt(p_pion*p_pion + _mc2);
-        complex<double> A_D = XI * (_hD / F_PION) * (1./sqrt(6.)) * pow( p_pion, 4.);
-
-        // Multiply by the propagator of the D1
-        A_S *= _D1.eval(_sac);
-        A_D *= _D1.eval(_sac);
-
-        // Can use the debug flag to turn on and off the S-wave coupling
-        if (_debug == 1) A_S = 0.;
+        if (updated()) recalculate();
 
         // Being D-wave we get the appropriate projector
         // Assume pion (particle c) defined the +z direction
-        return A_S * (i==j) + A_D * (3.* (i == 3)*(j ==3) - (i == j));
+        return _AS * (i==j) + _AD * (3.* (i == 3)*(j ==3) - (i == j));
     };
 
     // -----------------------------------------------------------------------
     private:
 
-    // We have DsDpi coupling for the S-wave and the D-wave
-    double _hS = HP_S, _hD = HP_D;
+    inline void recalculate()
+    {
+        double p_pion = _kinematics->decay_momentum_c(_s, _sab);
+
+        // Can use the debug flag to turn on and off the S-wave coupling
+        if (_debug == 1) {_hS = 0.; _hD = HP * sqrt(6.);}
+
+        // sab is assumed to be DsD channel
+        _AS = XI * (_hS / F_PION) * (1./sqrt(6.)) * sqrt(p_pion*p_pion + _mc2);
+        _AD = XI * (_hD / F_PION) * (1./sqrt(6.)) * p_pion*p_pion;
+
+        // Multiply by the propagator of the D1 and y coupling
+        _AS *= _Y->coupling() * _D1.eval(_sac);
+        _AD *= _Y->coupling() * _D1.eval(_sac);
+    };
+
+    double _hS = HP_S, _hD = HP_D;  // We have DsDpi coupling for the S-wave and the D-wave
+    complex<double> _AS, _AD;       // Energy dependent S and D wave strengths
 
     // This channel has a D1 resonance in the Ds pi channel
     relativistic_BW _D1;
@@ -111,12 +116,9 @@ class DsDpi_triangle : public amplitude
     
     // Here we can choose whether we want a nonrelativistic triangle or the relativistic version
     // We default to the nonrel version
-    DsDpi_triangle(reaction_kinematics * xkinem, hadronic_molecule * Y, bool relativistic = false, string id = "DsDpi_triangle")
-    : amplitude(xkinem, Y, 0, "DsDpi_triangle", id)
-    {
-        if (relativistic) _T = new relativistic_triangle(_external, _internal);
-        else              _T = new nonrelativistic_triangle(_external, _internal);
-    };
+    DsDpi_triangle(reaction_kinematics * xkinem, hadronic_molecule * Y, string id = "DsDpi_triangle")
+    : amplitude(xkinem, Y, 0, "DsDpi_triangle", id), _T(new nonrelativistic_triangle(_external, _internal))
+    {};
 
     // Destructor needs to clean up the new pointer we made
     ~DsDpi_triangle()
@@ -128,33 +130,50 @@ class DsDpi_triangle : public amplitude
     // however it receives contributions from the propagator of the Z meson
     inline complex<double> reduced_amplitude(int i, int j)
     {
-        double p_pion = _kinematics->decay_momentum_c(_s, _sab);
-
-        // sab is assumed to be DsD channel
-        complex<double> A_S = XI * (_hS / F_PION) * (1./sqrt(6.)) * sqrt(p_pion*p_pion + _mc2);
-        complex<double> A_D = XI * (_hD / F_PION) * (1./sqrt(6.)) * pow( p_pion, 4.);
-
-
-        _T->set_external_masses({_W, sqrt(_sab), M_PION}); // Update arguments with floating Y and Z meson masses
-        
-        // Multiply by the propagator of the Z and triangle function
-        A_S *= - _z*_z * _T->eval() * _Zc.propagator(sqrt(_sab));
-        A_D *= - _z*_z * _T->eval() * _Zc.propagator(sqrt(_sab));
-
-        // Can use the debug flag to turn on and off the S-wave coupling
-        if (_debug == 1) A_S = 0.;
+        // Check if we need to recalculate strengths
+        if (updated()) recalculate();
 
         // Being D-wave we get the appropriate projector
         // Assume pion (particle c) defined the +z direction
-        return A_S * (i==j) + A_D * (3.* (i == 3)*(j ==3) - (i == j));
+        return _AS * (i==j) + _AD * (3.* (i == 3)*(j ==3) - (i == j));
+    };
+
+    // Switch the evaluation of the triangle to the relativistic version
+    inline void use_relativistic(bool x = true)
+    {
+        // Delete the existing pointer
+        delete _T;
+
+        // and reallocate
+        if (x) { _T = new relativistic_triangle   (_external, _internal); } 
+        else   { _T = new nonrelativistic_triangle(_external, _internal); };
     };
 
     // -----------------------------------------------------------------------
     private:
+    
+    inline void recalculate()
+    {
+        double p_pion = _kinematics->decay_momentum_c(_s, _sab);
 
+        // Can use the debug flag to turn on and off the S-wave coupling
+        if (_debug == 1) {_hS = 0.; _hD = HP * sqrt(6.) ;}
+
+        // sab is assumed to be DsD channel
+        _AS = XI * (_hS / F_PION) * (1./sqrt(6.)) * sqrt(p_pion*p_pion + _mc2);
+        _AD = XI * (_hD / F_PION) * (1./sqrt(6.)) * p_pion*p_pion;
+
+        _T->set_external_masses({_W, sqrt(_sab), M_PION}); // Update arguments with floating Y and Z meson masses
+        
+        // Multiply by the propagator of the Z and triangle function
+        double z = _Zc.coupling();
+
+        _AS *= - _Y->coupling() * z*z * _T->eval() * _Zc.propagator(sqrt(_sab));
+        _AD *= - _Y->coupling() * z*z * _T->eval() * _Zc.propagator(sqrt(_sab));
+    };
 
     double _hS = HP_S, _hD = HP_D;  // D1 -> D*pi coupling for the S-wave and the D-wave
-    double _z  = C_Z;                // Z -> D* D coupling
+    complex<double> _AS, _AD;       // Energy dependent S and D wave strengths
 
     // On-shell masses involved in the triangle
     array<double,3> _internal = {M_DSTAR, M_D1,     M_D};

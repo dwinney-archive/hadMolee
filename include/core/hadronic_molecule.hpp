@@ -34,6 +34,12 @@ class hadronic_molecule
     // Evaluate the propagator, the variable here could be E or s depending on if relativsitic or not
     virtual complex<double> propagator(double x){ return 1.; };
 
+    // String identifier
+    inline string get_id(){ return _id; };
+
+    // Output the saved coupling to the constituent channel
+    inline double coupling(){ return _bare_coupling; };
+
     // -----------------------------------------------------------------------
     protected:
 
@@ -49,7 +55,7 @@ class hadronic_molecule
 
     // Constituents masses 
     double _m1, _m2;
-    double _bare_coupling;
+    double _bare_coupling = 1.;
     inline double reduced_mass(){ return _m1 * _m2 / (_m1 + _m2); };
     inline double mass_difference(double E){ return E - _m1 - _m2; };
 
@@ -94,7 +100,22 @@ class DsD_molecule : public hadronic_molecule
 
     // Total width of the Z from the PDG
     double _total_width;
+};
 
+class D1D_molecule : public hadronic_molecule
+{
+    // -----------------------------------------------------------------------
+    public:
+
+    D1D_molecule(string id = "Y(4260)")
+    : hadronic_molecule(M_D1, M_D, id)
+    {
+        // Mass and Width from PDG
+        _bare_mass          = M_Y4260;
+        
+        // Coupling taken from [1]
+        _bare_coupling      = C_Y / sqrt(2.);
+    };
 };
 
 #endif
