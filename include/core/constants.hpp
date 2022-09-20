@@ -69,7 +69,8 @@ const double W_ZC3900   = 28.4E-3;
 // ---------------------------------------------------------------------------
 // Couplings associated with HQSS and previous analyses 
 
-const double C_Z        = 0.77;     // GeV^-2 [from arXiv:1310.2190 ]
+const double C_Z        = 0.77;     // GeV^-2 [ from arXiv:1310.2190  ]
+const double C_Y        = 10.88;    // GeV^-2 [ from arXiv:1605.02407 ]
 const double F_PION     = 92.1E-3;  // Pion decay constant [from arXiv:2201.08253 ]
 
 // The couplings below get the D-wave coupling from the D2 decay then require rest of D1 width to come from S-wave
