@@ -23,17 +23,22 @@ class reaction_kinematics
     public: 
 
     // Constructor with only masses and number of parameters
-    reaction_kinematics(array<double,3> m)
+    reaction_kinematics(array<double,3> m, string id = "abc")
+    : _id(id)
     {
         set_particle_masses(m);
     };
 
     // Constructor that also allows labels
-    reaction_kinematics(array<double,3> m, array<string,3> labels)
+    reaction_kinematics(array<double,3> m, array<string,3> labels, string id = "abc")
+    : _id(id)
     {
         set_particle_masses(m);
         set_particle_labels(labels);
     };
+
+    // Return the string identifier
+    inline string get_id(){ return _id; };
 
     // ------------------------------------------------------------------------------------------------------------------
     // Kinematic quantities 
@@ -199,6 +204,9 @@ class reaction_kinematics
     // -----------------------------------------------------------------------
     
     protected:
+
+    // String identifier
+    string _id;
 
     // Variable for setting cases for debugging messages
     int _debug; 
