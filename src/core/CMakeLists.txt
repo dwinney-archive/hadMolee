@@ -13,7 +13,7 @@ ROOT_GENERATE_DICTIONARY(G__EE3BODY
 
 add_library( EE3BODY SHARED ${SRC} G__EE3BODY.cxx )
 target_link_libraries( EE3BODY ROOT::Core ROOT::MathMore )
-target_link_libraries( EE3BODY ${cubature} )
+target_link_libraries( EE3BODY ${CUBATURELIB} )
 target_link_libraries( EE3BODY ${LOOPLIB} )
 
 install(TARGETS EE3BODY

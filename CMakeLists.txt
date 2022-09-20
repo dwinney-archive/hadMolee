@@ -8,7 +8,6 @@ set(CMAKE_BUILD_TYPE "Release")
 # Set output lib and bin locations
 set(CMAKE_INSTALL_BINDIR ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_INSTALL_LIBDIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_BINDIR})
 
 # Make sure executables are always built with the install RPATH 
@@ -60,15 +59,13 @@ endif()
 
 ##-----------------------------------------------------------------------
 # Find the cubature  library
-if (DEFINED $ENV{CUBATURE})
-    find_library( cubature NAMES cubature libcubature
-                           HINTS "$ENV{CUBATURE}/lib")
+find_library(CUBATURELIB NAMES cubature libcubature
+                       HINTS "$ENV{CUBATURE}/lib")
+if (CUBATURELIB)
     include_directories($ENV{CUBATURE}/lib)
-    message("-- cubature found! (${cubature})")
+    message("-- cubature found! (${CUBATURELIB})")
 else()
-    message("-- cubature not found! Building locally...")
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cubature)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/cubature)
+    message("-- cubature not found!")
 endif()
 
 ##-----------------------------------------------------------------------
