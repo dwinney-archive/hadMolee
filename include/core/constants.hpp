@@ -11,6 +11,9 @@
 
 #include <cmath>
 #include <complex>
+#include <array>
+#include <vector>
+#include <iostream>
 #include "debug.hpp"
 
 // ---------------------------------------------------------------------------
