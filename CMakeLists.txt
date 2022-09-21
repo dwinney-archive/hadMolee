@@ -1,7 +1,8 @@
 cmake_minimum_required (VERSION 3.0)
 
-project ( EE3BODY )
+project ( EE3BODY LANGUAGES CXX Fortran)
 
+set(BUILD_CLING false)
 set(CMAKE_CXX_FLAGS "-fPIC -O3") 
 set(CMAKE_BUILD_TYPE "Release")
 
@@ -83,6 +84,11 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/core)
 add_subdirectory(src/core)
 
-# Build running and loading executable
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/cling)
-add_subdirectory(src/cling)
+if (BUILD_CLING)
+    # Build running and loading executable
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/cling)
+    add_subdirectory(src/cling)
+endif()
+
+# Build compiled executables
+add_subdirectory(executables)
