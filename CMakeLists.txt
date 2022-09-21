@@ -50,7 +50,6 @@ endif()
 find_library(JSTYLELIB NAMES jpacStyle libjpacStyle 
                        HINTS "$ENV{JPACSTYLE}/lib")
 if (JSTYLELIB)
-    option(BUILD_CLING "" ON)
     include_directories($ENV{JPACSTYLE}/include)
     message("-- jpacStyle found! (${JSTYLELIB})")
 else()
@@ -70,7 +69,7 @@ endif()
 
 ##-----------------------------------------------------------------------
 # Find the LoopTools library
-find_library(LOOPLIB NAMES LoopTools libooptools.a
+find_library(LOOPLIB NAMES LoopTools libLoopTools
                        HINTS "$ENV{LOOPTOOLS}/lib")
 if (LOOPLIB)
     include_directories($ENV{LOOPTOOLS}/include)
