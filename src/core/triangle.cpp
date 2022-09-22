@@ -24,8 +24,7 @@ complex<double> relativistic_triangle::eval()
 
     // Assemble the result as a complex double
     std::complex<double> result(val[0], val[1]);
-    result *= 2.;                  // Factor of 2 from the normalization of dF_3 integration measure
-    result /= 2. * pow(4.*PI, 2.); // Rest of left-over factors from covariant loop normalization
+    result /= pow(4.*PI, 2.); // Rest of left-over factors from covariant loop normalization
 
     return result;
 };

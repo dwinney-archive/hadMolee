@@ -72,7 +72,7 @@ class box_integrand
         _m0  = in_m2[0]; _m1  = in_m2[1]; _m2  = in_m2[2]; _m3  = in_m2[3];
         _w0  =  in_w[0]; _w1  =  in_w[1]; _w2  =  in_w[2]; _w3  =  in_w[3];
 
-        _p03    = st[0];
+        _p02    = st[0];
         _p13    = st[1];
     };
 
@@ -81,21 +81,23 @@ class box_integrand
     {
         complex<double> Y01, Y02, Y03, Y12, Y13, Y23;
 
-        Y01 = (_m0 + XI*sqrt(_m0)*_w0) + (_m1 + XI*sqrt(_m1)*_w1) - _p01;
-        Y02 = (_m0 + XI*sqrt(_m0)*_w0) + (_m2 + XI*sqrt(_m2)*_w2) - _p02;
-        Y03 = (_m0 + XI*sqrt(_m0)*_w0) + (_m3 + XI*sqrt(_m3)*_w3) - _p03;
-        Y12 = (_m1 + XI*sqrt(_m1)*_w1) + (_m2 + XI*sqrt(_m2)*_w2) - _p12;
-        Y13 = (_m1 + XI*sqrt(_m1)*_w1) + (_m3 + XI*sqrt(_m3)*_w3) - _p13;
-        Y23 = (_m2 + XI*sqrt(_m2)*_w2) + (_m3 + XI*sqrt(_m3)*_w3) - _p23;        
+        complex<double> M0 = _m0 - XI*sqrt(_m0*XR)*_w0;
+        complex<double> M1 = _m1 - XI*sqrt(_m1*XR)*_w1;
+        complex<double> M2 = _m2 - XI*sqrt(_m2*XR)*_w2;
+        complex<double> M3 = _m3 - XI*sqrt(_m3*XR)*_w3;
 
-        complex<double> D = x0*x0*(_m0 + XI*sqrt(_m0)*_w0) 
-                          + x1*x1*(_m1 + XI*sqrt(_m1)*_w1)
-                          + x2*x2*(_m2 + XI*sqrt(_m2)*_w2) 
-                          + x3*x3*(_m3 + XI*sqrt(_m3)*_w3)
+        Y01 = M0 + M1 - _p01;
+        Y02 = M0 + M2 - _p02;
+        Y03 = M0 + M3 - _p03;
+        Y12 = M1 + M2 - _p12;
+        Y13 = M1 + M3 - _p13;
+        Y23 = M2 + M3 - _p23;        
+
+        complex<double> D = x0*x0*M0 + x1*x1*M1 + x2*x2*M2 + x3*x3*M3
                           + x0*x1*Y01  + x0*x2*Y02 + x0*x3*Y03
                                        + x1*x2*Y12 + x1*x3*Y13 
                                                    + x2*x3*Y23;
-        return 1. / pow(D - XI*_eps, 2.);
+        return pow(D - XI*_eps, -2.);
     };
 
     // Set the numerical iepsilon used

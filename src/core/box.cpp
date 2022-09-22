@@ -26,8 +26,7 @@ complex<double> relativistic_box::eval()
 
     // Assemble the result as a complex double
     std::complex<double> result(val[0], val[1]);
-    result *= 6.;                  // Factor of 3! from the normalization of dF_4 integration measure
-    result /= 2. * pow(4.*PI, 2.); // Rest of left-over factors from covariant loop normalization
+    result /= - pow(4.*PI, 2.); // Rest of left-over factors from covariant loop normalization
 
     return result;
 };
@@ -44,7 +43,7 @@ int relativistic_box::wrapped_integrand(unsigned ndim, const double *in, void *f
   double z = u *              w ;
   double r = 1. - x - y - z; // redundant parameter
 
-  std::complex<double> result = in[0] * integrand->eval(x, y, z, r);
+  std::complex<double> result = u*u*(1.-w) * integrand->eval(r, x, y, z);
 
   // Split up the real andi imaginary parts to get them out
   fval[0] = std::real(result);
