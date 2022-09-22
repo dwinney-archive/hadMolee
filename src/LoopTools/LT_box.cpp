@@ -17,5 +17,5 @@ complex<double> LT_box::eval()
     else                                 {boxx = D0C(_emA2, _emD2, _emC2, _emB2, _t, _s, _imB2-XI*_imB*_wB, _imA2-XI*_imA*_wA, _imD2-XI*_imD*_wD, _imC2-XI*_imC*_wC);}
     ltexi();
     
-    return - boxx / pow(4.*PI, 2.);
+    return boxx / pow(4.*PI, 2.);
 };
