@@ -10,14 +10,14 @@
 void Load()
 {
     TString LIB_EXT = gSystem->GetSoExt();
+    TString BASE    = gSystem->Getenv("EE3BODY");
 
     //----------------------------------------------------------------------
     // Core physics library
 
-    TString CORE_DIR  = gSystem->Getenv("EE3BODY");
-    TString CORE_INC  = CORE_DIR;
-            CORE_INC += "/include/";
-    TString CORE_LIB  = CORE_DIR;
+    TString CORE_INC  = BASE;
+            CORE_INC += "/include/core";
+    TString CORE_LIB  = BASE;
             CORE_LIB += "/lib/libEE3BODY.";
             CORE_LIB += LIB_EXT;
 
@@ -29,6 +29,25 @@ void Load()
     else
     {
         Warning("Load", "ee3Body library not found! Path given: %s", CORE_LIB.Data());
+    }
+
+    //----------------------------------------------------------------------
+    // Linked LT physics library
+
+    TString LT_INC  = BASE;
+            LT_INC += "/include/LoopTools";
+    TString LT_LIB  = BASE;
+            LT_LIB += "/lib/libLOOPEXT.";
+            LT_LIB += LIB_EXT;
+
+    if (!gSystem->AccessPathName(LT_LIB.Data()))
+    {
+        gInterpreter->AddIncludePath( LT_INC.Data());
+        Int_t lib = gSystem->Load( LT_LIB.Data());
+    }
+    else
+    {
+        Warning("Load", "LoopTools extention library not found! Path given: %s", LT_LIB.Data());
     }
 
      //----------------------------------------------------------------------

@@ -132,33 +132,4 @@ class relativistic_triangle : public triangle
     static int wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval);
 };
 
-// ---------------------------------------------------------------------------
-// Relativistic triangle calling LoopTools
-
-class LoopTools_triangle : public triangle
-{
-    // -----------------------------------------------------------------------
-
-    public:
-
-    LoopTools_triangle()
-    : triangle()
-    {};
-
-    LoopTools_triangle(array<double,3> external_masses, array<double,3> internal_masses)
-    : triangle(external_masses, internal_masses)
-    {};
-
-    // Evaluate by integrating over Feynman parameters
-    inline complex<double> eval()
-    {
-        ltini();
-        complex<double> tri = C0C(_emA2, _emB2, _emC2, _imB2 - XI*_imB*_wB, _imC2 - XI*_imC*_wC, _imA2 - XI*_imA*_wA);
-        ltexi();
-        
-        return tri;
-    };
-
-};
-
 #endif

@@ -16,11 +16,12 @@ else()
     add_library( EE3BODY SHARED ${SRC} )
 endif()
 
-target_link_libraries( EE3BODY ROOT::Core ROOT::MathMore )
-target_link_libraries( EE3BODY ${CUBATURELIB} )
+if(LOOPLIB)
+    target_link_libraries( EE3BODY LOOPEXT )
+endif()
 
-set_property(TARGET EE3BODY PROPERTY LINKER_LANGUAGE Fortran)
-target_link_libraries( EE3BODY ${LOOPLIB} )
+target_link_libraries( EE3BODY ${CUBATURELIB} )
+target_link_libraries( EE3BODY ROOT::Core ROOT::MathMore ROOT::RIO ROOT::Rint )
 
 install(TARGETS EE3BODY
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

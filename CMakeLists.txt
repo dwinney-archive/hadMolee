@@ -2,7 +2,6 @@ cmake_minimum_required (VERSION 3.0)
 
 project ( EE3BODY LANGUAGES CXX Fortran)
 
-set(BUILD_CLING false)
 set(CMAKE_CXX_FLAGS "-fPIC -O3") 
 set(CMAKE_BUILD_TYPE "Release")
 
@@ -22,6 +21,9 @@ if("${isSystemDir}" STREQUAL "-1")
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_CURRENT_SOURCE_DIR}/lib")
 endif("${isSystemDir}" STREQUAL "-1")
 
+# Optional toggle to turn off generating cling executable
+option(BUILD_CLING "Build cling executable and ROOT Dictionary" "TRUE")
+
 ##-----------------------------------------------------------------------
 ## ROOT finding and connecting
 
@@ -40,6 +42,7 @@ if (ROOT_FOUND)
     include(${ROOT_USE_FILE})
     list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS}) 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAGS}")
+    include_directories(${ROOT_INCLUDE_DIRS})
 else()
     message(SEND_ERROR "-- Root not found")
 endif()
@@ -60,8 +63,8 @@ endif()
 ##-----------------------------------------------------------------------
 # Find the cubature  library
 find_library(CUBATURELIB NAMES cubature libcubature
-                       HINTS "$ENV{CUBATURE}/lib")
-if (CUBATURELIB)
+                         HINTS "$ENV{CUBATURE}/lib")
+if (CUBATURELIB) 
     include_directories($ENV{CUBATURE}/lib)
     message("-- cubature found! (${CUBATURELIB})")
 else()
@@ -71,7 +74,7 @@ endif()
 ##-----------------------------------------------------------------------
 # Find the LoopTools library
 find_library(LOOPLIB NAMES LoopTools libLoopTools
-                       HINTS "$ENV{LOOPTOOLS}/lib")
+                     HINTS "$ENV{LOOPTOOLS}/lib")
 if (LOOPLIB)
     include_directories($ENV{LOOPTOOLS}/include)
     message("-- LoopTools found! (${LOOPLIB})")
@@ -81,14 +84,19 @@ endif()
 
 ##-----------------------------------------------------------------------
 # Build core physics library 
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/core)
+if (LOOPLIB)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/LoopTools)
+    add_subdirectory(src/LoopTools)
+endif()
 add_subdirectory(src/core)
 
 if (BUILD_CLING)
+    message("-- Building cling executable.")
     # Build running and loading executable
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/cling)
     add_subdirectory(src/cling)
+else()
+    message("-- Not building cling executable.")
 endif()
-
-# Build compiled executables
-add_subdirectory(executables)
