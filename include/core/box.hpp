@@ -1,110 +1,91 @@
-// Class to evaluate the scalar triangle function
+// Class to evaluate the scalar box function
+// We assume external particles are: A + B -> C + D
 //
 // Author:       Daniel Winney (2022)
 // Email:        dwinney@scnu.edu.cn
 // ---------------------------------------------------------------------------
 
-#ifndef TRIANGLE
-#define TRIANGLE
+#ifndef BOX
+#define BOX
 
 #include "cubature.h"
 #include "constants.hpp"
 #include "loop_integrands.hpp"
 
+
 // ---------------------------------------------------------------------------
-// Generic triangle class
+// Generic box class
 // Contains the masses and call function common to any implementation
 
-class triangle
+class box
 {
     public:
 
     // Empty, default constructor
-    triangle()
+    box()
     {};
 
     // Parameterized constructor that sets masses
-    triangle(array<double,3> external_masses, array<double,3> internal_masses)
+    box(array<double,4> external_masses, array<double,4> internal_masses)
     {
         set_external_masses(external_masses);
         set_internal_masses(internal_masses);
     };
 
     // Nothing special needed for destructor
-    virtual ~triangle() = default;
+    virtual ~box() = default;
 
     // Evaluate as a function of the initial state invariant mass
     virtual complex<double> eval() = 0;
     double squared(double s){ return norm(eval()); };
 
     // Setting functions for the masses
-    inline void set_internal_masses(array<double,3> m)
-    { _imA  = m[0];      _imB  = m[1];      _imC  = m[2]; 
-      _imA2 = m[0]*m[0]; _imB2 = m[1]*m[1]; _imC2 = m[2]*m[2]; }
-    inline void set_external_masses(array<double,3> m)
-    { _emA  = m[0];      _emB  = m[1];      _emC  = m[2]; 
-      _emA2 = m[0]*m[0]; _emB2 = m[1]*m[1]; _emC2 = m[2]*m[2]; }
+    inline void set_internal_masses(array<double,4> m)
+    { _imA  = m[0];      _imB  = m[1];      _imC  = m[2];      _imD  = m[3];
+      _imA2 = m[0]*m[0]; _imB2 = m[1]*m[1]; _imC2 = m[2]*m[2]; _imD2 = m[3]*m[3]; }
+    inline void set_external_masses(array<double,4> m)
+    { _emA  = m[0];      _emB  = m[1];      _emC  = m[2];      _emD  = m[3];
+      _emA2 = m[0]*m[0]; _emB2 = m[1]*m[1]; _emC2 = m[2]*m[2]; _emD2 = m[3]*m[3]; }
+    inline void set_invariant_masses(double s, double t){ _s = s; _t = t; }
     
     // Add a constant width to an internal propagator
     inline void add_width_a(double g){ _wA = g; };
     inline void add_width_b(double g){ _wB = g; };
     inline void add_width_c(double g){ _wC = g; };
+    inline void add_width_d(double g){ _wD = g; };
 
     protected:
 
     // External masses
-    double _emA,  _emB,  _emC;
-    double _emA2, _emB2, _emC2;
+    double _emA,  _emB,  _emC,  _emD;
+    double _emA2, _emB2, _emC2, _emD2;
 
     // Internal masses
-    double _imA,  _imB,  _imC;
-    double _imA2, _imB2, _imC2;
-    double _wA = 0., _wB = 0., _wC = 0.; // Widths
-};
+    double _imA,  _imB,  _imC,  _imD;
+    double _imA2, _imB2, _imC2, _imD2;
+    double _wA = 0., _wB = 0., _wC = 0., _wD = 0.; // Widths
 
-// ---------------------------------------------------------------------------
-// Analytic expression for scalar triangle by treating all particles as nonrelativistic
-
-class nonrelativistic_triangle : public triangle
-{
-    public:
-
-    nonrelativistic_triangle()
-    : triangle()
-    {};
-
-    nonrelativistic_triangle(array<double,3> external_masses, array<double,3> internal_masses)
-    : triangle(external_masses, internal_masses)
-    {};
-
-    // Simple 
-    complex<double> eval();
-
-    // Option to change the numerical epsilon used
-    void set_ieps(double e){ _eps = e; };
-
-    private:
-
-    // Default iepsilon perscription
-    double _eps = EPS;
+    // We also need two invariant masses
+    double _s;  // Assumed to be the CD system
+    double _t;  // Assumed to be the BD system
 };
 
 
 // ---------------------------------------------------------------------------
-// Relativistic triangle evaluated via Feynman parameters
+// Relativistic box evaluated via explicit numerical integration of Feynman parameters
 
-class relativistic_triangle : public triangle
+class relativistic_box : public box
 {
     // -----------------------------------------------------------------------
 
     public:
 
-    relativistic_triangle()
-    : triangle()
+    relativistic_box()
+    : box()
     {};
 
-    relativistic_triangle(array<double,3> external_masses, array<double,3> internal_masses)
-    : triangle(external_masses, internal_masses)
+    relativistic_box(array<double,4> external_masses, array<double,4> internal_masses)
+    : box(external_masses, internal_masses)
     {};
 
 
@@ -125,10 +106,11 @@ class relativistic_triangle : public triangle
     int _N = 1E7;
 
     // Integrand object which will be used to evaluate the integral with the cubature library
-    triangle_integrand integrand;
+    box_integrand integrand;
 
     // Wrapper for the integrand, callable function of feynman parameters
     static int wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval);
 };
+
 
 #endif

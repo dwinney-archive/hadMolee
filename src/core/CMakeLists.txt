@@ -8,6 +8,7 @@ if (BUILD_CLING)
             amplitude_sum.hpp
             breit_wigner.hpp
             triangle.hpp
+            box.hpp
             hadronic_molecule.hpp
             LINKDEF EE3BODYLinkDef.h
             )
