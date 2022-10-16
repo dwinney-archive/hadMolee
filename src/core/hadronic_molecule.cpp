@@ -34,7 +34,7 @@ complex<double> DsD_molecule::propagator(double E)
 // Bare self-energy, i.e. the simple D1 D bubble in MSbar renormalization
 // Because the D1 has a width, we include this explicitly as a constant
 // This renders the self-energy smoothly defined for all E
-complex<double> D1D_molecule::Sigma(double E)
+complex<double> D1D_molecule::sigma(double E)
 {
     double eps = mass_difference(E);
     double mu  = reduced_mass();
@@ -43,19 +43,15 @@ complex<double> D1D_molecule::Sigma(double E)
     return (-XI*y*y / (8.*PI)) * sqrt( 2.*mu*mu*mu* (eps + XI*W_D1/2.) );
 };
 
+// Calcualte the renormalized self-energy by subtracting away the real parts of the function and its first derivative
 complex<double> D1D_molecule::self_energy(double E)
 {
-    double M0 = _bare_mass;
-    return Sigma(E) - reSigma(M0) - (E - _renormalized_mass) * dSigma.Eval(M0);
+    return sigma(E) - _reS - (E - _renormalized_mass) * _redS;
 };
 
-complex<double> D1D_molecule::Z()
-{
-    return 1. / (1. - dSigma.Eval(_renormalized_mass));
-};
-
+// Full propagator
 complex<double> D1D_molecule::propagator(double E)
 {
-    debug(Z(), _bare_coupling);
-    return (XI / 2.) * Z() / (E - _renormalized_mass - Z()*self_energy(E));
+    complex<double> D = E - _renormalized_mass - _Z*self_energy(E) + XI*_nonmolecular_width/2.;
+    return XI * _Z / (2. * D);
 };

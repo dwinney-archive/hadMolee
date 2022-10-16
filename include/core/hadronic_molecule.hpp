@@ -40,11 +40,11 @@ class hadronic_molecule
     inline string get_id(){ return _id; };
 
     // Output the saved coupling to the constituent channel
-    inline double coupling(){ return _bare_coupling; };
+    virtual inline double coupling(){ return _bare_coupling; };
 
     // Setting utilitites for diffferent parameters that can float
-    inline void set_pole_mass(double x){ _renormalized_mass = x; };
-    inline void set_coupling( double x){ _bare_coupling     = x; };
+    virtual inline void set_pole_mass(double x){ _renormalized_mass = x; };
+    virtual inline void set_coupling( double x){ _bare_coupling     = x; };
 
     // -----------------------------------------------------------------------
     protected:
@@ -123,27 +123,39 @@ class D1D_molecule : public hadronic_molecule
         _bare_coupling      = C_Y;
 
         // Set up the derivator 
-        wSigma = ROOT::Math::Functor1D(this, &D1D_molecule::reSigma);
-        dSigma.SetFunction(wSigma);
+        wsigma = ROOT::Math::Functor1D(this, &D1D_molecule::resigma);
+        dsigma.SetFunction(wsigma);
     };
+
+    // The propagator gains contributions from the self-energy
+    complex<double> propagator(double E);
+
+    // When we change the pole mass, we must recalculate renormalization quantities
+    void set_pole_mass(double x)
+    {
+        _renormalized_mass = x;
+
+        // Precalculate relevant quantities
+        _Z    = 1. / (1. - dsigma.Eval(_renormalized_mass));
+        _reS  = resigma(_renormalized_mass);
+        _redS = dsigma.Eval(_renormalized_mass);
+    };
+
+    private:
 
     // Self-energy from bubble of D1 D scattering and dressed with elastic scattering
     // renomalized
     complex<double> self_energy(double E);
 
     // Bare self-energy just from the bubble of D1 D scattering
-    complex<double> Sigma(double E);
-    inline double reSigma(double E){ return real(Sigma(E)); };
-
-    // Renormalization
-    complex<double> Z();
-
-    // The propagator gains contributions from the self-energy
-    complex<double> propagator(double E);
+    complex<double> sigma(double E);
+    inline double resigma(double E){ return real(sigma(E)); };
 
     // Need to be able to calculate the derivative of the above self-energy
-    ROOT::Math::Functor1D wSigma;
-    ROOT::Math::Derivator dSigma;
+    ROOT::Math::Functor1D wsigma;
+    ROOT::Math::Derivator dsigma;
+
+    double _Z, _reS, _redS;
 };
 
 #endif
