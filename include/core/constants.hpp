@@ -21,7 +21,7 @@
 
 const double PI       = M_PI;
 const double DEG2RAD  = (M_PI / 180.);
-const double RAD2EG   = (180. / M_PI);
+const double RAD2DEG   = (180. / M_PI);
 const double ALPHA    = 1. / 137.;
 const double E        = sqrt(4. * PI * ALPHA);
 const double EULER    = 0.57721566490153286060651209008240243104215933593992;
@@ -31,7 +31,7 @@ const complex<double> XR  (1., 0.);
 const complex<double> XI  (0., 1.);
 
 // Small offsets
-const double           EPS  = 1.E-6;
+const double           EPS  = 1.E-8;
 const complex<double> IEPS  = XI*EPS;
 
 // ---------------------------------------------------------------------------
@@ -91,17 +91,50 @@ const double S_B         = -15.28;    // GeV^-1
 // ---------------------------------------------------------------------------
 // Overload of multiplcation for a bool and complex<double>
 
-inline complex<double> operator * (const bool & a, const complex<double> & b){
-    if (a != 0)
+inline complex<double> operator * (const bool & a, const complex<double> & b)
+{
+    if (a)
         return b;
      else
         return complex<double>(0, 0);
 };
-inline complex<double> operator * (const complex<double> & b, const bool & a){
-    if (a != 0)
+inline complex<double> operator * (const complex<double> & b, const bool & a)
+{
+    if (a)
         return b;
      else
         return complex<double>(0, 0);
+};
+
+// Same thing but with int
+inline complex<double> operator * (const int & a, const complex<double> & b)
+{
+    return complex<double>(a * real(b), a * real(b));
+};
+inline complex<double> operator * (const complex<double> & b, const int & a)
+{
+    return complex<double>(a * real(b), a * real(b));
+};
+
+// ---------------------------------------------------------------------------
+// Function for easier comparison of doubles using the EPS value defined above
+// be careful when using this in general purposes since its a fixed-tolerance comparision and not always appropriate
+
+inline bool is_equal(double a, double b)
+{
+    return ( abs(a) - abs(b) < EPS );
+}
+
+// Same thing for comparing complex doubles
+inline bool is_equal(complex<double> a, complex<double> b)
+{
+    return (is_equal(real(a), real(b)) && is_equal(imag(a), imag(b)));
+};
+
+// Aliases for special cases of the above
+inline bool is_zero(double a)
+{
+    return (abs(a) < EPS);
 };
 
 // ---------------------------------------------------------------------------

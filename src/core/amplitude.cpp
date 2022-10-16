@@ -55,9 +55,10 @@ double amplitude::probability_distribution(double s, double sab, double sbc)
                 x  = _kinematics->production_tensor(i+1, j+1, s);
                 x *= _Y->propagator(s);
                 x *=      _cached_amplitudes[j][k];
+                // Polarization sum over the final state vector gives a delta function fixing k here
                 x *= conj(_cached_amplitudes[k][i]);
 
-                if (imag(x) > 1.E-5) warning("probability_distribution", "Spin sum squared is imaginary!!!!");
+                if ( !is_zero(imag(x)) ) warning("probability_distribution", "Spin sum squared is imaginary!!!!");
 
                 sum += real(x);
             };
@@ -127,7 +128,7 @@ double amplitude::dGamma_bc(double s, double sbc)
     double sab_min = _kinematics->sab_from_sbc(s, sbc, -1.);
     double sab_max = _kinematics->sab_from_sbc(s, sbc, +1.);
 
-    if (abs(sab_min - sab_max) < EPS) return 0.;
+    if ( is_equal(sab_min, sab_max) ) return 0.;
     return ig.Integral(sab_min, sab_max);
 };
 
@@ -147,7 +148,7 @@ double amplitude::dGamma_ac(double s, double sac)
     double sbc_min = _kinematics->sbc_from_sac(s, sac, -1.);
     double sbc_max = _kinematics->sbc_from_sac(s, sac, +1.);
 
-    if (abs(sbc_min - sbc_max) < EPS) return 0.;
+    if ( is_equal(sbc_min, sbc_max) ) return 0.;
     return ig.Integral(sbc_min, sbc_max);
 };
 

@@ -29,11 +29,11 @@ class DsDpi_swave : public amplitude
     // however it receives contributions from the propagator of the Z meson
     inline complex<double> reduced_amplitude(int i, int j)
     {
-        // sab is assumed to be DsD channel
-        complex<double> A_S = _a * (_sab + _b) * _Zc.propagator(sqrt(_sab));
+
+        if (updated()) recalculate();
 
         // Being S-wave the s-wave strength gets multiplied by a delta-function
-        return A_S * (i == j);
+        return _AS * s_wave(i,j);
     };
 
     // Set the two parameters
@@ -51,8 +51,19 @@ class DsDpi_swave : public amplitude
     // Parameterize with two real polynomial coefficients
     double _a = S_A, _b = S_B;
 
+    // S-wave coupling strength
+    complex<double> _AS; 
+
     // This channel recieves contribution from the Z(3900)
     DsD_molecule _Zc;
+
+    // S-wave amplitude is easy, because its only the Z propagator that needs to be calcualted
+    inline void recalculate()
+    {
+        // sab is assumed to be DsD channel
+        _AS = _a * (_sab + _b) * _Zc.propagator(sqrt(_sab));
+
+    };
 };
 
 // ---------------------------------------------------------------------------
@@ -76,7 +87,7 @@ class DsDpi_tree : public amplitude
 
         // Being D-wave we get the appropriate projector
         // Assume pion (particle c) defined the +z direction
-        return _AS * (i==j) + _AD * (3.* (i == 3)*(j ==3) - (i == j));
+        return _AS * s_wave(i,j) + _AD * d_wave(i,j);
     };
 
     // -----------------------------------------------------------------------
@@ -84,14 +95,15 @@ class DsDpi_tree : public amplitude
 
     inline void recalculate()
     {
-        double p_pion = _kinematics->decay_momentum_c(_s, _sab);
+        double p_pion  = _kinematics->decay_momentum_c(_s, _sab);
+        double p2_pion = p_pion*p_pion;
 
         // Can use the debug flag to turn on and off the S-wave coupling
         if (_debug == 1) {_hS = 0.; _hD = HP * sqrt(6.);}
 
         // sab is assumed to be DsD channel
-        _AS = XI * (_hS / F_PION) * (1./sqrt(6.)) * sqrt(p_pion*p_pion + _mc2);
-        _AD = XI * (_hD / F_PION) * (1./sqrt(6.)) * p_pion*p_pion;
+        _AS = XI * (_hS / F_PION) * (1./sqrt(6.)) * sqrt(p2_pion + _mc2);
+        _AD = XI * (_hD / F_PION) * (1./sqrt(6.)) * p2_pion;
 
         // Multiply by the propagator of the D1 and y coupling
         _AS *= _Y->coupling() * _D1.eval(_sac);
@@ -135,7 +147,7 @@ class DsDpi_triangle : public amplitude
 
         // Being D-wave we get the appropriate projector
         // Assume pion (particle c) defined the +z direction
-        return _AS * (i==j) + _AD * (3.* (i == 3)*(j ==3) - (i == j));
+        return _AS * s_wave(i,j) + _AD * d_wave(i,j);
     };
 
     // Switch the evaluation of the triangle to the relativistic version

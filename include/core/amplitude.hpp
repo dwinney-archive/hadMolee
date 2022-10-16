@@ -79,7 +79,11 @@ class amplitude
     inline void normalize(double N, double s)
     {
         // If previously normalized, reset
-        if (_normalize == true) _normalization = 1.;
+        if (_normalize) 
+        { 
+            _normalization = 1.;
+            _normalize = false;
+        };
 
         _normalization = N / Gamma(s);
         _normalize = true;
@@ -134,6 +138,9 @@ class amplitude
         }
         return false;
     }; 
+
+    // If updated() == true, this function should be called to recalculate all member data of the amplitude
+    // which depends on the kinematic state
     virtual void recalculate(){ return; };
 
     // Save all the components of the reduced amplitude at each step of sab and bc to avoid having to recalculate
@@ -151,6 +158,10 @@ class amplitude
     // Masses of the particles
     double _ma,  _mb,  _mc;
     double _ma2, _mb2, _mc2;
+
+    // Short cuts for characteristic angular behavior
+    inline int s_wave(int i, int j) { return (i == j); }                      // S-wave is just a delta-function
+    inline int d_wave(int i, int j) { return 3*(i==3)*(j==3) - (i == j); }; // D-wave 
 };
 
 // Simply amplitude with no energy dependence. 
@@ -173,7 +184,7 @@ class phase_space : public amplitude
     // Since we always sum over helicities of a, we divide normalize so the spin-summed amplitude square equals 1
     // The averaging factor for the Y meson is handled in the width definition
     inline complex<double> reduced_amplitude(int i, int j) 
-    { return (i == j) * XR; };
+    { return s_wave(i,j) * XR; };
 };
 
 #endif 
