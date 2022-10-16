@@ -2,7 +2,7 @@
 file(GLOB SRC "*.cpp")
 
 if (BUILD_CLING)
-    ROOT_GENERATE_DICTIONARY(G__EE3BODY
+    ROOT_GENERATE_DICTIONARY(G__HADMOLEE
             reaction_kinematics.hpp
             amplitude.hpp
             amplitude_sum.hpp
@@ -10,26 +10,26 @@ if (BUILD_CLING)
             triangle.hpp
             box.hpp
             hadronic_molecule.hpp
-            LINKDEF EE3BODYLinkDef.h
+            LINKDEF HADMOLEELinkDef.h
             )
-    add_library( EE3BODY SHARED ${SRC} G__EE3BODY.cxx )
+    add_library( HADMOLEE SHARED ${SRC} G__HADMOLEE.cxx )
 else()
-    add_library( EE3BODY SHARED ${SRC} )
+    add_library( HADMOLEE SHARED ${SRC} )
 endif()
 
 if(LOOPLIB)
-    target_link_libraries( EE3BODY LOOPEXT )
+    target_link_libraries( HADMOLEE LOOPEXT )
 endif()
 
-target_link_libraries( EE3BODY ${CUBATURELIB} )
-target_link_libraries( EE3BODY ROOT::Core ROOT::MathMore ROOT::RIO ROOT::Rint )
+target_link_libraries( HADMOLEE ${CUBATURELIB} )
+target_link_libraries( HADMOLEE ROOT::Core ROOT::MathMore ROOT::RIO ROOT::Rint )
 
-install(TARGETS EE3BODY
+install(TARGETS HADMOLEE
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
 
 if (BUILD_CLING)
-    install (FILES  ${CMAKE_CURRENT_BINARY_DIR}/libEE3BODY_rdict.pcm    
+    install (FILES  ${CMAKE_CURRENT_BINARY_DIR}/libHADMOLEE_rdict.pcm    
             DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()

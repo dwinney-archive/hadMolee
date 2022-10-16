@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
-project ( EE3BODY LANGUAGES CXX Fortran)
+project ( HADMOLEE LANGUAGES CXX Fortran)
 
 set(CMAKE_CXX_FLAGS "-fPIC -O3") 
 set(CMAKE_BUILD_TYPE "Release")
@@ -22,7 +22,7 @@ if("${isSystemDir}" STREQUAL "-1")
 endif("${isSystemDir}" STREQUAL "-1")
 
 # Optional toggle to turn off generating cling executable
-option(BUILD_CLING "Build cling executable and ROOT Dictionary" "TRUE")
+option(BUILD_CLING "Build cling executable and ROOT Dictionary" "FALSE")
 
 ##-----------------------------------------------------------------------
 ## ROOT finding and connecting

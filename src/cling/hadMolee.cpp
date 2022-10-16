@@ -32,12 +32,12 @@ int main(int argc, char **argv)
     argv = new_argv.data();
     argc += 1;    
 
-    TRint * app = new TRint( "ee3Body", &argc, argv);
-    TString EE3BODY = gSystem->Getenv("EE3BODY");
+    TRint * app = new TRint( "hadMolee", &argc, argv);
+    TString EE3BODY = gSystem->Getenv("HADMOLEE");
     
-    if (EE3BODY.Length() == 0) std::cout << "Environment variable EE3BODY not set!" << std::endl;
+    if (EE3BODY.Length() == 0) std::cout << "Environment variable HADMOLEE not set!" << std::endl;
     
-    app->ProcessLine(".x $EE3BODY/src/cling/Load.C");
+    app->ProcessLine(".x $HADMOLEE/src/cling/Load.C");
     app->ProcessLine(Form(".x %s", macroName.Data()));
     app->Terminate(0);
 

@@ -10,7 +10,7 @@
 void Load()
 {
     TString LIB_EXT = gSystem->GetSoExt();
-    TString BASE    = gSystem->Getenv("EE3BODY");
+    TString BASE    = gSystem->Getenv("HADMOLEE");
 
     //----------------------------------------------------------------------
     // Core physics library
@@ -18,7 +18,7 @@ void Load()
     TString CORE_INC  = BASE;
             CORE_INC += "/include/core";
     TString CORE_LIB  = BASE;
-            CORE_LIB += "/lib/libEE3BODY.";
+            CORE_LIB += "/lib/libHADMOLEE.";
             CORE_LIB += LIB_EXT;
 
     if (!gSystem->AccessPathName(CORE_LIB.Data()))
@@ -28,7 +28,7 @@ void Load()
     }
     else
     {
-        Warning("Load", "ee3Body library not found! Path given: %s", CORE_LIB.Data());
+        Warning("Load", "hadMolee library not found! Path given: %s", CORE_LIB.Data());
     }
 
     //----------------------------------------------------------------------
