@@ -1,2 +1,2 @@
-# Y-decays
-Amplitudes for three-body decays of Y(4260) in e+e- reactions
+# hadMoleEE
+Amplitudes for hadronic molecules in e+e- production processes. Current focus on three-body decays but expandable to other final states as well.
