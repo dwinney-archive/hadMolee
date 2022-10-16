@@ -12,6 +12,8 @@
 #ifndef MOLECULE
 #define MOLECULE
 
+#include "Math/Functor.h"
+#include "Math/Derivator.h"
 #include "constants.hpp"
 
 // ---------------------------------------------------------------------------
@@ -39,6 +41,10 @@ class hadronic_molecule
 
     // Output the saved coupling to the constituent channel
     inline double coupling(){ return _bare_coupling; };
+
+    // Setting utilitites for diffferent parameters that can float
+    inline void set_pole_mass(double x){ _renormalized_mass = x; };
+    inline void set_coupling( double x){ _bare_coupling     = x; };
 
     // -----------------------------------------------------------------------
     protected:
@@ -114,8 +120,30 @@ class D1D_molecule : public hadronic_molecule
         _bare_mass          = M_Y4260;
         
         // Coupling taken from [1]
-        _bare_coupling      = C_Y / sqrt(2.);
+        _bare_coupling      = C_Y;
+
+        // Set up the derivator 
+        wSigma = ROOT::Math::Functor1D(this, &D1D_molecule::reSigma);
+        dSigma.SetFunction(wSigma);
     };
+
+    // Self-energy from bubble of D1 D scattering and dressed with elastic scattering
+    // renomalized
+    complex<double> self_energy(double E);
+
+    // Bare self-energy just from the bubble of D1 D scattering
+    complex<double> Sigma(double E);
+    inline double reSigma(double E){ return real(Sigma(E)); };
+
+    // Renormalization
+    complex<double> Z();
+
+    // The propagator gains contributions from the self-energy
+    complex<double> propagator(double E);
+
+    // Need to be able to calculate the derivative of the above self-energy
+    ROOT::Math::Functor1D wSigma;
+    ROOT::Math::Derivator dSigma;
 };
 
 #endif
