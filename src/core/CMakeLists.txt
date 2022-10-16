@@ -1,7 +1,7 @@
 # BUILD LIBRARY FROM LOCAL FiLES
 file(GLOB SRC "*.cpp")
 
-if (BUILD_CLING)
+if (BUILD_DICTIONARY)
     ROOT_GENERATE_DICTIONARY(G__HADMOLEE
             reaction_kinematics.hpp
             amplitude.hpp
@@ -29,7 +29,7 @@ install(TARGETS HADMOLEE
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
 
-if (BUILD_CLING)
+if (BUILD_DICTIONARY)
     install (FILES  ${CMAKE_CURRENT_BINARY_DIR}/libHADMOLEE_rdict.pcm    
             DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()

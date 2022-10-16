@@ -22,7 +22,8 @@ if("${isSystemDir}" STREQUAL "-1")
 endif("${isSystemDir}" STREQUAL "-1")
 
 # Optional toggle to turn off generating cling executable
-option(BUILD_CLING "Build cling executable and ROOT Dictionary" "FALSE")
+option(BUILD_CLING "Build cling executable" "TRUE")
+option(BUILD_DICTIONARY "Build ROOT pcm files" "FALSE")
 
 ##-----------------------------------------------------------------------
 ## ROOT finding and connecting
@@ -94,6 +95,13 @@ add_subdirectory(src/core)
 
 if (BUILD_CLING)
     message("-- Building cling executable.")
+
+    if (BUILD_DICTIONARY)
+        message("-- Building ROOT dictionary (.pcm files)")
+    else()
+        message("-- Not building ROOT dictionary (.pcm files)")
+    endif()
+    
     # Build running and loading executable
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/cling)
     add_subdirectory(src/cling)
