@@ -27,8 +27,8 @@ class hadronic_molecule
 
     // Constructor requires setting the masses of constituent
     // Set the constituent channel masses
-    hadronic_molecule(double m1, double m2)
-    : _m1(m1), _m2(m2)
+    hadronic_molecule(double m1, double m2, int npars)
+    : _m1(m1), _m2(m2), _npars(npars)
     {};
 
     // Evaluate the propagator
@@ -43,16 +43,10 @@ class hadronic_molecule
     // virtual inline void set_coupling( double x){ _bare_coupling     = x; };
 
     // Set pole mass ,coupling, and non-mol width in a single call
-    virtual inline void set_parameters(array<double,3> pars)
+    virtual inline void set_parameters(vector<double> pars)
     {
-        if (pars.size() != 3)
-        {
-            warning("hadronic_molecule", "Wrong number of parameters given! Expected 3 but recieved " + to_string(pars.size()) + ". Results may vary...");
-        };
-
-        _pole_mass    = pars[0];
-        _coupling     = pars[1];
-        _nonmol_width = pars[2];
+        check_size(pars);
+        return;
     };  
 
     // -----------------------------------------------------------------------
@@ -79,6 +73,15 @@ class hadronic_molecule
 
     // Self-energy loop function
     virtual complex<double> self_energy(double x){ return 0.; };
+
+    void check_size(vector<double> pars)
+    {
+        if (pars.size() != _npars)
+        {
+            warning("hadronic_molecule", "Wrong number of parameters given! Expected 3 but recieved " + to_string(pars.size()) + ". Results may vary...");
+        };
+    }
+    int _npars = 0;
 };
 
 // ---------------------------------------------------------------------------
@@ -90,7 +93,7 @@ class DsD_molecule : public hadronic_molecule
     public:
 
     DsD_molecule()
-    : hadronic_molecule(M_DSTAR, M_D)
+    : hadronic_molecule(M_DSTAR, M_D, 0)
     {
         // Mass and Width from PDG
         _pole_mass          = M_ZC3900;
@@ -125,7 +128,7 @@ class D1D_molecule : public hadronic_molecule, public charmoniumlike
     public:
 
     D1D_molecule(string id = "Y(4260)")
-    : hadronic_molecule(M_D1, M_D), charmoniumlike(id)
+    : hadronic_molecule(M_D1, M_D, 4), charmoniumlike(id)
     {
         // Mass and Width from PDG
         _pole_mass     = M_Y4260;
@@ -141,18 +144,22 @@ class D1D_molecule : public hadronic_molecule, public charmoniumlike
     // The propagator gains contributions from the self-energy
     complex<double> propagator(double s);
 
+    // Since Y-meson is also charmonium-like it requires a photon coupling
+    complex<double> photon_coupling()
+    {
+        return XI * E * _pole_mass*_pole_mass / _fY;
+    };
+
     // When we change the pole mass, we must recalculate renormalization quantities
     // Set pole mass ,coupling, and non-mol width in a single call
-    inline void set_parameters(array<double,3> pars)
+    inline void set_parameters(vector<double> pars)
     {
-        if (pars.size() != 3)
-        {
-            warning("D1D_molecule", "Wrong number of parameters given! Expected 3 but recieved " + to_string(pars.size()) + ". Results may vary...");
-        };
+        check_size(pars);
 
         _pole_mass    = pars[0];
         _coupling     = pars[1];
         _nonmol_width = pars[2];
+        _fY           = pars[3];
 
         // Precalculate relevant quantities
         _reS  = resigma(_pole_mass);
@@ -174,7 +181,7 @@ class D1D_molecule : public hadronic_molecule, public charmoniumlike
     ROOT::Math::Functor1D wsigma;
     ROOT::Math::Derivator dsigma;
 
-    double _Z, _reS, _redS;
+    double _Z, _reS, _redS, _fY;
 };
 
 #endif

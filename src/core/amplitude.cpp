@@ -52,8 +52,7 @@ double amplitude::probability_distribution(double s, double sab, double sbc)
             {
                 complex<double> x;
                 x  = _kinematics->production_tensor(i+1, j+1, s);
-                x *= _V->photon_coupling();
-                x *= _V->propagator(s);
+                x *= norm(_V->photon_coupling() * _V->propagator(s)); // VMD coupling squared
                 x *=      _cached_amplitudes[j][k];
                 // Polarization sum over the final state vector gives a delta function fixing k here
                 x *= conj(_cached_amplitudes[k][i]);
