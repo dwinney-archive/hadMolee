@@ -18,13 +18,13 @@ class amplitude_sum : public amplitude
     public:
 
     // Basic constructor like parent class
-    amplitude_sum(reaction_kinematics * xkinem, hadronic_molecule * Y, std::string identifer = "amplitude_sum")
-    : amplitude(xkinem, Y, 0, "amplitude_sum", identifer)
+    amplitude_sum(reaction_kinematics * xkinem, charmoniumlike * V, std::string identifer = "amplitude_sum")
+    : amplitude(xkinem, V, 0, "amplitude_sum", identifer)
     {};
 
         // Constructor with a vector already set up
-    amplitude_sum(reaction_kinematics * xkinem,  hadronic_molecule * Y, std::vector<amplitude*> vec, std::string identifer = "amplitude_sum")
-    : amplitude(xkinem, Y, 0, "amplitude_sum", identifer)
+    amplitude_sum(reaction_kinematics * xkinem,  charmoniumlike * V, std::vector<amplitude*> vec, std::string identifer = "amplitude_sum")
+    : amplitude(xkinem, V, 0, "amplitude_sum", identifer)
     {
         // Add the given vector to the store pointers 
         add(vec);

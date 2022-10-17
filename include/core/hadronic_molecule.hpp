@@ -15,6 +15,7 @@
 #include "Math/Functor.h"
 #include "Math/Derivator.h"
 #include "constants.hpp"
+#include "charmoniumlike.hpp"
 
 // ---------------------------------------------------------------------------
 // Generic class, specific implementations for the Y and Z mesons are given below
@@ -24,35 +25,34 @@ class hadronic_molecule
     // -----------------------------------------------------------------------
     public:
 
-    // Empty constructor with nothign set except maybe an id
-    hadronic_molecule(string id = "exotic")
-    {};
-
+    // Constructor requires setting the masses of constituent
     // Set the constituent channel masses
-    hadronic_molecule(double m1, double m2, string id = "exotic")
-    : _m1(m1), _m2(m2), _id(id)
+    hadronic_molecule(double m1, double m2)
+    : _m1(m1), _m2(m2)
     {};
 
     // Evaluate the propagator
     // For standardization the input argument is always asssumed to be s, take the square root internally if we need E
     virtual complex<double> propagator(double s){ return 1.; };
 
-    // String identifier
-    inline string get_id(){ return _id; };
-
     // Output the saved coupling to the constituent channel
-    virtual inline double coupling(){ return _bare_coupling; };
+    virtual inline double molecular_coupling(){ return _coupling; };
 
-    // Setting utilitites for diffferent parameters that can float
-    virtual inline void set_pole_mass(double x){ _renormalized_mass = x; };
-    virtual inline void set_coupling( double x){ _bare_coupling     = x; };
+    // // Setting utilitites for diffferent parameters that can float
+    // virtual inline void set_pole_mass(double x){ _renormalized_mass = x; };
+    // virtual inline void set_coupling( double x){ _bare_coupling     = x; };
 
     // Set pole mass ,coupling, and non-mol width in a single call
     virtual inline void set_parameters(array<double,3> pars)
     {
-        set_pole_mass(pars[0]);
-        set_coupling( pars[1]);
-        _nonmolecular_width = pars[3];
+        if (pars.size() != 3)
+        {
+            warning("hadronic_molecule", "Wrong number of parameters given! Expected 3 but recieved " + to_string(pars.size()) + ". Results may vary...");
+        };
+
+        _pole_mass    = pars[0];
+        _coupling     = pars[1];
+        _nonmol_width = pars[2];
     };  
 
     // -----------------------------------------------------------------------
@@ -62,15 +62,14 @@ class hadronic_molecule
     string _id;
 
     // Masses of the molecule
-    double _bare_mass, _renormalized_mass;
-    double _renomalization_constant;
+    double _pole_mass;
 
     // Width coming from decays other than m1 m2 final state
-    double _nonmolecular_width;
+    double _nonmol_width;
 
     // Constituents masses 
     double _m1, _m2;
-    double _bare_coupling = 1.;
+    double _coupling = 1.;
     inline double reduced_mass(){ return _m1 * _m2 / (_m1 + _m2); };
     inline double mass_difference(double E){ return E - _m1 - _m2; };
 
@@ -90,18 +89,18 @@ class DsD_molecule : public hadronic_molecule
     // -----------------------------------------------------------------------
     public:
 
-    DsD_molecule(string id = "Zc(3900)")
-    : hadronic_molecule(M_DSTAR, M_D, id)
+    DsD_molecule()
+    : hadronic_molecule(M_DSTAR, M_D)
     {
         // Mass and Width from PDG
-        _bare_mass          = M_ZC3900;
+        _pole_mass          = M_ZC3900;
         _total_width        = W_ZC3900;
         
         // Coupling taken from [1]
-        _bare_coupling      = C_Z;
+        _coupling      = C_Z;
         
         // residual width taken to recover the full PDG width at the pole
-        _nonmolecular_width = _total_width - 2.* imag(self_energy(_bare_mass));
+        _nonmol_width = _total_width - 2.* imag(self_energy(_pole_mass));
     };
 
     // The propagator gains contributions from the self-energy
@@ -120,19 +119,19 @@ class DsD_molecule : public hadronic_molecule
 // ---------------------------------------------------------------------------
 // Implementation of D1 D molecule for the Y(4260)
 
-class D1D_molecule : public hadronic_molecule
+class D1D_molecule : public hadronic_molecule, public charmoniumlike
 {
     // -----------------------------------------------------------------------
     public:
 
     D1D_molecule(string id = "Y(4260)")
-    : hadronic_molecule(M_D1, M_D, id)
+    : hadronic_molecule(M_D1, M_D), charmoniumlike(id)
     {
         // Mass and Width from PDG
-        _bare_mass          = M_Y4260;
+        _pole_mass     = M_Y4260;
         
         // Coupling taken from [1]
-        _bare_coupling      = C_Y;
+        _coupling      = C_Y;
 
         // Set up the derivator 
         wsigma = ROOT::Math::Functor1D(this, &D1D_molecule::resigma);
@@ -143,13 +142,21 @@ class D1D_molecule : public hadronic_molecule
     complex<double> propagator(double s);
 
     // When we change the pole mass, we must recalculate renormalization quantities
-    void set_pole_mass(double x)
+    // Set pole mass ,coupling, and non-mol width in a single call
+    inline void set_parameters(array<double,3> pars)
     {
-        _renormalized_mass = x;
+        if (pars.size() != 3)
+        {
+            warning("D1D_molecule", "Wrong number of parameters given! Expected 3 but recieved " + to_string(pars.size()) + ". Results may vary...");
+        };
+
+        _pole_mass    = pars[0];
+        _coupling     = pars[1];
+        _nonmol_width = pars[2];
 
         // Precalculate relevant quantities
-        _reS  = resigma(_renormalized_mass);
-        _redS = dsigma.Eval(_renormalized_mass);
+        _reS  = resigma(_pole_mass);
+        _redS = dsigma.Eval(_pole_mass);
         _Z    = 1. / (1. - _redS);
     };
 

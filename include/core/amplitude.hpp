@@ -8,7 +8,7 @@
 #define AMPLITUDE
 
 #include "reaction_kinematics.hpp"
-#include "hadronic_molecule.hpp"
+#include "charmoniumlike.hpp"
 
 #include <vector>
 
@@ -24,8 +24,8 @@ class amplitude
 
     friend class amplitude_sum;
 
-    amplitude(reaction_kinematics * xkinem, hadronic_molecule * Y, int n, string classname, string id = "")
-    : _kinematics(xkinem), _Y(Y),
+    amplitude(reaction_kinematics * xkinem, charmoniumlike * V, int n, string classname, string id = "")
+    : _kinematics(xkinem), _V(V),
       _nparams(n), _id(id), _classname(classname)
     {
         array<double, 3> m = xkinem->get_masses();
@@ -36,8 +36,8 @@ class amplitude
     // This pointer holds all kinematic information
     reaction_kinematics * _kinematics; 
 
-    // Y-meson properties
-    hadronic_molecule * _Y;
+    // Photon oscillates into spin-1 meson described by a charmoniumlike object
+    charmoniumlike * _V;
 
     // Access the id tag of this amplitude
     inline void   set_id(string id){ _id = id; };
@@ -172,12 +172,12 @@ class phase_space : public amplitude
     public: 
 
     phase_space(reaction_kinematics * xkinem, string id = "")
-    : amplitude(xkinem, new hadronic_molecule(""), 0, "flat_amplitude", id)
+    : amplitude(xkinem, new charmoniumlike(""), 0, "flat_amplitude", id)
     {};
 
     ~phase_space()
     {
-        delete _Y;
+        delete _V;
     }
 
     // Return a constant for all the amplitudes. 

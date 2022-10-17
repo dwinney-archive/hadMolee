@@ -21,7 +21,7 @@ class DsDpi_swave : public amplitude
     // -----------------------------------------------------------------------
     public:
     
-    DsDpi_swave(reaction_kinematics * xkinem, hadronic_molecule * Y, string id = "DsDpi_swave")
+    DsDpi_swave(reaction_kinematics * xkinem, D1D_molecule * Y, string id = "DsDpi_swave")
     : amplitude(xkinem, Y, 2, "DsDpi_swave", id)
     {};
 
@@ -75,8 +75,8 @@ class DsDpi_tree : public amplitude
     // -----------------------------------------------------------------------
     public:
     
-    DsDpi_tree(reaction_kinematics * xkinem, hadronic_molecule * Y, string id = "DsDpi_tree")
-    : amplitude(xkinem, Y, 0, "DsDpi_tree", id), _D1(M_D1, W_D1)
+    DsDpi_tree(reaction_kinematics * xkinem, D1D_molecule * Y, string id = "DsDpi_tree")
+    : amplitude(xkinem, Y, 0, "DsDpi_tree", id),  _Y(Y), _D1(M_D1, W_D1)
     {};
 
     // The reduced amplitude corresponds to the S-wave contact-like interaction
@@ -106,8 +106,8 @@ class DsDpi_tree : public amplitude
         _AD = XI * (_hD / F_PION) * (1./sqrt(6.)) * p2_pion;
 
         // Multiply by the propagator of the D1 and y coupling
-        _AS *= _Y->coupling() * _D1.eval(_sac);
-        _AD *= _Y->coupling() * _D1.eval(_sac);
+        _AS *= _Y->molecular_coupling() * _D1.eval(_sac);
+        _AD *= _Y->molecular_coupling() * _D1.eval(_sac);
     };
 
     double _hS = HP_S, _hD = HP_D;  // We have DsDpi coupling for the S-wave and the D-wave
@@ -115,6 +115,10 @@ class DsDpi_tree : public amplitude
 
     // This channel has a D1 resonance in the Ds pi channel
     relativistic_BW _D1;
+
+    // And we explicitly require information of molecular nature of Y 
+    // so we save a D1D_molecule version of the pointer, not just charmoniumlike
+    D1D_molecule *_Y;
 };
 
 // ---------------------------------------------------------------------------
@@ -128,8 +132,8 @@ class DsDpi_triangle : public amplitude
     
     // Here we can choose whether we want a nonrelativistic triangle or the relativistic version
     // We default to the nonrel version
-    DsDpi_triangle(reaction_kinematics * xkinem, hadronic_molecule * Y, string id = "DsDpi_triangle")
-    : amplitude(xkinem, Y, 0, "DsDpi_triangle", id), _T(new nonrelativistic_triangle(_external, _internal))
+    DsDpi_triangle(reaction_kinematics * xkinem, D1D_molecule * Y, string id = "DsDpi_triangle")
+    : amplitude(xkinem, Y, 0, "DsDpi_triangle", id), _Y(Y), _T(new nonrelativistic_triangle(_external, _internal))
     {};
 
     // Destructor needs to clean up the new pointer we made
@@ -178,10 +182,10 @@ class DsDpi_triangle : public amplitude
         _T->set_external_masses({_W, sqrt(_sab), M_PION}); // Update arguments with floating Y and Z meson masses
         
         // Multiply by the propagator of the Z and triangle function
-        double z = _Zc.coupling();
+        double z = _Zc.molecular_coupling();
 
-        _AS *= - _Y->coupling() * z*z * _T->eval() * _Zc.propagator(_sab);
-        _AD *= - _Y->coupling() * z*z * _T->eval() * _Zc.propagator(_sab);
+        _AS *= - _Y->molecular_coupling() * z*z * _T->eval() * _Zc.propagator(_sab);
+        _AD *= - _Y->molecular_coupling() * z*z * _T->eval() * _Zc.propagator(_sab);
     };
 
     double _hS = HP_S, _hD = HP_D;  // D1 -> D*pi coupling for the S-wave and the D-wave
@@ -192,10 +196,14 @@ class DsDpi_triangle : public amplitude
     array<double,3> _external = {M_Y4260, M_ZC3900, M_PION};
 
     // Default to using nonrelativistic version of the triangle
-    triangle * _T;
+    triangle *_T;
 
     // Z meson resonance in this diagram
     DsD_molecule _Zc;
+
+    // And we explicitly require information of molecular nature of Y 
+    // so we save a D1D_molecule version of the pointer, not just charmoniumlike
+    D1D_molecule *_Y;
 };
 
 #endif

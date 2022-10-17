@@ -36,10 +36,10 @@ bool amplitude_sum::check_compatibility(amplitude* amp)
                 "New amplitude " + amp->get_id() + " does not contain the stored kinematics instance (" + _kinematics->get_id() + "). \n Skipping amplitude...");
         return false;
     } 
-    if (amp->_Y != _Y) 
+    if (amp->_V != _V) 
     {
         warning("amplitude_sum", 
-                "New amplitude " + amp->get_id() + " does not contain the stored hadronic_molecule instance (" + _Y->get_id() + "). \n Skipping amplitude...");
+                "New amplitude " + amp->get_id() + " does not contain the stored hadronic_molecule instance (" + _V->get_id() + "). \n Skipping amplitude...");
         return false;
     }
     
