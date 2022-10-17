@@ -19,16 +19,21 @@
 // ---------------------------------------------------------------------------
 // Mathematical constants
 
+// Fundamental constants
 const double PI       = M_PI;
-const double DEG2RAD  = (M_PI / 180.);
-const double RAD2DEG   = (180. / M_PI);
+const double EULER    = 0.57721566490153286060651209008240243104215933593992;
 const double ALPHA    = 1. / 137.;
 const double E        = sqrt(4. * PI * ALPHA);
-const double EULER    = 0.57721566490153286060651209008240243104215933593992;
 
 // Unit complex and real values
 const complex<double> XR  (1., 0.);
 const complex<double> XI  (0., 1.);
+ 
+// Unit conversion factors
+const double DEG2RAD  = (M_PI / 180.);
+const double RAD2DEG  = (180. / M_PI);
+const double NB2GEV   = 2.56819E-6;  // nb -> GeV^{-2} conversion
+const double GEV2NB   = 0.3894E6;    // GeV^{-2} -> nb 
 
 // Small offsets
 const double           EPS  = 1.E-8;
@@ -109,11 +114,13 @@ inline complex<double> operator * (const complex<double> & b, const bool & a)
 // Same thing but with int
 inline complex<double> operator * (const int & a, const complex<double> & b)
 {
-    return complex<double>(a * real(b), a * real(b));
+    if (a != 0) return complex<double>(double(a) * real(b), double(a) * imag(b));
+    else        return 0.*XR;
 };
 inline complex<double> operator * (const complex<double> & b, const int & a)
 {
-    return complex<double>(a * real(b), a * real(b));
+    if (a != 0) return complex<double>(double(a) * real(b), double(a) * imag(b));
+    else        return 0.*XR;
 };
 
 // ---------------------------------------------------------------------------
@@ -122,7 +129,7 @@ inline complex<double> operator * (const complex<double> & b, const int & a)
 
 inline bool is_equal(double a, double b)
 {
-    return ( abs(a) - abs(b) < EPS );
+    return ( abs(a - b) < EPS );
 }
 
 // Same thing for comparing complex doubles

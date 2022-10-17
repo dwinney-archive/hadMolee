@@ -42,9 +42,8 @@ double amplitude::probability_distribution(double s, double sab, double sbc)
     // Check if we need to update our precalculated amplitudes 
     check_cache();
 
-    double sum = 0;
-
     // Contract over Cartesian indices
+    double sum = 0;
     for (int i = 0; i < 3; i++)
     {
         for (int j = 0; j < 3; j++)
@@ -58,7 +57,7 @@ double amplitude::probability_distribution(double s, double sab, double sbc)
                 // Polarization sum over the final state vector gives a delta function fixing k here
                 x *= conj(_cached_amplitudes[k][i]);
 
-                if ( !is_zero(imag(x)) ) warning("probability_distribution", "Spin sum squared is imaginary!!!!");
+                // if ( !is_zero(imag(x)) ) warning("probability_distribution", "Spin sum squared is imaginary!!!!");
 
                 sum += real(x);
             };
@@ -88,7 +87,7 @@ double amplitude::d2Gamma(double s, double sab, double sbc)
 
     if (_normalize) prefactors *= _normalization;
 
-    return amp_squared * prefactors;
+    return amp_squared * prefactors * GEV2NB; // in units of nanobarn / GeV^{4}
 };
 
 // ---------------------------------------------------------------------------
@@ -102,14 +101,14 @@ double amplitude::dGamma_ab(double s, double sab)
         return d2Gamma(s, sab, sbc);
     };
 
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS31);
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
     ROOT::Math::Functor1D wF(F);
     ig.SetFunction(wF);
 
     double sbc_min = _kinematics->sbc_from_sab(s, sab, -1.);
     double sbc_max = _kinematics->sbc_from_sab(s, sab, +1.);
 
-    if (abs(sbc_min - sbc_max) < EPS) return 0.;
+    if ( is_equal(sbc_min, sbc_max) ) return 0.;
     return ig.Integral(sbc_min, sbc_max);
 };
 
@@ -121,7 +120,7 @@ double amplitude::dGamma_bc(double s, double sbc)
         return d2Gamma(s, sab, sbc);
     };
 
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS31);
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
     ROOT::Math::Functor1D wF(F);
     ig.SetFunction(wF);
 
@@ -141,7 +140,7 @@ double amplitude::dGamma_ac(double s, double sac)
         return d2Gamma(s, sab, sbc);
     };
 
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS31);
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
     ROOT::Math::Functor1D wF(F);
     ig.SetFunction(wF);
 
@@ -161,7 +160,7 @@ double amplitude::Gamma(double s)
         return dGamma_ab(s, sab);
     };
 
-    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS31);
+    ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
     ROOT::Math::Functor1D wF(F);
     ig.SetFunction(wF);
 
