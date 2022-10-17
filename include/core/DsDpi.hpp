@@ -61,7 +61,7 @@ class DsDpi_swave : public amplitude
     inline void recalculate()
     {
         // sab is assumed to be DsD channel
-        _AS = _a * (_sab + _b) * _Zc.propagator(sqrt(_sab));
+        _AS = _a * (_sab + _b) * _Zc.propagator(_sab);
 
     };
 };
@@ -180,8 +180,8 @@ class DsDpi_triangle : public amplitude
         // Multiply by the propagator of the Z and triangle function
         double z = _Zc.coupling();
 
-        _AS *= - _Y->coupling() * z*z * _T->eval() * _Zc.propagator(sqrt(_sab));
-        _AD *= - _Y->coupling() * z*z * _T->eval() * _Zc.propagator(sqrt(_sab));
+        _AS *= - _Y->coupling() * z*z * _T->eval() * _Zc.propagator(_sab);
+        _AD *= - _Y->coupling() * z*z * _T->eval() * _Zc.propagator(_sab);
     };
 
     double _hS = HP_S, _hD = HP_D;  // D1 -> D*pi coupling for the S-wave and the D-wave

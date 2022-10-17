@@ -21,8 +21,9 @@ complex<double> DsD_molecule::self_energy(double E)
 };
 
 // Propagator recieves contributions from the self-energy above and the constant width
-complex<double> DsD_molecule::propagator(double E)
+complex<double> DsD_molecule::propagator(double s)
 {
+    double E = sqrt(s);
     complex<double> D = E - _bare_mass + self_energy(E) + XI*_nonmolecular_width/2.;
     
     return XI / (2.*D);
@@ -50,8 +51,9 @@ complex<double> D1D_molecule::self_energy(double E)
 };
 
 // Full propagator
-complex<double> D1D_molecule::propagator(double E)
+complex<double> D1D_molecule::propagator(double s)
 {
+    double E = sqrt(s);
     complex<double> D = E - _renormalized_mass - _Z*self_energy(E) + XI*_nonmolecular_width/2.;
     return XI * _Z / (2. * D);
 };

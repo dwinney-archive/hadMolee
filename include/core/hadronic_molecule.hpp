@@ -33,8 +33,9 @@ class hadronic_molecule
     : _m1(m1), _m2(m2), _id(id)
     {};
 
-    // Evaluate the propagator, the variable here could be E or s depending on if relativsitic or not
-    virtual complex<double> propagator(double x){ return 1.; };
+    // Evaluate the propagator
+    // For standardization the input argument is always asssumed to be s, take the square root internally if we need E
+    virtual complex<double> propagator(double s){ return 1.; };
 
     // String identifier
     inline string get_id(){ return _id; };
@@ -45,6 +46,14 @@ class hadronic_molecule
     // Setting utilitites for diffferent parameters that can float
     virtual inline void set_pole_mass(double x){ _renormalized_mass = x; };
     virtual inline void set_coupling( double x){ _bare_coupling     = x; };
+
+    // Set pole mass ,coupling, and non-mol width in a single call
+    virtual inline void set_parameters(array<double,3> pars)
+    {
+        set_pole_mass(pars[0]);
+        set_coupling( pars[1]);
+        _nonmolecular_width = pars[3];
+    };  
 
     // -----------------------------------------------------------------------
     protected:
@@ -65,7 +74,7 @@ class hadronic_molecule
     inline double reduced_mass(){ return _m1 * _m2 / (_m1 + _m2); };
     inline double mass_difference(double E){ return E - _m1 - _m2; };
 
-    // Threshold openings of the constituent channel
+    // Intermediate state threshold openings of the constituent channel
     inline double Wth(){ return _m1 + _m2; };
     inline double sth(){ return Wth()*Wth(); };
 
@@ -96,7 +105,7 @@ class DsD_molecule : public hadronic_molecule
     };
 
     // The propagator gains contributions from the self-energy
-    complex<double> propagator(double E);
+    complex<double> propagator(double s);
 
     // Self-energy from bubble diagram of D* D scattering 
     complex<double> self_energy(double E);
@@ -107,6 +116,9 @@ class DsD_molecule : public hadronic_molecule
     // Total width of the Z from the PDG
     double _total_width;
 };
+
+// ---------------------------------------------------------------------------
+// Implementation of D1 D molecule for the Y(4260)
 
 class D1D_molecule : public hadronic_molecule
 {
@@ -128,7 +140,7 @@ class D1D_molecule : public hadronic_molecule
     };
 
     // The propagator gains contributions from the self-energy
-    complex<double> propagator(double E);
+    complex<double> propagator(double s);
 
     // When we change the pole mass, we must recalculate renormalization quantities
     void set_pole_mass(double x)
@@ -136,9 +148,9 @@ class D1D_molecule : public hadronic_molecule
         _renormalized_mass = x;
 
         // Precalculate relevant quantities
-        _Z    = 1. / (1. - dsigma.Eval(_renormalized_mass));
         _reS  = resigma(_renormalized_mass);
         _redS = dsigma.Eval(_renormalized_mass);
+        _Z    = 1. / (1. - _redS);
     };
 
     private:
