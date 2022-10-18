@@ -162,22 +162,47 @@ class reaction_kinematics
 
     // Lepton-tensor gives the e+ e- -> photon interaction
     // Given as a function of s and the pion angle z
+    double _cached_cos = 500.; // start costheta at an unphysical value as a starting value
+    array<double,3> _cached_phat;
     inline complex<double> production_tensor(int i, int j, double s, double cos)
     {
-        // In massless approximation, this reduces to the polarization sum of transverse vector meson
-        // We assume the final state pion defines the +z axis and cos is the cosine of the pi e- angle
-        double polarization_sum = (double(i == j) - (i==1)*(j==1)*(1. - cos*cos) - (i==3)*(j==3)*(cos*cos));
+        if ( !is_equal(_cached_cos, cos) )
+        {
+            _cached_phat[0] = sqrt(1. - cos*cos);
+            _cached_phat[1] = 0.;
+            _cached_phat[2] = cos;
 
-        complex<double> lepton_tensor = E*E * 2.*s * polarization_sum;
-        complex<double> photon_propagator = norm(XI / s);
-        return lepton_tensor  * photon_propagator;
+            _cached_cos = cos;
+        };
+
+        // Modulous of lepton momentum squared
+        double k2  = s /  4.;
+
+        // In massless approximation, this reduces to the polarization sum of transverse photon
+        // We assume the final state pion defines the +z axis and cos is the cosine of the pi e- angle
+        double polarization_sum = (double(i == j) - _cached_phat[i]*_cached_phat[j]);
+
+        return E*E * 4.*k2 * polarization_sum;
     };
 
-    // Without specifying an angle this produces the result integrated over the pion angle
-    // which is equivalent to setting cos = 0;
+    // Without specifying an angle this produces the tensor already integrated over the orientation
     inline complex<double> production_tensor(int i, int j, double s)
     {
-        return production_tensor(i, j, s, 0.);
+        // Modulous of lepton momentum squared
+        double k2  = s /  4.;
+
+        // Numerical prefactors come from only non-zero terms \int_{-1}^1 dos sin^2 and same integral for cos^2 
+        // off diagnals are either 0 or sin*cos which vanishes in the integration
+        double polarization_sum = (double(i == j) - (4./3.)*(i==0 && j==0) - (2./3.)*(i==2 && j==2) );
+
+        return E*E * 4.*k2  * polarization_sum;
+    };
+
+    // Self-explainatory 
+    // I explicitly remove the index dependence assuming thats already been contracted with the above production tensor
+    inline complex<double> photon_propagator(double s)
+    {
+        return XI / s;
     };
 
     // -----------------------------------------------------------------------

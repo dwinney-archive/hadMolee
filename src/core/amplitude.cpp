@@ -19,10 +19,10 @@ inline void amplitude::check_cache()
     if (need_recalculate)
     {
         _cached_amplitudes.clear();
-        for (int i = 1; i < 4; i++)
+        for (int i = 0; i < 3; i++)
         {
             vector<complex<double>> i_slice;
-            for (int j = 1; j < 4; j++)
+            for (int j = 0; j < 3; j++)
             {
                 i_slice.push_back( reduced_amplitude(i, j) );
             }
@@ -51,13 +51,17 @@ double amplitude::probability_distribution(double s, double sab, double sbc)
             for (int k = 0; k < 3; k++)
             {
                 complex<double> x;
-                x  = _kinematics->production_tensor(i+1, j+1, s);
-                x *= norm(_V->photon_coupling() * _V->propagator(s)); // VMD coupling squared
+
+                // Leptonic tensor involving the orientation of the e+e- beams
+                x  = _kinematics->production_tensor(i, j, s);
+
+                // VMD coupling squared
+                x *= norm(_kinematics->photon_propagator(s) * _V->photon_coupling() * _V->propagator(s));
+
+                // Sum over the amplitude squared
                 x *=      _cached_amplitudes[j][k];
                 // Polarization sum over the final state vector gives a delta function fixing k here
                 x *= conj(_cached_amplitudes[k][i]);
-
-                // if ( !is_zero(imag(x)) ) warning("probability_distribution", "Spin sum squared is imaginary!!!!");
 
                 sum += real(x);
             };

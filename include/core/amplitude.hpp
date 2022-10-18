@@ -100,7 +100,7 @@ class amplitude
     vector<double> _params; // Saved parameter values
     
     // Whether or not to normalize the widths to a given constant
-    bool _normalize = false;
+    bool   _normalize = false;
     double _normalization = 1.;
 
     // Set function but kept internal (really only used by the amplitude_sum class)
@@ -160,8 +160,8 @@ class amplitude
     double _ma2, _mb2, _mc2;
 
     // Short cuts for characteristic angular behavior
-    inline int s_wave(int i, int j) { return (i == j); }                    // S-wave is just a delta-function
-    inline int d_wave(int i, int j) { return 3*(i==3)*(j==3) - (i == j); }; // D-wave 
+    inline int s_wave(int i, int j) { return (i == j); }                     // S-wave is just a delta-function
+    inline int d_wave(int i, int j) { return 3*(i==2 && j==2) - (i == j); }; // D-wave 
 };
 
 // Simply amplitude with no energy dependence. 
