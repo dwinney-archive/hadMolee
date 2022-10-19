@@ -15,6 +15,7 @@
 
 // ---------------------------------------------------------------------------
 // Contact-like interaction in S-wave
+// This contains the exotic Zc channel, we multiply by a linear polynomial and fit the coefficients
 
 class DsDpi_swave : public amplitude
 {
@@ -29,7 +30,7 @@ class DsDpi_swave : public amplitude
     // however it receives contributions from the propagator of the Z meson
     inline complex<double> reduced_amplitude(int i, int j)
     {
-
+        // IF our kinematics has been changed, recalculate relevant quantities
         if (updated()) recalculate();
 
         // Being S-wave the s-wave strength gets multiplied by a delta-function
@@ -37,6 +38,7 @@ class DsDpi_swave : public amplitude
     };
 
     // Set the two parameters
+    // These are the coefficients of the linear polynomial multiplying the s-wave strength
     inline void set_parameters(vector<double> par)
     {
         check_nParams(par);
@@ -49,7 +51,7 @@ class DsDpi_swave : public amplitude
     private:
 
     // Parameterize with two real polynomial coefficients
-    double _a = S_A, _b = S_B;
+    double _a = A_QQ2016, _b = B_QQ2016;
 
     // S-wave coupling strength
     complex<double> _AS; 
@@ -84,9 +86,6 @@ class DsDpi_tree : public amplitude
     inline complex<double> reduced_amplitude(int i, int j)
     {
         if (updated()) recalculate();
-
-        // Being D-wave we get the appropriate projector
-        // Assume pion (particle c) defined the +z direction
         return _AS * s_wave(i,j) + _AD * d_wave(i,j);
     };
 
@@ -98,20 +97,17 @@ class DsDpi_tree : public amplitude
         double p_pion  = _kinematics->decay_momentum_c(_s, _sab);
         double p2_pion = p_pion*p_pion;
 
-        // Can use the debug flag to turn on and off the S-wave coupling
-        if (_debug == 1) {_hS = 0.; _hD = HP * sqrt(6.);}
-
         // sab is assumed to be DsD channel
-        _AS = XI * (_hS / F_PION) * (1./sqrt(6.)) * sqrt(p2_pion + _mc2);
-        _AD = XI * (_hD / F_PION) * (1./sqrt(6.)) * p2_pion;
+        _AS = XI * _hS * sqrt(p2_pion + _mc2);
+        _AD = XI * _hD * p2_pion;
 
         // Multiply by the propagator of the D1 and y coupling
-        _AS *= _Y->molecular_coupling() * _D1.eval(_sac);
-        _AD *= _Y->molecular_coupling() * _D1.eval(_sac);
+        _AS *= (_Y->molecular_coupling() / sqrt(2.)) * _D1.eval(_sac);
+        _AD *= (_Y->molecular_coupling() / sqrt(2.)) * _D1.eval(_sac);
     };
 
-    double _hS = HP_S, _hD = HP_D;  // We have DsDpi coupling for the S-wave and the D-wave
-    complex<double> _AS, _AD;       // Energy dependent S and D wave strengths
+    double _hS = 0., _hD = HPRIME_UPPER / F_PION_QQ2016;    // Coupling constants to S and D wave interactions
+    complex<double> _AS, _AD;                               // Energy dependent S and D wave strengths
 
     // This channel has a D1 resonance in the Ds pi channel
     relativistic_BW _D1;
@@ -172,24 +168,24 @@ class DsDpi_triangle : public amplitude
     {
         double p_pion = _kinematics->decay_momentum_c(_s, _sab);
 
-        // Can use the debug flag to turn on and off the S-wave coupling
-        if (_debug == 1) {_hS = 0.; _hD = HP * sqrt(6.) ;}
-
         // sab is assumed to be DsD channel
-        _AS = XI * (_hS / F_PION) * (1./sqrt(6.)) * sqrt(p_pion*p_pion + _mc2);
-        _AD = XI * (_hD / F_PION) * (1./sqrt(6.)) * p_pion*p_pion;
+        _AS = XI * _hS * sqrt(p_pion*p_pion + _mc2);
+        _AD = XI * _hD * p_pion*p_pion;
 
         _T->set_external_masses({_W, sqrt(_sab), M_PION}); // Update arguments with floating Y and Z meson masses
         
         // Multiply by the propagator of the Z and triangle function
         double z = _Zc.molecular_coupling();
+        
+        // The normalization is matched to Qiang's paper
+        complex<double> T = _internal[0] * _internal[1] * _internal[2] * _T->eval();
 
-        _AS *= - _Y->molecular_coupling() * z*z * _T->eval() * _Zc.propagator(_sab);
-        _AD *= - _Y->molecular_coupling() * z*z * _T->eval() * _Zc.propagator(_sab);
+        _AS *= - (_Y->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc.propagator(_sab);
+        _AD *= - (_Y->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc.propagator(_sab);
     };
 
-    double _hS = HP_S, _hD = HP_D;  // D1 -> D*pi coupling for the S-wave and the D-wave
-    complex<double> _AS, _AD;       // Energy dependent S and D wave strengths
+    double _hS = 0., _hD = HPRIME_UPPER;  // D1 -> D*pi coupling for the S-wave and the D-wave
+    complex<double> _AS, _AD;             // Energy dependent S and D wave strengths
 
     // On-shell masses involved in the triangle
     array<double,3> _internal = {M_DSTAR, M_D1,     M_D};

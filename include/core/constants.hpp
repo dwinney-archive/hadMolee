@@ -77,21 +77,18 @@ const double W_ZC3900   = 28.4E-3;
 // ---------------------------------------------------------------------------
 // Couplings associated with HQSS and previous analyses 
 
-const double C_Z        = 0.77;     // GeV^-2 [ from arXiv:1310.2190  ]
-const double C_Y        = 10.88;    // GeV^-2 [ from arXiv:1605.02407 ]
-const double F_PION     = 92.1E-3;  // Pion decay constant [from arXiv:2201.08253 ]
+// Qin & Qiang (2016) [arXiv:1509.01398]
+const double F_PION_QQ2016 = 132.E-3;  // Pion decay constant in GeV
+const double YBARE_QQ2016  = 10.88;    // Bare Y-meson coupling in GeV-1/2
+const double G1_QQ2016     = 29.50;    // Elastic D1D  coupling in GeV-2
+const double F_Y_QQ2016    = 1./0.063; // Y-meson decay constant (unitless)
+const double A_QQ2016      = 12.67;    // Overall S-wave normalization coeff in GeV-5/2
+const double B_QQ2016      = -15.23;   // Const S-wave polynomail coeff in GeV2
+const double ZBARE_QQ2016  = 0.77;     // ZD*D coupling in GeV-1/2
 
-// The couplings below get the D-wave coupling from the D2 decay then require rest of D1 width to come from S-wave
-// [from arXiv:2001.05884]
-const double HP_D        = 1.17;     // GeV^-2 D-wave D1 Ds pi coupling
-const double HP_S        = 0.57;     //        S-wave D1 Ds pi coupling
-
-// Here we assume the full D1 width is saturated by the D-wave 
-const double HP          = 2.21394;  // GeV^-2 D-wave D1Dspi [from arXiv:2001.05884]
-
-// S-wave polynomial couplings from [from arXiv:2001.05884]
-const double S_A         = -6.72;     // GeV^-1
-const double S_B         = -15.28;    // GeV^-1
+// HQSS constants
+// Primed couplings have 
+const double HPRIME_UPPER  = 0.62; // Upperbound of D1 D* pi coupling using full width (Gamma = 25 MeV) in GeV-1
 
 // ---------------------------------------------------------------------------
 // Overload of multiplcation for a bool and complex<double>

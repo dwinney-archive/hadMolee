@@ -100,7 +100,7 @@ class DsD_molecule : public hadronic_molecule
         _total_width        = W_ZC3900;
         
         // Coupling taken from [1]
-        _coupling      = C_Z;
+        _coupling      = ZBARE_QQ2016;
         
         // residual width taken to recover the full PDG width at the pole
         _nonmol_width = _total_width - 2.* imag(self_energy(_pole_mass));
@@ -134,7 +134,7 @@ class D1D_molecule : public hadronic_molecule, public charmoniumlike
         _pole_mass     = M_Y4260;
         
         // Coupling taken from [1]
-        _coupling      = C_Y;
+        _coupling      = YBARE_QQ2016;
 
         // Set up the derivator 
         wsigma = ROOT::Math::Functor1D(this, &D1D_molecule::resigma);

@@ -83,8 +83,8 @@ double amplitude::d2Gamma(double s, double sab, double sbc)
 
     double amp_squared = probability_distribution(s, sab, sbc); 
 
-    // Average over the spins of the inital electron-positron pair
-    amp_squared /= 4.;
+    // // Average over the spins of the inital electron-positron pair
+    // amp_squared /= 4.;
 
     // General prefactors for 1->3 decay width in GeV
     double prefactors = 1. / (32.*pow(2.*PI*sqrt(s), 3.));
