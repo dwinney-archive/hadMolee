@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void full_widths()
+void DsDpi_widths()
 {   
     // ---------------------------------------------------------------------------
     // Amplitude definition and set up
@@ -23,10 +23,11 @@ void full_widths()
 
     // Empty Y propagator since we only care about the widths at fixed W
     D1D_molecule Y;
+    Y.set_parameters({4.26, 10.88, 0.056, 1./0.063});
 
     // S-wave we have a single term
 
-    DsDpi_swave swave(&kDsDpi, &Y);
+    DsDpi_swave swave(&kDsDpi, &Y, "S-wave");
     swave.set_parameters({-12.67, -15.23});
 
     // D-wave recieves contributions from two diagrams: 
@@ -40,12 +41,23 @@ void full_widths()
     tree.set_debug(1); // Only D-wave couplings
 
     // These can be summed up like this:
-    amplitude_sum full(&kDsDpi, &Y, "D-wave");
-    full.add({&tree, &triangle, &swave});
-    // full.normalize(1., s);
+    amplitude_sum dwave(&kDsDpi, &Y, "D-wave");
+    dwave.add({&tree, &triangle});
+
+    // Both s and d-waves can then be added together 
+    amplitude_sum full(&kDsDpi, &Y, "Full Sum");
+    full.add({&dwave, &swave});
 
     // ---------------------------------------------------------------------------
     // Plotter object and options
+
+    // Amplitudes to plot
+    vector<amplitude*> amps;
+    // amps.push_back(&full);
+    amps.push_back(&swave);
+    // amps.push_back(&dwave);
+    // amps.push_back(&tree);
+    // amps.push_back(&triangle);
 
     jpacGraph1D * plotter = new jpacGraph1D(0);
 
@@ -53,37 +65,39 @@ void full_widths()
     bool PRINT = true;
     string xlabel, ylabel, filename;
     double xmin, xmax, ymin, ymax;
+    ymin = 0.;
 
-    auto dgammaab = [&](double w)
-    {
-        double sigma = w * w;
-        return full.dGamma_ab(s, sigma);
-    };
+    // ---------------------------------------------------
+    // AB channel 
 
     xmin = (kDsDpi.mass_a() + kDsDpi.mass_b());
     xmax = (W - kDsDpi.mass_c());
 
-    ymin = 0.;
     ymax = 7.;  
 
     xlabel   = "#sqrt{#sigma_{" + kDsDpi.particle_a() + kDsDpi.particle_b() + "}}   [GeV]";
     ylabel   = "#it{d}#Gamma_{" + kDsDpi.particle_a() + kDsDpi.particle_b() + "}  [a.u.]";
     filename = "full_width_ab.pdf";
 
-    plotter->AddEntry(N, dgammaab, {xmin, xmax}, "D-wave", PRINT);
+    for (auto amp : amps)
+    {
+        auto dgammaab = [&](double w)
+        {
+            double sigma = w * w;
+            return amp->dGamma_ab(s, sigma);
+        };
+        plotter->AddEntry(N, dgammaab, {xmin, xmax}, amp->get_id(), PRINT);
+    }
 
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel/* , ymin, ymax */);
-    plotter->SetLegend(false);
+    plotter->SetLegend(0.7, 0.7);
     plotter->Plot(filename);
 
-    plotter->ClearData();
+    // ---------------------------------------------------
+    // BC channel 
 
-    auto dgammabc = [&](double w)
-    {
-        double sigma = w * w;
-        return full.dGamma_bc(s, sigma);
-    };
+    plotter->ClearData();
 
     xmin = (kDsDpi.mass_b() + kDsDpi.mass_c());
     xmax = (W - kDsDpi.mass_a());
@@ -94,21 +108,25 @@ void full_widths()
     ylabel   = "#it{d}#Gamma_{" + kDsDpi.particle_b() + kDsDpi.particle_c() + "}  [a.u.]";
     filename = "full_width_bc.pdf";
 
-    plotter->AddEntry(N, dgammabc, {xmin, xmax}, "D-wave", PRINT);
+    for (auto amp : amps)
+    {
+        auto dgammabc = [&](double w)
+        {
+            double sigma = w * w;
+            return amp->dGamma_bc(s, sigma);
+        };
+        plotter->AddEntry(N, dgammabc, {xmin, xmax}, amp->get_id(), PRINT);
+    }
 
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel/* , ymin, ymax */);
-    plotter->SetLegend(0.3,0.7);
-    plotter->SetLegendOffset(0.4, 0.07);
+    plotter->SetLegend(0.3, 0.7);
     plotter->Plot(filename);
 
-    plotter->ClearData();
+    // ---------------------------------------------------
+    // AC channel 
 
-    auto dgammaac = [&](double w)
-    {
-        double sigma = w * w;
-        return full.dGamma_ac(s, sigma);
-    };
+    plotter->ClearData();
 
     xmin = (kDsDpi.mass_a() + kDsDpi.mass_c());
     xmax = (W - kDsDpi.mass_b());
@@ -119,10 +137,47 @@ void full_widths()
     ylabel   = "#it{d}#Gamma_{" + kDsDpi.particle_a() + kDsDpi.particle_c() + "}  [a.u.]";
     filename = "full_width_ac.pdf";
 
-    plotter->AddEntry(N, dgammaac, {xmin, xmax}, "D-wave", PRINT);
+    for (auto amp : amps)
+    {
+        auto dgammaac = [&](double w)
+        {
+            double sigma = w * w;
+            return amp->dGamma_ac(s, sigma);
+        };
+        plotter->AddEntry(N, dgammaac, {xmin, xmax}, amp->get_id(), PRINT);
+    }
 
     plotter->SetXaxis(xlabel, xmin, xmax);
     plotter->SetYaxis(ylabel/* , ymin, ymax */);
+    plotter->SetLegend(0.3, 0.7);
+    plotter->Plot(filename);
+
+    // ---------------------------------------------------
+    // Full width 
+
+    plotter->ClearData();
+
+    xmin = (4.1);
+    xmax = (4.4);
+
+    ymax = 1.;
+
+    for (auto amp : amps)
+    {
+        auto gamma = [&](double w)
+        {
+            double s = w * w;
+            return amp->Gamma(s);
+        };
+        plotter->AddEntry(N, gamma, {xmin, xmax}, amp->get_id(), PRINT);
+    }
+
+    xlabel   = "#sqrt{s}   [GeV]";
+    ylabel   = "#Gamma_{" + kDsDpi.particle_a() + kDsDpi.particle_b() + kDsDpi.particle_c() + "}     [nb]";
+    filename = "full_width.pdf";
+
+    plotter->SetXaxis(xlabel, xmin, xmax);
+    plotter->SetYaxis(ylabel, ymin, ymax);
     plotter->SetLegend(0.3,0.7);
     plotter->SetLegendOffset(0.4, 0.07);
     plotter->Plot(filename);
