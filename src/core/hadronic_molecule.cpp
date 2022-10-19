@@ -15,16 +15,17 @@ complex<double> DsD_molecule::self_energy(double E)
 {
     double eps = mass_difference(E);
     double mu  = reduced_mass();
-    double z   = _coupling;
     
-    return (z*z / (8.*PI)) * sqrt(2.*mu*mu*mu*abs(eps)) * ( XI*(eps>=0) - XR*(eps<0) );
+    return (1. / (8.*PI)) * sqrt(2.*mu*mu*mu*std::abs(eps)) * ( XR*(eps>=0) + XI*(eps<0) );
 };
 
 // Propagator recieves contributions from the self-energy above and the constant width
 complex<double> DsD_molecule::propagator(double s)
 {
     double E = sqrt(s);
-    complex<double> D = E - _pole_mass + self_energy(E) + XI*_nonmol_width/2.;
+    double z = _coupling;
+
+    complex<double> D = E - _pole_mass + XI * (z*z*self_energy(E) + _nonmol_width/2.);
     
     return XI / (2.*D);
 };  
@@ -41,7 +42,7 @@ complex<double> D1D_molecule::sigma(double E)
     double mu  = reduced_mass();
     double y   = _coupling;
 
-    return (-XI*y*y / (8.*PI)) * sqrt( 2.*mu*mu*mu* (eps + XI*W_D1/2.) );
+    return (-XI/ (8.*PI)) * sqrt( 2.*mu*mu*mu* (eps + XI*W_D1/2.) ) * (y*y);
 };
 
 // Calcualte the renormalized self-energy by subtracting away the real parts of the function and its first derivative

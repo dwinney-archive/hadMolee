@@ -130,15 +130,12 @@ class D1D_molecule : public hadronic_molecule, public charmoniumlike
     D1D_molecule(string id = "Y(4260)")
     : hadronic_molecule(M_D1, M_D, 4), charmoniumlike(id)
     {
-        // Mass and Width from PDG
-        _pole_mass     = M_Y4260;
-        
-        // Coupling taken from [1]
-        _coupling      = YBARE_QQ2016;
-
         // Set up the derivator 
         wsigma = ROOT::Math::Functor1D(this, &D1D_molecule::resigma);
         dsigma.SetFunction(wsigma);
+
+        // Default parameters use the QQ2016 values
+        set_parameters({MY_QQ2016, YBARE_QQ2016, YNM_WIDTH_QQ2016, F_Y_QQ2016});
     };
 
     // The propagator gains contributions from the self-energy
