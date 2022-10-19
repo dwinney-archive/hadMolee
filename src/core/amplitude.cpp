@@ -155,6 +155,21 @@ double amplitude::dGamma_ac(double s, double sac)
     return ig.Integral(sbc_min, sbc_max);
 };
 
+// Alias for three different subchannels, specify with an argument
+// Third argument is expected to be the correct subchannel energy
+double amplitude::dGamma(subchannel chan, double s, double sigma)
+{
+    switch (chan)
+    {
+        case ab: return dGamma_ab(s, sigma);
+        case bc: return dGamma_bc(s, sigma);
+        case ac: return dGamma_ac(s, sigma);
+        default: return 0.;
+    };
+
+    return 0.;
+};
+
 // ---------------------------------------------------------------------------
 // Fully integrated decay width
 double amplitude::Gamma(double s)

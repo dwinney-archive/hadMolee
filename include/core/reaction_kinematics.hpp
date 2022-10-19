@@ -16,6 +16,9 @@
 #include "Math/IntegrationTypes.h"
 #include "Math/Functor.h"
 
+// Three possible subchannels following the labelings inside amp->_reaction_kinematics
+enum subchannel{ab, bc, ac};
+
 // Abstract class for a generic amplitude of the e+e- -> abc process
 class reaction_kinematics 
 {

@@ -70,7 +70,8 @@ class amplitude
     double dGamma_ab(double s, double sab);
     double dGamma_bc(double s, double sbc);
     double dGamma_ac(double s, double sac);
-
+    inline double dGamma(subchannel chan, double s, double sigma);
+    
     // Fully integrated decay width
     double Gamma(double s);
 
