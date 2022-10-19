@@ -9,7 +9,7 @@
 #define SUM
 
 #include "amplitude.hpp"
-#include "hadronic_molecule.hpp"
+#include "charmoniumlike.hpp"
 #include "reaction_kinematics.hpp"
 
 class amplitude_sum : public amplitude

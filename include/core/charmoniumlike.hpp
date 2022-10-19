@@ -29,11 +29,30 @@ class charmoniumlike
     // String identifier
     inline string get_id(){ return _id; };
 
+    // Set pole mass ,coupling, and non-mol width in a single call
+    virtual inline void set_parameters(vector<double> pars)
+    {
+        check_size(pars);
+        return;
+    };  
+
+    // Access number of free parameters from outside
+    inline int get_Nparams(){ return _npars; };
+
     // -----------------------------------------------------------------------
     protected:
     
     // Name identifier
     string _id;
+
+    int _npars = 0;
+    void check_size(vector<double> pars)
+    {
+        if (pars.size() != _npars)
+        {
+            warning("charmoniumlike", "Wrong number of parameters given! Expected 3 but recieved " + to_string(pars.size()) + ". Results may vary...");
+        };
+    }
 };
 
 #endif

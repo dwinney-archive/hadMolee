@@ -49,6 +49,9 @@ class hadronic_molecule
         return;
     };  
 
+    // Access number of free parameters from outside
+    inline int get_Nparams(){ return _npars; };
+
     // -----------------------------------------------------------------------
     protected:
 
@@ -100,7 +103,7 @@ class DsD_molecule : public hadronic_molecule
         _total_width        = W_ZC3900;
         
         // Coupling taken from [1]
-        _coupling      = ZBARE_QQ2016;
+        _coupling      = ZBARE_QQ2016;  
         
         // residual width taken to recover the full PDG width at the pole
         _nonmol_width = _total_width - 2.* imag(self_energy(_pole_mass));
@@ -163,6 +166,9 @@ class D1D_molecule : public hadronic_molecule, public charmoniumlike
         _redS = dsigma.Eval(_pole_mass);
         _Z    = 1. / (1. - _redS);
     };
+
+    using hadronic_molecule::check_size;
+    using hadronic_molecule::set_parameters;
 
     private:
 
