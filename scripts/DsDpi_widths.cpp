@@ -23,22 +23,16 @@ void DsDpi_widths()
 
     // Empty Y propagator since we only care about the widths at fixed W
     D1D_molecule Y;
-    Y.set_parameters({4.26, 10.88, 0.056, 1./0.063});
 
     // S-wave we have a single term
-
     DsDpi_swave swave(&kDsDpi, &Y, "S-wave");
-    swave.set_parameters({-12.67, -15.23});
 
     // D-wave recieves contributions from two diagrams: 
-
     // the triangle
     DsDpi_triangle triangle(&kDsDpi, &Y, "Triangle");
-    triangle.set_debug(1); // Only D-wave couplings
 
     // and the D1 tree transition
     DsDpi_tree tree(&kDsDpi, &Y, "Tree");
-    tree.set_debug(1); // Only D-wave couplings
 
     // These can be summed up like this:
     amplitude_sum dwave(&kDsDpi, &Y, "D-wave");
@@ -77,7 +71,7 @@ void DsDpi_widths()
 
     xlabel   = "#sqrt{#sigma_{" + kDsDpi.particle_a() + kDsDpi.particle_b() + "}}   [GeV]";
     ylabel   = "#it{d}#Gamma_{" + kDsDpi.particle_a() + kDsDpi.particle_b() + "}  [a.u.]";
-    filename = "full_width_ab.pdf";
+    filename = "partial_width_ab.pdf";
 
     for (auto amp : amps)
     {
@@ -106,7 +100,7 @@ void DsDpi_widths()
 
     xlabel   = "#sqrt{#sigma_{" + kDsDpi.particle_b() + kDsDpi.particle_c() + "}}   [GeV]";
     ylabel   = "#it{d}#Gamma_{" + kDsDpi.particle_b() + kDsDpi.particle_c() + "}  [a.u.]";
-    filename = "full_width_bc.pdf";
+    filename = "partial_width_bc.pdf";
 
     for (auto amp : amps)
     {
@@ -135,7 +129,7 @@ void DsDpi_widths()
 
     xlabel   = "#sqrt{#sigma_{" + kDsDpi.particle_a() + kDsDpi.particle_c() + "}}   [GeV]";
     ylabel   = "#it{d}#Gamma_{" + kDsDpi.particle_a() + kDsDpi.particle_c() + "}  [a.u.]";
-    filename = "full_width_ac.pdf";
+    filename = "partial_width_ac.pdf";
 
     for (auto amp : amps)
     {
