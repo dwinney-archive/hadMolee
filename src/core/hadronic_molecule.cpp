@@ -23,7 +23,7 @@ complex<double> DsD_molecule::self_energy(double E)
 complex<double> DsD_molecule::propagator(double s)
 {
     double E = sqrt(s);
-    double z = _coupling;
+    double z = _molecular_coupling;
 
     complex<double> D = E - _pole_mass + XI * (z*z*self_energy(E) + _nonmol_width/2.);
     
@@ -40,7 +40,7 @@ complex<double> D1D_molecule::sigma(double E)
 {
     double eps = mass_difference(E);
     double mu  = reduced_mass();
-    double y   = _coupling;
+    double y   = _molecular_coupling;
 
     return (-XI/ (8.*PI)) * sqrt( 2.*mu*mu*mu* (eps + XI*W_D1/2.) ) * (y*y);
 };

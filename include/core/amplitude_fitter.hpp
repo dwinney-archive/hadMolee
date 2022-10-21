@@ -25,10 +25,15 @@ class amplitude_fitter
 
     // Constructor requires a valid amplitude to be fit
     amplitude_fitter(amplitude * amp)
-    : _amplitude(amp)
+    : _amplitude(amp), _V(amp->_V)
     {
+        // Extract how many parameters we should expect
+        int _N_V    = amp->_V->N_parameters();  // # of parameters from production & lineshape of vector meson
+        int _N_amp  = amp->N_parameters();      // # of parameters from decay to specific final state
+        int _N_pars = _N_V + _N_amp;
+
         // populate parameters vector of appropriate size
-        for (int i = 0; i < amp->get_nParams(); i++)
+        for (int i = 0; i < _N_pars; i++)
         {
             _pars.push_back(i);
         };
@@ -41,8 +46,13 @@ class amplitude_fitter
     amplitude_fitter(amplitude * amp, string strategy, double tolerance = 1.E-6)
     : _amplitude(amp), _tolerance(tolerance)
     {
+        // Extract how many parameters we should expect
+        int _N_V    = amp->_V->N_parameters();  // # of parameters from production & lineshape of vector meson
+        int _N_amp  = amp->N_parameters();      // # of parameters from decay to specific final state
+        int _N_pars = _N_V + _N_amp;
+
         // populate parameters vector of appropriate size
-        for (int i = 0; i < amp->get_nParams(); i++)
+        for (int i = 0; i < _N_pars; i++)
         {
             _pars.push_back(i);
         };
@@ -60,7 +70,6 @@ class amplitude_fitter
     // String id optional parameter for feeding fit results to a plotter object
     inline void add_subchannel_data(subchannel abc, double sqs, vector<double> sqsig, vector<double> data, vector<double> errors, string id = "")
     {
-
         // Number of data points for this set
         int n = sqsig.size();
 
@@ -76,17 +85,48 @@ class amplitude_fitter
         _subchannel_data.push_back(new_data);
 
         // Add number of points to the running totals
-        _N += n;
+        _N_data += n;
     };
 
     // Actually do the fit.
     void do_fit();
 
+    // convert double[] to vector<double>'s
+    // Also splits the single vector into two depending on the parameters which go into _V and which go to _amp
+    // This splitting is necessary in case multiple _amps all share the same _V
+    std::array<std::vector<double>,2> convert(const double * par)
+    {
+        std::vector<double> all_pars;
+        for (int n = 0; n < _N_pars; n++)
+        {
+            all_pars.push_back(par[n]);
+        };
+
+        // now we split into two sets
+        auto start = all_pars.begin();
+        auto end   = all_pars.begin() + _N_V;
+
+        std::vector<double> V_pars(start, end);
+        
+        start = all_pars.begin() + _N_V + 1;
+        end   = all_pars.end();
+
+        std::vector<double> amp_pars(start, end);
+
+        return {V_pars, amp_pars};
+    };
+
     // --------------------------------------------------------------------
     private:
 
-    // Amplitude being fit
+    // Decay amplitude being fit 
+    // This describes the definite final state we are considering. 
+    // In future this can be a vector to include multiple final states with their own data sets
     amplitude * _amplitude;
+
+    // This pointer is the shared vector meson object that all the amplitudes being fit share
+    // This can be our charmonium or Y-meson describing the total center-of-mass energy dependence
+    charmoniumlike * _V;
 
     // MINUIT error code
     int _printLevel = 0;
@@ -103,6 +143,10 @@ class amplitude_fitter
 
     // --------------------------------------------------------------------
     // Parameter handling
+
+    int _N_pars = 0;   // total # of parameters
+    int _N_amp  = 0;   // # parameters in production line-shape
+    int _N_V    = 0;   // # parameters in decay amplitude
 
     // Container struct carrying all relevant info for each parameter involved in the fit
     struct parameter
@@ -125,22 +169,11 @@ class amplitude_fitter
     // Vector of size nparams holding all parameters
     std::vector<parameter> _pars;
 
-    // convert double[] to vector<double>
-    std::vector<double> convert(const double * par)
-    {
-        std::vector<double> result;
-        for (int n = 0; n < _pars.size(); n++)
-        {
-            result.push_back(par[n]);
-        };
-        return result;
-    };
-
     // --------------------------------------------------------------------
     // Data handling
 
     // Running total number of data points saved
-    int _N = 0;
+    int _N_data = 0;
 
     // Simple container struct to hold all the relevent info for each user-added data set to fit against
     struct data_set

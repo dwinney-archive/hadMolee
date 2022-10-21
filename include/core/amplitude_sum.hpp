@@ -36,7 +36,7 @@ class amplitude_sum : public amplitude
         if (check_compatibility(new_amp))
         {
             _amps.push_back(new_amp);
-            set_nParams(get_nParams() + new_amp->get_nParams());
+            set_nParams(N_parameters() + new_amp->N_parameters());
         };
     };
 
@@ -60,16 +60,16 @@ class amplitude_sum : public amplitude
         {
             // Extract the subvector corresponding to the i-th amplitude
             auto start = x.begin() + N;
-            auto end   = x.begin() + N + _amps[i]->get_nParams();
+            auto end   = x.begin() + N + _amps[i]->N_parameters();
             std::vector<double> pars(start, end);
 
             _amps[i]->set_parameters(pars);
-            N += _amps[i]->get_nParams();
+            N += _amps[i]->N_parameters();
         };
 
         // At the end check that the number of params allocated is the same as expected
         // However is this happpens the damage is done so we just send out a warning...
-        if (N != get_nParams())
+        if (N != N_parameters())
         {
             std::cout << "Warning! amplitude_sum::set_params() : Number of parameters allocated doesnt match those expected..." << std::endl;
         };

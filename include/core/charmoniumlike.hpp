@@ -20,7 +20,8 @@ class charmoniumlike
     public:
 
     // Empty constructor
-    charmoniumlike(string id = "charmonium")
+    charmoniumlike( int npars, string id = "charmonium")
+    : _npars(npars)
     {};
 
     virtual complex<double> propagator(double s){ return 1.; };
@@ -37,7 +38,7 @@ class charmoniumlike
     };  
 
     // Access number of free parameters from outside
-    inline int get_Nparams(){ return _npars; };
+    inline int N_parameters(){ return _npars; };
 
     // -----------------------------------------------------------------------
     protected:

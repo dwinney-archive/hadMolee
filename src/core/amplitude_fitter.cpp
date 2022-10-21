@@ -18,7 +18,7 @@ void amplitude_fitter::do_fit()
 // Print out a summary of saved data
 void amplitude_fitter::data_info()
 {
-    cout << left << "Fitting amplitude (\"" << _amplitude->get_id() << "\") to " << _N << " data points: \n";
+    cout << left << "Fitting amplitude (\"" << _amplitude->get_id() << "\") to " << _N_amp << " data points: \n";
     new_line();
     cout << left << setw(30) << "DATA SET"            << setw(20) << "SUBCHANNEL"      << setw(10) << "POINTS"  << endl;
     cout << left << setw(30) << "----------------"    << setw(20) << "--------------"  << setw(10) << "-------" << endl;
@@ -84,12 +84,12 @@ void amplitude_fitter::variable_info(vector<double> starting_guess, bool opt)
 void amplitude_fitter::print_results()
 {
     // Fit results
-    int dof = _N - _minuit->NFree();
+    int dof = _N_pars - _minuit->NFree();
 
     new_line();
     double chi2    = _minuit->MinValue();
     double chi2dof = chi2 / double(dof) ;
-    vector<double> best_params = convert(_minuit->X());
+    vector<double> best_params = convert(_minuit->X())[0];
 
     divider();
     cout << left << setw(10) << "chi2 = "      << setw(15) << chi2;

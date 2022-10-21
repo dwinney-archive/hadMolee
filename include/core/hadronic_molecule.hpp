@@ -27,8 +27,8 @@ class hadronic_molecule
 
     // Constructor requires setting the masses of constituent
     // Set the constituent channel masses
-    hadronic_molecule(double m1, double m2, int npars)
-    : _m1(m1), _m2(m2), _npars(npars)
+    hadronic_molecule(double m1, double m2)
+    : _m1(m1), _m2(m2)
     {};
 
     // Evaluate the propagator
@@ -36,21 +36,7 @@ class hadronic_molecule
     virtual complex<double> propagator(double s){ return 1.; };
 
     // Output the saved coupling to the constituent channel
-    virtual inline double molecular_coupling(){ return _coupling; };
-
-    // // Setting utilitites for diffferent parameters that can float
-    // virtual inline void set_pole_mass(double x){ _renormalized_mass = x; };
-    // virtual inline void set_coupling( double x){ _bare_coupling     = x; };
-
-    // Set pole mass ,coupling, and non-mol width in a single call
-    virtual inline void set_parameters(vector<double> pars)
-    {
-        check_size(pars);
-        return;
-    };  
-
-    // Access number of free parameters from outside
-    inline int get_Nparams(){ return _npars; };
+    virtual inline double molecular_coupling(){ return _molecular_coupling; };
 
     // -----------------------------------------------------------------------
     protected:
@@ -66,7 +52,8 @@ class hadronic_molecule
 
     // Constituents masses 
     double _m1, _m2;
-    double _coupling = 1.;
+    double _molecular_coupling = 1.;
+
     inline double reduced_mass(){ return _m1 * _m2 / (_m1 + _m2); };
     inline double mass_difference(double E){ return E - _m1 - _m2; };
 
@@ -76,15 +63,6 @@ class hadronic_molecule
 
     // Self-energy loop function
     virtual complex<double> self_energy(double x){ return 0.; };
-
-    void check_size(vector<double> pars)
-    {
-        if (pars.size() != _npars)
-        {
-            warning("hadronic_molecule", "Wrong number of parameters given! Expected 3 but recieved " + to_string(pars.size()) + ". Results may vary...");
-        };
-    }
-    int _npars = 0;
 };
 
 // ---------------------------------------------------------------------------
@@ -96,14 +74,14 @@ class DsD_molecule : public hadronic_molecule
     public:
 
     DsD_molecule()
-    : hadronic_molecule(M_DSTAR, M_D, 0)
+    : hadronic_molecule(M_DSTAR, M_D)
     {
         // Mass and Width from PDG
         _pole_mass          = M_ZC3900;
         _total_width        = W_ZC3900;
         
         // Coupling taken from [1]
-        _coupling      = ZBARE_QQ2016;  
+        _molecular_coupling      = ZBARE_QQ2016;  
         
         // residual width taken to recover the full PDG width at the pole
         _nonmol_width = _total_width - 2.* imag(self_energy(_pole_mass));
@@ -131,7 +109,7 @@ class D1D_molecule : public hadronic_molecule, public charmoniumlike
     public:
 
     D1D_molecule(string id = "Y(4260)")
-    : hadronic_molecule(M_D1, M_D, 4), charmoniumlike(id)
+    : hadronic_molecule(M_D1, M_D), charmoniumlike(4, id)
     {
         // Set up the derivator 
         wsigma = ROOT::Math::Functor1D(this, &D1D_molecule::resigma);
@@ -156,19 +134,16 @@ class D1D_molecule : public hadronic_molecule, public charmoniumlike
     {
         check_size(pars);
 
-        _pole_mass    = pars[0];
-        _coupling     = pars[1];
-        _nonmol_width = pars[2];
-        _fY           = pars[3];
+        _pole_mass              = pars[0];
+        _molecular_coupling     = pars[1];
+        _nonmol_width           = pars[2];
+        _fY                     = pars[3];
 
         // Precalculate relevant quantities
         _reS  = resigma(_pole_mass);
         _redS = dsigma.Eval(_pole_mass);
         _Z    = 1. / (1. - _redS);
     };
-
-    using hadronic_molecule::check_size;
-    using hadronic_molecule::set_parameters;
 
     private:
 

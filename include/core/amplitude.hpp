@@ -54,7 +54,7 @@ class amplitude
     virtual void set_parameters(vector<double> pars){ return; };
 
     // Function to output the number of parameters this amplitude takes
-    inline int get_nParams(){ return _nparams; };
+    inline int N_parameters(){ return _nparams; };
 
     // Output the amplitude at fixed helicities for photon and particle a 
     // Needs array of two helicities (inital vector and outgoing vector) 
@@ -173,7 +173,7 @@ class phase_space : public amplitude
     public: 
 
     phase_space(reaction_kinematics * xkinem, string id = "")
-    : amplitude(xkinem, new charmoniumlike(""), 0, "flat_amplitude", id)
+    : amplitude(xkinem, new charmoniumlike(0, ""), 0, "flat_amplitude", id)
     {};
 
     ~phase_space()
