@@ -17,7 +17,7 @@
 #include "Math/Functor.h"
 
 // Three possible subchannels following the labelings inside amp->_reaction_kinematics
-enum subchannel{ab, bc, ac};
+enum subchannel{ab, ba = ab, bc, cb = bc, ac, ca = ac};
 
 // Abstract class for a generic amplitude of the e+e- -> abc process
 class reaction_kinematics 
@@ -26,22 +26,20 @@ class reaction_kinematics
     public: 
 
     // Constructor with only masses and number of parameters
-    reaction_kinematics(array<double,3> m, string id = "abc")
-    : _id(id)
+    reaction_kinematics(array<double,3> m)
     {
         set_particle_masses(m);
     };
 
     // Constructor that also allows labels
-    reaction_kinematics(array<double,3> m, array<string,3> labels, string id = "abc")
-    : _id(id)
+    reaction_kinematics(array<double,3> m, array<string,3> labels)
     {
         set_particle_masses(m);
         set_particle_labels(labels);
     };
 
     // Return the string identifier
-    inline string get_id(){ return _id; };
+    inline string get_id(){ return particle_a() + " " + particle_b() + " " + particle_c(); };
 
     // ------------------------------------------------------------------------------------------------------------------
     // Kinematic quantities 
@@ -145,6 +143,23 @@ class reaction_kinematics
     inline string particle_a(){ return _a; };
     inline string particle_b(){ return _b; };
     inline string particle_c(){ return _c; };
+
+    inline string subchannel_label(subchannel x)
+    {
+        switch (x) 
+        {
+            case ab: return particle_a() + " " + particle_b();
+            case ac: return particle_a() + " " + particle_c();
+            case bc: return particle_b() + " " + particle_c();
+            default:
+            {
+                warning("reaction_kinematics::subchannel_label()", "Subchannel not found! Returning empty string...");
+                return "";
+            }
+        };
+
+        return "";
+    };
 
     inline void set_particle_masses(double ma, double mb, double mc)
     { 

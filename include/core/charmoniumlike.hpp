@@ -21,7 +21,7 @@ class charmoniumlike
 
     // Empty constructor
     charmoniumlike( int npars, string id = "charmonium")
-    : _npars(npars)
+    : _npars(npars), _id(id)
     {};
 
     virtual complex<double> propagator(double s){ return 1.; };

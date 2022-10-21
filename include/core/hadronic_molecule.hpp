@@ -41,9 +41,6 @@ class hadronic_molecule
     // -----------------------------------------------------------------------
     protected:
 
-    // Name identifier
-    string _id;
-
     // Masses of the molecule
     double _pole_mass;
 

@@ -28,9 +28,9 @@ class amplitude_fitter
     : _amplitude(amp), _V(amp->_V)
     {
         // Extract how many parameters we should expect
-        int _N_V    = amp->_V->N_parameters();  // # of parameters from production & lineshape of vector meson
-        int _N_amp  = amp->N_parameters();      // # of parameters from decay to specific final state
-        int _N_pars = _N_V + _N_amp;
+        _N_V    = amp->_V->N_parameters();  // # of parameters from production & lineshape of vector meson
+        _N_amp  = amp->N_parameters();      // # of parameters from decay to specific final state
+        _N_pars = _N_V + _N_amp;
 
         // populate parameters vector of appropriate size
         for (int i = 0; i < _N_pars; i++)
@@ -68,53 +68,30 @@ class amplitude_fitter
     // - vector data points
     // - vector of errors
     // String id optional parameter for feeding fit results to a plotter object
-    inline void add_subchannel_data(subchannel abc, double sqs, vector<double> sqsig, vector<double> data, vector<double> errors, string id = "")
-    {
-        // Number of data points for this set
-        int n = sqsig.size();
+    void add_subchannel_data(subchannel abc, double sqs, vector<double> sqsig, vector<double> data, vector<double> errors, string id = "");
 
-        if (data.size() != n || errors.size() != n) 
-        {
-            warning("amplitude_fitter::add_subchannel_data", "Vectors received not the correct size! Skipping data set " + id + "...");
-            return;
-        };
+    // Give each parameter a string name for outputting results
+    void set_parameter_labels(std::vector<std::string> labels);
 
-        if ( id == "" ) id = subchannel_label(abc) + "_data[" + std::to_string(_subchannel_data.size()) + "]";
-        data_set new_data(abc, sqs, sqsig, data, errors, id);
+    // Set limits of a parameter specificed by index or name 
+    void set_parameter_limits(int i, std::array<double,2> ranges, double step = 0.1);
+    inline void set_parameter_limits(std::string name, std::array<double,2> ranges, double step = 0.1) { set_parameter_limits(find_parameter(name), ranges, step); };
 
-        _subchannel_data.push_back(new_data);
+    // Specify a parameter should be considered fix in the fit loop
+    inline void fix_parameter(int i) { _pars[i]._fixed = true; };
+    inline void fix_parameter(string name){ fix_parameter(find_parameter(name)); };
 
-        // Add number of points to the running totals
-        _N_data += n;
-    };
+    // Unfix a parameter
+    inline void free_parameter(int i){ _pars[i]._fixed = false; };
+
+    //Utility to change print level in TMinuit, default is to surpress all messages
+    inline void set_print_level(int n){ _printLevel = n; };
+
+    // Change the maximal number of function calls allowd 
+    inline void set_max_calls(int n){ _maxCalls = n; };
 
     // Actually do the fit.
-    void do_fit();
-
-    // convert double[] to vector<double>'s
-    // Also splits the single vector into two depending on the parameters which go into _V and which go to _amp
-    // This splitting is necessary in case multiple _amps all share the same _V
-    std::array<std::vector<double>,2> convert(const double * par)
-    {
-        std::vector<double> all_pars;
-        for (int n = 0; n < _N_pars; n++)
-        {
-            all_pars.push_back(par[n]);
-        };
-
-        // now we split into two sets
-        auto start = all_pars.begin();
-        auto end   = all_pars.begin() + _N_V;
-
-        std::vector<double> V_pars(start, end);
-        
-        start = all_pars.begin() + _N_V + 1;
-        end   = all_pars.end();
-
-        std::vector<double> amp_pars(start, end);
-
-        return {V_pars, amp_pars};
-    };
+    void do_fit(vector<double> starting_guess);
 
     // --------------------------------------------------------------------
     private:
@@ -129,8 +106,8 @@ class amplitude_fitter
     charmoniumlike * _V;
 
     // MINUIT error code
-    int _printLevel = 0;
-    int _maxCalls   = 1E6;
+    int _printLevel   = 0;
+    int _maxCalls     = 1E6;
     double _tolerance = 1.E-6;
     ROOT::Math::Minimizer * _minuit;
     ROOT::Math::Functor fcn;
@@ -169,6 +146,24 @@ class amplitude_fitter
     // Vector of size nparams holding all parameters
     std::vector<parameter> _pars;
 
+    // Input a variable label and find its corresponding index
+    int find_parameter(string name)
+    {
+        for (int i = 0; i < _pars.size(); i++)
+        {
+            if (_pars[i]._label != name) return i;
+        }
+
+        warning("amplitude_fitter::find_parameter()", "Parameter named " + name + " not found!");
+        return -1;
+    };
+
+    // convert double[] to vector<double>'s
+    // Also splits the single vector into two depending on the parameters which go into _V and which go to _amp
+    // This splitting is necessary in case multiple _amps all share the same _V
+    array<vector<double>,2> convert(const double * par);
+    void allocate_parameters(const double *par);
+
     // --------------------------------------------------------------------
     // Data handling
 
@@ -179,13 +174,15 @@ class amplitude_fitter
     struct data_set
     {
         data_set(subchannel abc, double sqrts, vector<double> sqrtsigmas, vector<double> data, vector<double> errors, string id)
-        : _subchannel(abc), _sqrts(sqrts), _sqrtsigmas(sqrtsigmas), _data(data), _errors(errors), _id(id)
+        : _subchannel(abc), _sqrts(sqrts), _sqrtsigmas(sqrtsigmas), _data(data), _errors(errors), _id(id),
+          _N(sqrtsigmas.size())
         {};
 
         string _id;
         subchannel _subchannel;
         double _sqrts;
         vector<double> _sqrtsigmas, _data, _errors;
+        int _N;
     };
     // Vector containing all our different data sets
     vector<data_set> _subchannel_data;
