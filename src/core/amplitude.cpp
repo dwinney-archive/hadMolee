@@ -77,7 +77,7 @@ double amplitude::d2Gamma(double s, double sab, double sbc)
 {
     if ( !_kinematics->in_physical_region(s, sab, sbc) ) 
     {
-        warning(get_id(), "Evaluating amplitude outside physical region! Returning 0...");
+        // warning(get_id(), "Evaluating amplitude outside physical region! Returning 0...");
         return 0.;
     };
 
@@ -159,6 +159,11 @@ double amplitude::dGamma_ac(double s, double sac)
 // Third argument is expected to be the correct subchannel energy
 double amplitude::dGamma(subchannel chan, double s, double sigma)
 {
+    if ( !_kinematics->in_physical_region(s, sigma, chan) ) 
+    {
+        return 0.;
+    };
+
     switch (chan)
     {
         case ab: return dGamma_ab(s, sigma);

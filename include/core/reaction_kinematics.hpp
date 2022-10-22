@@ -133,8 +133,35 @@ class reaction_kinematics
     inline bool in_physical_region(double s, double sab, double sbc)
     {
         double phi = Kibble(s, sab, sbc);
-        if (phi >= 0) return true;
-        else          return false; 
+        return (phi >= 0);
+    };
+    inline bool in_physical_region(double s, double sig, subchannel x)
+    {
+        double upper, lower;
+        switch (x)
+        {
+            case ab: 
+            {
+                upper = (sqrt(s) - _mc);
+                lower = (_ma + _mb);
+                break;
+            }
+            case bc: 
+            {
+                upper = (sqrt(s) - _ma);
+                lower = (_mb + _mc);
+                break;
+            }
+            case ac: 
+            {
+                upper = (sqrt(s) - _mb);
+                lower = (_ma + _mc);
+                break;
+            }
+            default: return false;
+        };
+
+        return ((sqrt(sig) <= upper) && (sqrt(sig) >= lower));
     };
 
     // Set particle labels (useful for plotting)

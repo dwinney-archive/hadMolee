@@ -9,6 +9,7 @@
 
 #include "reaction_kinematics.hpp"
 #include "amplitude.hpp"
+#include "data_formatting.hpp"
 
 #include <sstream> 
 #include <chrono> 
@@ -69,6 +70,9 @@ class amplitude_fitter
     // - vector of errors
     // String id optional parameter for feeding fit results to a plotter object
     void add_subchannel_data(subchannel abc, double sqs, vector<double> sqsig, vector<double> data, vector<double> errors, string id = "");
+
+    // Alternatively you can jsut specify the subchannel, fixed center-of-mass energy, and point to a data file
+    void add_subchannel_data(subchannel abc, double sqs, string filename, string id = "");
 
     // Give each parameter a string name for outputting results
     void set_parameter_labels(std::vector<std::string> labels);
@@ -159,9 +163,10 @@ class amplitude_fitter
     };
 
     // convert double[] to vector<double>'s
-    // Also splits the single vector into two depending on the parameters which go into _V and which go to _amp
-    // This splitting is necessary in case multiple _amps all share the same _V
-    array<vector<double>,2> convert(const double * par);
+    vector<double> convert(const double * par);
+
+    // This converts but also splits the single vector into two depending on the parameters which go into _V and which go to _amp
+    // And passes the appropriate length vectors to amplitudes with amplitude::set_parameters
     void allocate_parameters(const double *par);
 
     // --------------------------------------------------------------------

@@ -53,6 +53,11 @@ void reformat_digitized(string central_value, string lower_error, string upper_e
         upper.push_back(y); 
     }
 
+    // Close everything up
+    central_file.close();
+    upper_file.close();
+    lower_file.close();
+
     // Check theyre all the correct size
     if ((E.size() != upper.size()) || (E.size() != lower.size()))
     {
@@ -90,4 +95,40 @@ void reformat_digitized(string central_value, string lower_error, string upper_e
 
 
     return;
+};
+
+// ---------------------------------------------------------------------------
+// Take in path to a .dat file and import it as an array of vectors
+// Output will be an array of vectors containing each column
+std::array<std::vector<double>,4> import_data(string filename)
+{
+    // Output will contain column data from here
+    std::vector<double> E, central, upper, lower;
+
+    // Open the file
+    std::ifstream file(filename.c_str());
+    if (file.fail())
+    {
+        warning("import_data", "Couldn't open file " + filename + " ! Continuing without reformatting...");
+        return {{}};
+    }
+
+    double e, cen, up, low;
+    while (file >> e >> cen >> up >> low)
+    {
+        E.push_back(e); 
+        central.push_back(cen);
+        upper.push_back(up);
+        lower.push_back(low);
+    }
+    file.close();
+
+    // Check theyre all the correct size
+    if ((E.size() != central.size()) || (E.size() != upper.size()) || (E.size() != lower.size()))
+    {
+        warning("import_data", "Input files sizes dont match! Continuing without reformatting...");
+        return {{}};
+    };
+
+    return {E, central, upper, lower};
 };

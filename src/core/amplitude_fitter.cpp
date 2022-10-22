@@ -44,16 +44,6 @@ void amplitude_fitter::do_fit(vector<double> starting_guess)
     return;
 };
 
-// Takes in the double* from minuit, and feeds the vectors of appropriate size to each subamplitude
-void amplitude_fitter::allocate_parameters(const double *par)
-{
-    // Split the parameter vector 
-    auto pars = convert(par);
-    // And allocate them appropriately
-    _V->set_parameters(pars[0]); 
-    _amplitude->set_parameters(pars[1]);
-};
-
 // Minimization function for the subchannel data
 double amplitude_fitter::chi2_subchannels(const double *par)
 {   
@@ -63,21 +53,30 @@ double amplitude_fitter::chi2_subchannels(const double *par)
     double chi2 = 0.;
     for (data_set data : _subchannel_data)
     {
+        // We assume the subchannel data set is in raw event counts
+        // Thus we normalize our curves to have the same area
+        double total_events = 0;
+        for (auto bin : data._data){ total_events += bin; }
+        
+        // Fixed e+e- invariant mass
+        double s     = pow(data._sqrts, 2.);
+
+        _amplitude->normalize(total_events, s);
+        
+        // Loop over data points calculating chi2
         double chi2_i = 0.;
         for (int i = 0; i < data._N; i++)
         {
-            // Fixed e+e- invariant mass
-            double s     = pow(data._sqrts, 2.);
             // Fixed sub-channel invariant mass
             double sigma = pow(data._sqrtsigmas[i], 2.);
 
-            // Theory partial-width and data
-            double sigma_th = _amplitude->dGamma(data._subchannel, s, sigma);
-            double sigma_ex = data._data[i];
-            double error    = data._errors[i];
+            // Caculate intensity from saved amplitude and from data
+            double I_th   = _amplitude->dGamma(data._subchannel, s, sigma);
+            double I_ex   = data._data[i];
+            double error  = data._errors[i];
 
             // Add to local chi2
-            chi2_i += pow( (sigma_th - sigma_ex) / error, 2.);
+            chi2_i += pow( (I_th - I_ex) / error, 2.);
         };
 
         // Add the local chi2 to the running chi2
@@ -118,6 +117,28 @@ void amplitude_fitter::add_subchannel_data(subchannel abc, double sqs, vector<do
     _N_data += n;
 };
 
+// Alternatively you can jsut specify the subchannel, fixed center-of-mass energy, and point to a data file
+void amplitude_fitter::add_subchannel_data(subchannel abc, double sqs, string filename, string id)
+{
+    // Import data
+    // The resulting format will be in 4 vectors
+    auto file = import_data(filename);
+
+    // The first two columns are already in the format we need
+    std::vector<double> sqsig = file[0];
+    std::vector<double> data  = file[1];
+
+    // The errors are given as upper and lower values so we neeed to convert them to a single |error| = |upper - lower|
+    std::vector<double>  errors;
+    for (int i = 0; i < file[2].size(); i++)
+    {
+        errors.push_back( file[3][i] - file[2][i] );
+    };
+
+    // Save to fitter
+    add_subchannel_data(abc, sqs, sqsig, data, errors, id);    
+};
+
 //-----------------------------------------------------------------------
 // Parameter management methods 
 
@@ -147,13 +168,22 @@ void amplitude_fitter::set_parameter_limits(int i, array<double,2> ranges, doubl
 // convert double[] to vector<double>'s
 // Also splits the single vector into two depending on the parameters which go into _V and which go to _amp
 // This splitting is necessary in case multiple _amps all share the same _V
-array<vector<double>,2> amplitude_fitter::convert(const double * par)
+vector<double> amplitude_fitter::convert(const double * par)
 {
     vector<double> all_pars;
     for (int n = 0; n < _N_pars; n++)
     {
         all_pars.push_back(par[n]);
     };
+
+    return all_pars;
+};
+
+// Takes in the double* from minuit, and feeds the vectors of appropriate size to each subamplitude
+void amplitude_fitter::allocate_parameters(const double *par)
+{
+    // Split the parameter vector 
+    std::vector<double> all_pars = convert(par);
 
     // now we split into two sets
     // The first are the parameters that belong to our production lineshape model
@@ -163,12 +193,14 @@ array<vector<double>,2> amplitude_fitter::convert(const double * par)
     vector<double> V_pars(start, end);
 
     // The second are for the decay amplitude
-    start = all_pars.begin() + _N_V + 1;
+    start = all_pars.begin() + _N_V;
     end   = all_pars.end();
 
     vector<double> amp_pars(start, end);
 
-    return {V_pars, amp_pars};
+    // And allocate them appropriately
+    _V->set_parameters(V_pars); 
+    _amplitude->set_parameters(amp_pars);
 };
 
 //-----------------------------------------------------------------------
@@ -254,7 +286,7 @@ void amplitude_fitter::print_results()
     new_line();
     double chi2    = _minuit->MinValue();
     double chi2dof = chi2 / double(dof) ;
-    vector<double> best_params = convert(_minuit->X())[0];
+    vector<double> best_params = convert(_minuit->X());
 
     divider();
     cout << left << setw(10) << "chi2 = "      << setw(15) << chi2;
@@ -265,5 +297,5 @@ void amplitude_fitter::print_results()
     new_line();
     
     // At the end update the amplitude parameters to include the fit results
-    _amplitude->set_parameters(best_params);
+    allocate_parameters(_minuit->X());
 }
