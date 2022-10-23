@@ -64,7 +64,6 @@ class DsDpi_swave : public amplitude
     {
         // sab is assumed to be DsD channel
         _AS = _a * (_sab + _b) * _Zc.propagator(_sab);
-
     };
 };
 
@@ -86,6 +85,7 @@ class DsDpi_tree : public amplitude
     inline complex<double> reduced_amplitude(int i, int j)
     {
         if (updated()) recalculate();
+
         return _AS * s_wave(i,j) + _AD * d_wave(i,j);
     };
 
@@ -106,8 +106,8 @@ class DsDpi_tree : public amplitude
         _AD *= (_Y->molecular_coupling() / sqrt(2.)) * _D1.eval(_sac);
     };
 
-    double _hS = 0., _hD = HPRIME_UPPER / F_PION_QQ2016;    // Coupling constants to S and D wave interactions
-    complex<double> _AS, _AD;                               // Energy dependent S and D wave strengths
+    double _hS = 0., _hD = HPRIME_UPPER / F_PION;    // Coupling constants to S and D wave interactions
+    complex<double> _AS, _AD;               // Energy dependent S and D wave strengths
 
     // This channel has a D1 resonance in the Ds pi channel
     relativistic_BW _D1;
@@ -184,8 +184,8 @@ class DsDpi_triangle : public amplitude
         _AD *= - (_Y->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc.propagator(_sab);
     };
 
-    double _hS = 0., _hD = HPRIME_UPPER;  // D1 -> D*pi coupling for the S-wave and the D-wave
-    complex<double> _AS, _AD;             // Energy dependent S and D wave strengths
+    double _hS = 0., _hD = HPRIME_UPPER / F_PION;  // D1 -> D*pi coupling for the S-wave and the D-wave
+    complex<double> _AS, _AD;                      // Energy dependent S and D wave strengths
 
     // On-shell masses involved in the triangle
     array<double,3> _internal = {M_DSTAR, M_D1,     M_D};
