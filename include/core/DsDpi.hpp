@@ -172,7 +172,8 @@ class DsDpi_triangle : public amplitude
         _AS = XI * _hS * sqrt(p_pion*p_pion + _mc2);
         _AD = XI * _hD * p_pion*p_pion;
 
-        _T->set_external_masses({_W, sqrt(_sab), M_PION}); // Update arguments with floating Y and Z meson masses
+        // Update arguments with floating Y and Z meson masses
+        _T->set_external_masses({_W, sqrt(_sab), M_PION}); 
         
         // Multiply by the propagator of the Z and triangle function
         double z = _Zc.molecular_coupling();

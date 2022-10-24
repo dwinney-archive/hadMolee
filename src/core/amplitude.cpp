@@ -65,14 +65,17 @@ double amplitude::decay_distribution(double s, double sab, double sbc)
     {
         for (auto j : C_INDICES)
         {
-            int V_polarization = delta(i, j) - (4./3.)*delta(i,x)*delta(j,x) - (2./3.)*delta(i,z)*delta(j,z);
+            // This is \int_-1^1 dcos (3 * \sum eps eps*)
+            // Where eps is the Y-polarization oriented an angle costheta with respect to +z axis
+            // The factor of 3 is just to make it an int
+            int V_polarization = 3*delta(i, j) - 2*delta(i,x)*delta(j,x) - delta(i,z)*delta(j,z);
             if (V_polarization == 0) continue;
-
+            
             // V -> abc 
             double Asqr = _cached_decay_tensor[i][j];
             if ( is_zero(Asqr) ) continue;
 
-            sum += V_polarization * Asqr;
+            sum += (V_polarization / 3.) * Asqr;
         };
     };
 
