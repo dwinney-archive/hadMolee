@@ -34,16 +34,16 @@ inline void amplitude::check_decay_cache()
         {
             for (auto j : C_INDICES)
             {
+                double x = 0.;
                 // K is the external polarization
                 for (auto k : C_INDICES)
                 {
-                    complex<double> x;
-                    x  =      amp[i][k];
                     // Polarization sum over the final state vector gives a delta function fixing k here
-                    x *= conj(amp[j][k]);
-                    if (!is_zero( imag(x) )) warning("check_decay_cache", "Reduced amplitude squared is imaginary!");
-                    _cached_decay_tensor[i][j] = real(x);
+                    complex<double> y = amp[i][k] * conj(amp[j][k]);
+                    if (!is_zero( imag(y) )) warning("check_decay_cache", "Reduced amplitude squared is imaginary!");
+                    x += real(y);
                 };
+                 _cached_decay_tensor[i][j] = x;
             }
         };
     };
@@ -65,7 +65,7 @@ double amplitude::decay_distribution(double s, double sab, double sbc)
     {
         for (auto j : C_INDICES)
         {
-            int V_polarization = delta(i, j) /* - delta(i,z)*delta(j,z) */;
+            int V_polarization = delta(i, j) - delta(i,z)*delta(j,z);
             if (V_polarization == 0) continue;
 
             // V -> abc 

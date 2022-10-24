@@ -165,8 +165,8 @@ class amplitude
     double _ma2, _mb2, _mc2;
 
     // Short cuts for characteristic angular behavior
-    inline int s_wave(cartesian_index i, cartesian_index j) { return delta(i,j); }                  // S-wave is just a delta-function
-    inline int d_wave(cartesian_index i, cartesian_index j) { return 3*delta(i, z) - delta(i,j); }; // D-wave 
+    inline int s_wave(cartesian_index i, cartesian_index j) { return delta(i,j); }                            // S-wave is just a delta-function
+    inline int d_wave(cartesian_index i, cartesian_index j) { return 3*delta(i,z)*delta(j,z) - delta(i,j); }; // D-wave 
 };
 
 // Simply amplitude with no energy dependence. 
