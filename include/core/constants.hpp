@@ -39,6 +39,10 @@ const double GEV2NB   = 0.3894E6;    // GeV^{-2} -> nb
 const double           EPS  = 1.E-8;
 const complex<double> IEPS  = XI*EPS;
 
+// Three cartesian indexes for ease;
+enum  index{x = 0, y = 1, z = 2};
+const index C_INDICES[] = { x, y, z };
+
 // ---------------------------------------------------------------------------
 // 2022 PDG masses in GeV
 

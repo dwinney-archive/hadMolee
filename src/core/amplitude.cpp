@@ -9,25 +9,44 @@
 // ---------------------------------------------------------------------------
 // At each energy step we cach all the components of the reduced amplitude tensor to minimize re-calculation
 
-inline void amplitude::check_cache()
+inline void amplitude::check_decay_cache()
 {
     bool need_recalculate;
-    need_recalculate = (_cached_amplitudes.size() != 3 || _cached_amplitudes[0].size() != 3 ) 
-                        || (abs(_cached_s - _s) > _cache_tolerance) 
+    need_recalculate =     (abs(_cached_s - _s) > _cache_tolerance) 
                         || (abs(_cached_sab - _sab) > _cache_tolerance) 
                         || (abs(_cached_sbc - _sbc) > _cache_tolerance);
     if (need_recalculate)
     {
-        _cached_amplitudes.clear();
-        for (int i = 0; i < 3; i++)
-        {
-            vector<complex<double>> i_slice;
-            for (int j = 0; j < 3; j++)
-            {
-                i_slice.push_back( reduced_amplitude(i, j) );
-            }
+        // We neeed to calcualte the amplitude squared summed over the final state polarizations
+        // First lets calcualte and save the reduced amplitude for i,j=0,1,2
+        array<array<complex<double>,3>,3> amp;
 
-            _cached_amplitudes.push_back(i_slice);
+        for (auto i : C_INDICES)
+        {
+            for (auto j : C_INDICES)
+            {
+                amp[i][j] = reduced_amplitude(i, j);
+            }
+        };
+
+        //Now we can square and sum without having to calculate twice
+        for (auto i : C_INDICES)
+        {
+            for (auto j : C_INDICES)
+            {
+                // K is the external polarization
+                for (auto k : C_INDICES)
+                {
+                    complex<double> x;
+                    x  =      amp[i][k];
+                    // Polarization sum over the final state vector gives a delta function fixing k here
+                    x *= conj(amp[j][k]);
+
+                    if (!is_zero( imag(x) )) warning("check_decay_cache", "Reduced amplitude squared is imaginary!");
+
+                    _cached_decay_tensor[i][j] = real(x);
+                };
+            }
         };
     };
 };
@@ -39,32 +58,28 @@ double amplitude::probability_distribution(double s, double sab, double sbc)
     // Update the saved energy values for easier access later
     update(s, sab, sbc);
 
-    // Check if we need to update our precalculated amplitudes 
-    check_cache();
-
     // Contract over Cartesian indices
     double sum = 0;
-    for (int i = 0; i < 3; i++)
+    for (auto i : C_INDICES)
     {
-        for (int j = 0; j < 3; j++)
+        for (auto j : C_INDICES)
         {
-            for (int k = 0; k < 3; k++)
-            {
-                complex<double> x;
+            int production = _kinematics->production_tensor(i,j);
+            if (production == 0) continue;
 
-                // Leptonic tensor involving the orientation of the e+e- beams
-                x  = _kinematics->production_tensor(i, j, s);
+            complex<double> x = 1.;
+            
+            // e+ e- -> gamma 
+            x *= _kinematics->ee_to_gamma(s) * production;
 
-                // VMD coupling squared
-                x *= norm(_kinematics->photon_propagator(s) * _V->photon_coupling() * _V->propagator(s));
+            // gamma -> V
+            x *= norm(_V->photon_coupling() * _V->propagator(s));
 
-                // Sum over the amplitude squared
-                x *=      _cached_amplitudes[j][k];
-                // Polarization sum over the final state vector gives a delta function fixing k here
-                x *= conj(_cached_amplitudes[k][i]);
+            // V -> abc 
+            x *= _cached_decay_tensor[i][j];
 
-                sum += real(x);
-            };
+            if (!is_zero( imag(x) )) warning("probability_distribution", "Amplitude squared is imaginary!");
+            sum += real(x);
         };
     };
 
@@ -84,14 +99,14 @@ double amplitude::d2Gamma(double s, double sab, double sbc)
     double amp_squared = probability_distribution(s, sab, sbc); 
 
     // // Average over the spins of the inital electron-positron pair
-    // amp_squared /= 4.;
+    amp_squared /= 4.;
 
     // General prefactors for 1->3 decay width in GeV
     double prefactors = 1. / (32.*pow(2.*PI*sqrt(s), 3.));
 
     if (_normalize) prefactors *= _normalization;
 
-    return amp_squared * prefactors * GEV2NB; // in units of nanobarn / GeV^{4}
+    return amp_squared * prefactors; 
 };
 
 // ---------------------------------------------------------------------------

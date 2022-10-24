@@ -209,45 +209,48 @@ class reaction_kinematics
     // Given as a function of s and the pion angle z
     double _cached_cos = 500.; // start costheta at an unphysical value as a starting value
     array<double,3> _cached_phat;
-    inline complex<double> production_tensor(int i, int j, double s, double cos)
+    inline double production_tensor(index i, index j, double cos)
     {
         if ( !is_equal(_cached_cos, cos) )
         {
-            _cached_phat[0] = sqrt(1. - cos*cos);
-            _cached_phat[1] = 0.;
-            _cached_phat[2] = cos;
+            _cached_phat[index::x] = sqrt(1. - cos*cos);
+            _cached_phat[index::y] = 0.;
+            _cached_phat[index::z] = cos;
 
             _cached_cos = cos;
         };
-
-        // Modulous of lepton momentum squared
-        double k2  = s /  4.;
 
         // In massless approximation, this reduces to the polarization sum of transverse photon
         // We assume the final state pion defines the +z axis and cos is the cosine of the pi e- angle
         double polarization_sum = (double(i == j) - _cached_phat[i]*_cached_phat[j]);
 
-        return E*E * 4.*k2 * polarization_sum;
+        return polarization_sum;
     };
 
     // Without specifying an angle this produces the tensor already integrated over the orientation
-    inline complex<double> production_tensor(int i, int j, double s)
+    inline int production_tensor(int i, int j)
     {
-        // Modulous of lepton momentum squared
-        double k2  = s /  4.;
-
         // Numerical prefactors come from only non-zero terms \int_{-1}^1 dos sin^2 and same integral for cos^2 
         // off diagnals are either 0 or sin*cos which vanishes in the integration
-        double polarization_sum = (double(i == j) - (4./3.)*(i==0 && j==0) - (2./3.)*(i==2 && j==2) );
+        int polarization_sum = ( (i == j) /* - 4*(i==0)*(j==0) */ - (i==index::z && j==index::z) );
 
-        return E*E * 4.*k2  * polarization_sum;
+        return polarization_sum;
     };
 
-    // Self-explainatory 
-    // I explicitly remove the index dependence assuming thats already been contracted with the above production tensor
-    inline complex<double> photon_propagator(double s)
+    // This is the scalar coupling of e+ e- -> gammma which includes the photon propagator,
+    // The lorentz index dependence is in production_tensor(i,j);
+    inline complex<double> ee_to_gamma(double s)
     {
-        return XI / s;
+        // Modulous of lepton momentum squared
+        double k2                    = s/4.;
+
+        // Ultra-relativistic dependence of the spinors
+        double production_dependence = E*E * 4.*k2;
+
+        // Photon propagator squared
+        double photon_propagator     = -(1./s/s);
+
+        return production_dependence * photon_propagator;
     };
 
     // -----------------------------------------------------------------------

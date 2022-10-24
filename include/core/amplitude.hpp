@@ -124,6 +124,9 @@ class amplitude
         _sac = _ma2 + _mb2 + _mc2 + s - sab - sbc;
 
         _updated = true;
+
+        // Check if we need to update our precalculated amplitudes 
+        check_decay_cache();
     };
 
     // If recently updated, reset the _updated flag and return 1
@@ -145,10 +148,10 @@ class amplitude
     virtual void recalculate(){ return; };
 
     // Save all the components of the reduced amplitude at each step of sab and bc to avoid having to recalculate
-    vector< vector< complex<double> > > _cached_amplitudes;
+    array<array<double,3>,3> _cached_decay_tensor;
     double _cache_tolerance = EPS;
     double _cached_s, _cached_sab, _cached_sbc;
-    void check_cache();
+    void check_decay_cache();
 
     // Total invairant energies
     double _W, _s;
@@ -161,8 +164,8 @@ class amplitude
     double _ma2, _mb2, _mc2;
 
     // Short cuts for characteristic angular behavior
-    inline int s_wave(int i, int j) { return (i == j); }                     // S-wave is just a delta-function
-    inline int d_wave(int i, int j) { return 3*(i==2 && j==2) - (i == j); }; // D-wave 
+    inline int s_wave(int i, int j) { return (i == j); }                                   // S-wave is just a delta-function
+    inline int d_wave(int i, int j) { return 3*(i==index::z && j==index::z) - (i == j); }; // D-wave 
 };
 
 // Simply amplitude with no energy dependence. 
