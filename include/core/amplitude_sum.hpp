@@ -43,9 +43,9 @@ class amplitude_sum : public amplitude
     // Add a whole vector of new amplitudes
     inline void add(vector<amplitude*> new_amps)
     {
-        for (int i = 0; i < new_amps.size(); i++)
+        for (amplitude* amp : new_amps)
         {
-            add(new_amps[i]);
+            add(amp);
         };
     };
 
@@ -56,15 +56,15 @@ class amplitude_sum : public amplitude
     
         int N = 0;
         // Allocate parameters to the individual amplitudes
-        for (int i = 0; i < _amps.size(); i++)
+        for (amplitude* amp : _amps)
         {
             // Extract the subvector corresponding to the i-th amplitude
             auto start = x.begin() + N;
-            auto end   = x.begin() + N + _amps[i]->N_parameters();
+            auto end   = x.begin() + N + amp->N_parameters();
             std::vector<double> pars(start, end);
 
-            _amps[i]->set_parameters(pars);
-            N += _amps[i]->N_parameters();
+            amp->set_parameters(pars);
+            N += amp->N_parameters();
         };
 
         // At the end check that the number of params allocated is the same as expected

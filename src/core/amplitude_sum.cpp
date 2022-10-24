@@ -13,12 +13,12 @@
 complex<double> amplitude_sum::reduced_amplitude(cartesian_index i, cartesian_index j)
 {
     complex<double> sum = 0.;
-    for (int n = 0; n < _amps.size(); n++)
+    for (amplitude* amp : _amps)
     {
         // Have to make sure to feed energy values to component amplitudes
-        _amps[n]->update(_s, _sab, _sbc);
+        amp->update(_s, _sab, _sbc);
 
-        sum += _amps[n]->reduced_amplitude(i, j);
+        sum += amp->reduced_amplitude(i, j);
     };
 
     return sum;

@@ -9,7 +9,7 @@
 // ---------------------------------------------------------------------------
 // At each energy step we cach all the components of the reduced amplitude tensor to minimize re-calculation
 
-inline void amplitude::check_decay_cache()
+void amplitude::check_decay_cache()
 {
     bool need_recalculate;
     need_recalculate =     (abs(_cached_s - _s) > _cache_tolerance) 
@@ -65,7 +65,7 @@ double amplitude::decay_distribution(double s, double sab, double sbc)
     {
         for (auto j : C_INDICES)
         {
-            int V_polarization = delta(i, j) - delta(i,z)*delta(j,z);
+            int V_polarization = delta(i, j) - (4./3.)*delta(i,x)*delta(j,x) - (2./3.)*delta(i,z)*delta(j,z);
             if (V_polarization == 0) continue;
 
             // V -> abc 
