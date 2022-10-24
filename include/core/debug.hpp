@@ -49,6 +49,16 @@ inline void debug(T x, F y, G z, H a)
     cout << left << setw(DEBUG_SPACING) << a << endl;
 };
 
+template<typename T, typename F, typename G, typename H, typename I>
+inline void debug(T x, F y, G z, H a, I b)
+{
+    cout << left << setw(DEBUG_SPACING) << x;
+    cout << left << setw(DEBUG_SPACING) << y;
+    cout << left << setw(DEBUG_SPACING) << z;
+    cout << left << setw(DEBUG_SPACING) << a;
+    cout << left << setw(DEBUG_SPACING) << b << endl;
+};
+
 // ---------------------------------------------------------------------------
 // ERROR Messages
 
