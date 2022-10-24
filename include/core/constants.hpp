@@ -40,8 +40,12 @@ const double           EPS  = 1.E-8;
 const complex<double> IEPS  = XI*EPS;
 
 // Three cartesian indexes for ease;
-enum  index{x = 0, y = 1, z = 2};
-const index C_INDICES[] = { x, y, z };
+enum cartesian_index{x = 0, y = 1, z = 2};
+const cartesian_index C_INDICES[] = { x, y, z };
+
+// Delta function, made explicit for cartesian_index so you dont need to
+// put cartesian_index::x all the time
+inline bool delta(cartesian_index i, cartesian_index j){ return (i == j); };
 
 // ---------------------------------------------------------------------------
 // 2022 PDG masses in GeV

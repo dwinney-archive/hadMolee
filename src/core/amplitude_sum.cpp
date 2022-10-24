@@ -10,7 +10,7 @@
 // ---------------------------------------------------------------------------
 // The amplitude of a sum is simply the sum of constituent amplitudes 
 
-complex<double> amplitude_sum::reduced_amplitude(int i, int j)
+complex<double> amplitude_sum::reduced_amplitude(cartesian_index i, cartesian_index j)
 {
     complex<double> sum = 0.;
     for (int n = 0; n < _amps.size(); n++)

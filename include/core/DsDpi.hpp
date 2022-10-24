@@ -28,7 +28,7 @@ class DsDpi_swave : public amplitude
 
     // The reduced amplitude corresponds to the S-wave contact-like interaction
     // however it receives contributions from the propagator of the Z meson
-    inline complex<double> reduced_amplitude(int i, int j)
+    inline complex<double> reduced_amplitude(cartesian_index i, cartesian_index j)
     {
         // IF our kinematics has been changed, recalculate relevant quantities
         if (updated()) recalculate();
@@ -82,7 +82,7 @@ class DsDpi_tree : public amplitude
 
     // The reduced amplitude corresponds to the S-wave contact-like interaction
     // however it receives contributions from the propagator of the Z meson
-    inline complex<double> reduced_amplitude(int i, int j)
+    inline complex<double> reduced_amplitude(cartesian_index i, cartesian_index j)
     {
         if (updated()) recalculate();
 
@@ -140,7 +140,7 @@ class DsDpi_triangle : public amplitude
 
     // The reduced amplitude corresponds to the S-wave contact-like interaction
     // however it receives contributions from the propagator of the Z meson
-    inline complex<double> reduced_amplitude(int i, int j)
+    inline complex<double> reduced_amplitude(cartesian_index i, cartesian_index j)
     {
         // Check if we need to recalculate strengths
         if (updated()) recalculate();

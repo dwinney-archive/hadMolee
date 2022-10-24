@@ -209,32 +209,28 @@ class reaction_kinematics
     // Given as a function of s and the pion angle z
     double _cached_cos = 500.; // start costheta at an unphysical value as a starting value
     array<double,3> _cached_phat;
-    inline double production_tensor(index i, index j, double cos)
+    inline double production_tensor(cartesian_index i, cartesian_index j, double cos)
     {
         if ( !is_equal(_cached_cos, cos) )
         {
-            _cached_phat[index::x] = sqrt(1. - cos*cos);
-            _cached_phat[index::y] = 0.;
-            _cached_phat[index::z] = cos;
+            _cached_phat[cartesian_index::x] = sqrt(1. - cos*cos);
+            _cached_phat[cartesian_index::y] = 0.;
+            _cached_phat[cartesian_index::z] = cos;
 
             _cached_cos = cos;
         };
 
         // In massless approximation, this reduces to the polarization sum of transverse photon
         // We assume the final state pion defines the +z axis and cos is the cosine of the pi e- angle
-        double polarization_sum = (double(i == j) - _cached_phat[i]*_cached_phat[j]);
-
-        return polarization_sum;
+        return double(delta(i,j)) - _cached_phat[i]*_cached_phat[j];
     };
 
     // Without specifying an angle this produces the tensor already integrated over the orientation
-    inline int production_tensor(int i, int j)
+    inline int production_tensor(cartesian_index i, cartesian_index j)
     {
         // Numerical prefactors come from only non-zero terms \int_{-1}^1 dos sin^2 and same integral for cos^2 
         // off diagnals are either 0 or sin*cos which vanishes in the integration
-        int polarization_sum = ( (i == j) /* - 4*(i==0)*(j==0) */ - (i==index::z && j==index::z) );
-
-        return polarization_sum;
+        return delta(i,j) - delta(i, z)*delta(j,z) ;
     };
 
     // This is the scalar coupling of e+ e- -> gammma which includes the photon propagator,

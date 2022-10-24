@@ -41,9 +41,7 @@ inline void amplitude::check_decay_cache()
                     x  =      amp[i][k];
                     // Polarization sum over the final state vector gives a delta function fixing k here
                     x *= conj(amp[j][k]);
-
                     if (!is_zero( imag(x) )) warning("check_decay_cache", "Reduced amplitude squared is imaginary!");
-
                     _cached_decay_tensor[i][j] = real(x);
                 };
             }
@@ -53,7 +51,10 @@ inline void amplitude::check_decay_cache()
 
 // ---------------------------------------------------------------------------
 // Spin-summed amplitude squared. 
-double amplitude::probability_distribution(double s, double sab, double sbc)
+
+// This is split into two pieces depending on whether or not to include the e+e- components
+// The decay distribution is the amplitude squared for the process V->abc
+double amplitude::decay_distribution(double s, double sab, double sbc)
 {
     // Update the saved energy values for easier access later
     update(s, sab, sbc);
@@ -64,16 +65,43 @@ double amplitude::probability_distribution(double s, double sab, double sbc)
     {
         for (auto j : C_INDICES)
         {
-            int production = _kinematics->production_tensor(i,j);
+            int V_polarization = delta(i, j) /* - delta(i,z)*delta(j,z) */;
+            if (V_polarization == 0) continue;
+
+            // V -> abc 
+            double Asqr = _cached_decay_tensor[i][j];
+            if ( is_zero(Asqr) ) continue;
+
+            sum += V_polarization * Asqr;
+        };
+    };
+
+    return sum;
+};
+
+
+// The scattering distribution is the amplitude squared for the process e+e- ->abc
+double amplitude::scattering_distribution(double s, double sab, double sbc)
+{
+    // Update the saved energy values for easier access later
+    update(s, sab, sbc);
+
+    // Contract over Cartesian indices
+    double sum = 0;
+    for (auto i : C_INDICES)
+    {
+        for (auto j : C_INDICES)
+        {
+            int production = delta(i, j) - delta(i,z)*delta(j,z);
             if (production == 0) continue;
 
             complex<double> x = 1.;
-            
-            // e+ e- -> gamma 
-            x *= _kinematics->ee_to_gamma(s) * production;
+            //e+ e- -> gamma 
+            // x *= _kinematics->ee_to_gamma(s) * production;
+            x = XR * production;
 
             // gamma -> V
-            x *= norm(_V->photon_coupling() * _V->propagator(s));
+            // x *= norm(_V->photon_coupling() * _V->propagator(s));
 
             // V -> abc 
             x *= _cached_decay_tensor[i][j];
@@ -86,6 +114,7 @@ double amplitude::probability_distribution(double s, double sab, double sbc)
     return sum;
 };
 
+
 // ---------------------------------------------------------------------------
 // Doubly differential partial-width
 double amplitude::d2Gamma(double s, double sab, double sbc)
@@ -96,17 +125,17 @@ double amplitude::d2Gamma(double s, double sab, double sbc)
         return 0.;
     };
 
-    double amp_squared = probability_distribution(s, sab, sbc); 
+    double amp_squared = decay_distribution(s, sab, sbc); 
 
     // // Average over the spins of the inital electron-positron pair
-    amp_squared /= 4.;
+    amp_squared /= 2.;
 
     // General prefactors for 1->3 decay width in GeV
     double prefactors = 1. / (32.*pow(2.*PI*sqrt(s), 3.));
 
     if (_normalize) prefactors *= _normalization;
 
-    return amp_squared * prefactors; 
+    return amp_squared * prefactors * 1.E3; // In MeV
 };
 
 // ---------------------------------------------------------------------------

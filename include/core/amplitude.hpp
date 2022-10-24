@@ -58,10 +58,11 @@ class amplitude
 
     // Output the amplitude at fixed helicities for photon and particle a 
     // Needs array of two helicities (inital vector and outgoing vector) 
-    virtual complex<double> reduced_amplitude(int i, int j) = 0;
+    virtual complex<double> reduced_amplitude(cartesian_index i, cartesian_index j) = 0;
 
     // Spin-summed amplitude squared
-    double probability_distribution(double s, double sab, double sbc);
+    double decay_distribution(double s, double sab, double sbc);
+    double scattering_distribution(double s, double sab, double sbc);
 
     // Doubly differential partial-width
     double d2Gamma(double s, double sab, double sbc);
@@ -164,8 +165,8 @@ class amplitude
     double _ma2, _mb2, _mc2;
 
     // Short cuts for characteristic angular behavior
-    inline int s_wave(int i, int j) { return (i == j); }                                   // S-wave is just a delta-function
-    inline int d_wave(int i, int j) { return 3*(i==index::z && j==index::z) - (i == j); }; // D-wave 
+    inline int s_wave(cartesian_index i, cartesian_index j) { return delta(i,j); }                  // S-wave is just a delta-function
+    inline int d_wave(cartesian_index i, cartesian_index j) { return 3*delta(i, z) - delta(i,j); }; // D-wave 
 };
 
 // Simply amplitude with no energy dependence. 
@@ -187,7 +188,7 @@ class phase_space : public amplitude
     // Return a constant for all the amplitudes. 
     // Since we always sum over helicities of a, we divide normalize so the spin-summed amplitude square equals 1
     // The averaging factor for the Y meson is handled in the width definition
-    inline complex<double> reduced_amplitude(int i, int j) 
+    inline complex<double> reduced_amplitude(cartesian_index i, cartesian_index j) 
     { return s_wave(i,j) * XR; };
 };
 

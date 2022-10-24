@@ -75,7 +75,7 @@ class amplitude_sum : public amplitude
         };
     };
 
-    complex<double> reduced_amplitude(int i, int j);
+    complex<double> reduced_amplitude(cartesian_index i, cartesian_index j);
 
     // -----------------------------------------------------------------------
     private:
