@@ -53,15 +53,12 @@ double amplitude_fitter::chi2_subchannels(const double *par)
     double chi2 = 0.;
     for (data_set data : _subchannel_data)
     {
-        // We assume the subchannel data set is in raw event counts
-        // Thus we normalize our curves to have the same area
-        double total_events = 0;
-        for (auto bin : data._data){ total_events += bin; }
-        
         // Fixed e+e- invariant mass
         double s     = pow(data._sqrts, 2.);
 
-        _amplitude->normalize(total_events, s);
+        // We assume the subchannel data set is in raw event counts
+        // Thus we normalize our curves to have the same area        
+        _amplitude->normalize(data._norm, s);
         
         // Loop over data points calculating chi2
         double chi2_i = 0.;
@@ -73,7 +70,7 @@ double amplitude_fitter::chi2_subchannels(const double *par)
             // Caculate intensity from saved amplitude and from data
             double I_th   = _amplitude->dGamma(data._subchannel, s, sigma);
             double I_ex   = data._data[i];
-            double error  = data._errors[i];
+            double error  = (data._errors[0][i] + data._errors[1][i]);
 
             // Add to local chi2
             chi2_i += pow( (I_th - I_ex) / error, 2.);
@@ -97,7 +94,7 @@ double amplitude_fitter::chi2_subchannels(const double *par)
 // - vector data points
 // - vector of errors
 // String id optional parameter for feeding fit results to a plotter object
-void amplitude_fitter::add_subchannel_data(subchannel abc, double sqs, vector<double> sqsig, vector<double> data, vector<double> errors, string id)
+void amplitude_fitter::add_subchannel_data(subchannel abc, double sqs, vector<double> sqsig, vector<double> data, array<vector<double>,2> errors, string id)
 {
     // Number of data points for this set
     int n = sqsig.size();
@@ -110,6 +107,11 @@ void amplitude_fitter::add_subchannel_data(subchannel abc, double sqs, vector<do
 
     if ( id == "" ) id = subchannel_label(abc) + "_data[" + to_string(_subchannel_data.size()) + "]";
     data_set new_data(abc, sqs, sqsig, data, errors, id);
+
+    // Calculate normalization
+    double sum = 0;
+    for (double data : data){ sum += data; };
+    new_data._norm = sum;
 
     _subchannel_data.push_back(new_data);
 
@@ -125,15 +127,9 @@ void amplitude_fitter::add_subchannel_data(subchannel abc, double sqs, string fi
     auto file = import_data(filename);
 
     // The first two columns are already in the format we need
-    std::vector<double> sqsig = file[0];
-    std::vector<double> data  = file[1];
-
-    // The errors are given as upper and lower values so we neeed to convert them to a single |error| = |upper - lower|
-    std::vector<double>  errors;
-    for (int i = 0; i < file[2].size(); i++)
-    {
-        errors.push_back( file[3][i] - file[2][i] );
-    };
+    std::vector<double> sqsig  = file[0];
+    std::vector<double> data   = file[1];
+    std::array<std::vector<double>,2> errors = {file[2], file[3]};
 
     // Save to fitter
     add_subchannel_data(abc, sqs, sqsig, data, errors, id);    

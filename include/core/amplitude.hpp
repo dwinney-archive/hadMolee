@@ -68,9 +68,6 @@ class amplitude
     double d2Gamma(double s, double sab, double sbc);
 
     // Integrated widths into given subsystem
-    double dGamma_ab(double s, double sab);
-    double dGamma_bc(double s, double sbc);
-    double dGamma_ac(double s, double sac);
     double dGamma(subchannel chan, double s, double sigma);
     
     // Fully integrated decay width
@@ -87,7 +84,8 @@ class amplitude
             _normalize = false;
         };
 
-        _normalization = N / Gamma(s);
+        double gam = Gamma(s);
+        _normalization = N / gam;
         _normalize = true;
     }
     
@@ -167,6 +165,11 @@ class amplitude
     // Short cuts for characteristic angular behavior
     inline int s_wave(cartesian_index i, cartesian_index j) { return delta(i,j); }                            // S-wave is just a delta-function
     inline int d_wave(cartesian_index i, cartesian_index j) { return 3*delta(i,z)*delta(j,z) - delta(i,j); }; // D-wave 
+
+    // Differential widths in terms of specific channels
+    double dGamma_ab(double s, double sab);
+    double dGamma_bc(double s, double sbc);
+    double dGamma_ac(double s, double sac);
 };
 
 // Simply amplitude with no energy dependence. 

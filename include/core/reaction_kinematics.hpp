@@ -161,7 +161,7 @@ class reaction_kinematics
             default: return false;
         };
 
-        return ((sqrt(sig) <= upper) && (sqrt(sig) >= lower));
+        return ((sqrt(sig) < upper) && (sqrt(sig) > lower));
     };
 
     // Set particle labels (useful for plotting)

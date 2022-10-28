@@ -69,7 +69,7 @@ class amplitude_fitter
     // - vector data points
     // - vector of errors
     // String id optional parameter for feeding fit results to a plotter object
-    void add_subchannel_data(subchannel abc, double sqs, vector<double> sqsig, vector<double> data, vector<double> errors, string id = "");
+    void add_subchannel_data(subchannel abc, double sqs, vector<double> sqsig, vector<double> data, array<vector<double>,2> errors, string id = "");
 
     // Alternatively you can jsut specify the subchannel, fixed center-of-mass energy, and point to a data file
     void add_subchannel_data(subchannel abc, double sqs, string filename, string id = "");
@@ -178,7 +178,7 @@ class amplitude_fitter
     // Simple container struct to hold all the relevent info for each user-added data set to fit against
     struct data_set
     {
-        data_set(subchannel abc, double sqrts, vector<double> sqrtsigmas, vector<double> data, vector<double> errors, string id)
+        data_set(subchannel abc, double sqrts, vector<double> sqrtsigmas, vector<double> data, array<vector<double>,2> errors, string id)
         : _subchannel(abc), _sqrts(sqrts), _sqrtsigmas(sqrtsigmas), _data(data), _errors(errors), _id(id),
           _N(sqrtsigmas.size())
         {};
@@ -186,8 +186,10 @@ class amplitude_fitter
         string _id;
         subchannel _subchannel;
         double _sqrts;
-        vector<double> _sqrtsigmas, _data, _errors;
+        vector<double> _sqrtsigmas, _data;
+        array<vector<double>,2> _errors;
         int _N;
+        double _norm;
     };
     // Vector containing all our different data sets
     vector<data_set> _subchannel_data;

@@ -136,7 +136,7 @@ double amplitude::d2Gamma(double s, double sab, double sbc)
     // General prefactors for 1->3 decay width in GeV
     double prefactors = 1. / (32.*pow(2.*PI*sqrt(s), 3.));
 
-    if (_normalize) prefactors *= _normalization;
+    // if (_normalize) prefactors *= _normalization;
 
     return amp_squared * prefactors * 1.E3; // In MeV
 };
@@ -218,7 +218,7 @@ double amplitude::dGamma(subchannel chan, double s, double sigma)
         case ac: return dGamma_ac(s, sigma);
         default: return 0.;
     };
-
+        
     return 0.;
 };
 
@@ -228,7 +228,7 @@ double amplitude::Gamma(double s)
 {
     auto F = [&](double sab)
     {
-        return dGamma_ab(s, sab);
+        return dGamma(ab, s, sab);
     };
 
     ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
