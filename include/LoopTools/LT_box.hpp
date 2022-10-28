@@ -12,25 +12,28 @@
 #include "box.hpp"
 #include "clooptools.h"
 
-// ---------------------------------------------------------------------------
-// Relativistic triangle calling LoopTools
-
-class LT_box : public box
+namespace hadMolee
 {
-    // -----------------------------------------------------------------------
+    // ---------------------------------------------------------------------------
+    // Relativistic triangle calling LoopTools
 
-    public:
+    class LT_box : public box
+    {
+        // -----------------------------------------------------------------------
 
-    LT_box()
-    : box()
-    {};
+        public:
 
-    LT_box(array<double,4> external_masses, array<double,4> internal_masses)
-    : box(external_masses, internal_masses)
-    {};
+        LT_box()
+        : box()
+        {};
 
-    // Evaluate by calling the B0 function
-    complex<double> eval();
+        LT_box(std::array<double,4> external_masses, std::array<double,4> internal_masses)
+        : box(external_masses, internal_masses)
+        {};
+
+        // Evaluate by calling the B0 function
+        std::complex<double> eval();
+    };
 };
 
 #endif

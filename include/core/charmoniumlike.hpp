@@ -14,46 +14,49 @@
 
 #include "constants.hpp"
 
-class charmoniumlike
+namespace hadMolee
 {
-    // -----------------------------------------------------------------------
-    public:
-
-    // Empty constructor
-    charmoniumlike( int npars, string id = "charmonium")
-    : _npars(npars), _id(id)
-    {};
-
-    virtual complex<double> propagator(double s){ return 1.; };
-    virtual complex<double> photon_coupling(){    return 1.; };
-
-    // String identifier
-    inline string get_id(){ return _id; };
-
-    // Set pole mass ,coupling, and non-mol width in a single call
-    virtual inline void set_parameters(vector<double> pars)
+    class charmoniumlike
     {
-        check_size(pars);
-        return;
-    };  
+        // -----------------------------------------------------------------------
+        public:
 
-    // Access number of free parameters from outside
-    inline int N_parameters(){ return _npars; };
+        // Empty constructor
+        charmoniumlike( int npars, std::string id = "charmonium")
+        : _npars(npars), _id(id)
+        {};
 
-    // -----------------------------------------------------------------------
-    protected:
-    
-    // Name identifier
-    string _id;
+        virtual std::complex<double> propagator(double s){ return 1.; };
+        virtual std::complex<double> photon_coupling(){    return 1.; };
 
-    int _npars = 0;
-    void check_size(vector<double> pars)
-    {
-        if (pars.size() != _npars)
+        // String identifier
+        inline std::string get_id(){ return _id; };
+
+        // Set pole mass ,coupling, and non-mol width in a single call
+        virtual inline void set_parameters(std::vector<double> pars)
         {
-            warning("charmoniumlike", "Wrong number of parameters given! Expected 3 but recieved " + to_string(pars.size()) + ". Results may vary...");
-        };
-    }
+            check_size(pars);
+            return;
+        };  
+
+        // Access number of free parameters from outside
+        inline int N_parameters(){ return _npars; };
+
+        // -----------------------------------------------------------------------
+        protected:
+        
+        // Name identifier
+        std::string _id;
+
+        int _npars = 0;
+        void check_size(std::vector<double> pars)
+        {
+            if (pars.size() != _npars)
+            {
+                warning("charmoniumlike", "Wrong number of parameters given! Expected 3 but recieved " + std::to_string(pars.size()) + ". Results may vary...");
+            };
+        }
+    };
 };
 
 #endif

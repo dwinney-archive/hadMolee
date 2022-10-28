@@ -8,9 +8,9 @@
 
 #include "LT_box.hpp"
 
-complex<double> LT_box::eval()
+std::complex<double> hadMolee::LT_box::eval()
 {
-    complex<double> boxx;
+    std::complex<double> boxx;
 
     ltini();
     if ( (_wA + _wB + _wC + _wD) < EPS ) {boxx = D0 (_emA2, _emD2, _emC2, _emB2, _t, _s, _imB2,             _imA2,             _imD2,             _imC2);}

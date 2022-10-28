@@ -12,25 +12,28 @@
 #include "triangle.hpp"
 #include "clooptools.h"
 
-// ---------------------------------------------------------------------------
-// Relativistic triangle calling LoopTools
-
-class LT_triangle : public triangle
+namespace hadMolee
 {
-    // -----------------------------------------------------------------------
+    // ---------------------------------------------------------------------------
+    // Relativistic triangle calling LoopTools
 
-    public:
+    class LT_triangle : public triangle
+    {
+        // -----------------------------------------------------------------------
 
-    LT_triangle()
-    : triangle()
-    {};
+        public:
 
-    LT_triangle(array<double,3> external_masses, array<double,3> internal_masses)
-    : triangle(external_masses, internal_masses)
-    {};
+        LT_triangle()
+        : triangle()
+        {};
 
-    // Evaluate by calling the C0C function
-    complex<double> eval();
+        LT_triangle(std::array<double,3> external_masses, std::array<double,3> internal_masses)
+        : triangle(external_masses, internal_masses)
+        {};
+
+        // Evaluate by calling the C0C function
+        std::complex<double> eval();
+    };
 };
 
 #endif

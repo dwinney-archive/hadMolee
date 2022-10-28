@@ -33,9 +33,9 @@ int main(int argc, char **argv)
     argc += 1;    
 
     TRint * app = new TRint( "hadMolee", &argc, argv);
-    TString EE3BODY = gSystem->Getenv("HADMOLEE");
+    TString HADMOLEE = gSystem->Getenv("HADMOLEE");
     
-    if (EE3BODY.Length() == 0) std::cout << "Environment variable HADMOLEE not set!" << std::endl;
+    if (HADMOLEE.Length() == 0) std::cout << "Environment variable HADMOLEE not set!" << std::endl;
     
     app->ProcessLine(".x $HADMOLEE/src/cling/Load.C");
     app->ProcessLine(Form(".x %s", macroName.Data()));

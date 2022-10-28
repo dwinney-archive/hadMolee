@@ -9,7 +9,7 @@
 // ---------------------------------------------------------------------------
 // At each energy step we cach all the components of the reduced amplitude tensor to minimize re-calculation
 
-void amplitude::check_decay_cache()
+void hadMolee::amplitude::check_decay_cache()
 {
     bool need_recalculate;
     need_recalculate =     (abs(_cached_s - _s) > _cache_tolerance) 
@@ -19,7 +19,7 @@ void amplitude::check_decay_cache()
     {
         // We neeed to calcualte the amplitude squared summed over the final state polarizations
         // First lets calcualte and save the reduced amplitude for i,j=0,1,2
-        array<array<complex<double>,3>,3> amp;
+        std::array<std::array<std::complex<double>,3>,3> amp;
 
         for (auto i : C_INDICES)
         {
@@ -39,7 +39,7 @@ void amplitude::check_decay_cache()
                 for (auto k : C_INDICES)
                 {
                     // Polarization sum over the final state vector gives a delta function fixing k here
-                    complex<double> y = amp[i][k] * conj(amp[j][k]);
+                    std::complex<double> y = amp[i][k] * conj(amp[j][k]);
                     if (!is_zero( imag(y) )) warning("check_decay_cache", "Reduced amplitude squared is imaginary!");
                     x += real(y);
                 };
@@ -54,7 +54,7 @@ void amplitude::check_decay_cache()
 
 // This is split into two pieces depending on whether or not to include the e+e- components
 // The decay distribution is the amplitude squared for the process V->abc
-double amplitude::decay_distribution(double s, double sab, double sbc)
+double hadMolee::amplitude::decay_distribution(double s, double sab, double sbc)
 {
     // Update the saved energy values for easier access later
     update(s, sab, sbc);
@@ -84,7 +84,7 @@ double amplitude::decay_distribution(double s, double sab, double sbc)
 
 
 // The scattering distribution is the amplitude squared for the process e+e- ->abc
-double amplitude::scattering_distribution(double s, double sab, double sbc)
+double hadMolee::amplitude::scattering_distribution(double s, double sab, double sbc)
 {
     // Update the saved energy values for easier access later
     update(s, sab, sbc);
@@ -98,7 +98,7 @@ double amplitude::scattering_distribution(double s, double sab, double sbc)
             int production = delta(i, j) - delta(i,z)*delta(j,z);
             if (production == 0) continue;
 
-            complex<double> x = 1.;
+            std::complex<double> x = 1.;
             //e+ e- -> gamma 
             // x *= _kinematics->ee_to_gamma(s) * production;
             x = XR * production;
@@ -120,7 +120,7 @@ double amplitude::scattering_distribution(double s, double sab, double sbc)
 
 // ---------------------------------------------------------------------------
 // Doubly differential partial-width
-double amplitude::d2Gamma(double s, double sab, double sbc)
+double hadMolee::amplitude::d2Gamma(double s, double sab, double sbc)
 {
     if ( !_kinematics->in_physical_region(s, sab, sbc) ) 
     {
@@ -145,7 +145,7 @@ double amplitude::d2Gamma(double s, double sab, double sbc)
 // Singly differentrial partial-widths
 
 // In the ab subsystem
-double amplitude::dGamma_ab(double s, double sab)
+double hadMolee::amplitude::dGamma_ab(double s, double sab)
 {
     auto F = [&](double sbc)
     {
@@ -164,7 +164,7 @@ double amplitude::dGamma_ab(double s, double sab)
 };
 
 // In the bc subsystem
-double amplitude::dGamma_bc(double s, double sbc)
+double hadMolee::amplitude::dGamma_bc(double s, double sbc)
 {
     auto F = [&](double sab)
     {
@@ -183,7 +183,7 @@ double amplitude::dGamma_bc(double s, double sbc)
 };
 
 // In the ac subsystem
-double amplitude::dGamma_ac(double s, double sac)
+double hadMolee::amplitude::dGamma_ac(double s, double sac)
 {
     auto F = [&](double sbc)
     {
@@ -204,7 +204,7 @@ double amplitude::dGamma_ac(double s, double sac)
 
 // Alias for three different subchannels, specify with an argument
 // Third argument is expected to be the correct subchannel energy
-double amplitude::dGamma(subchannel chan, double s, double sigma)
+double hadMolee::amplitude::dGamma(subchannel chan, double s, double sigma)
 {
     if ( !_kinematics->in_physical_region(s, sigma, chan) ) 
     {
@@ -224,7 +224,7 @@ double amplitude::dGamma(subchannel chan, double s, double sigma)
 
 // ---------------------------------------------------------------------------
 // Fully integrated decay width
-double amplitude::Gamma(double s)
+double hadMolee::amplitude::Gamma(double s)
 {
     auto F = [&](double sab)
     {

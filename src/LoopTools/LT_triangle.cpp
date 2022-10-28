@@ -8,9 +8,9 @@
 
 #include "LT_triangle.hpp"
 
-complex<double> LT_triangle::eval()
+std::complex<double> hadMolee::LT_triangle::eval()
 {
-    complex<double> tri;
+    std::complex<double> tri;
 
     ltini();
     if ( (_wA + _wB + _wC) > EPS ) tri = C0 (_emA2, _emB2, _emC2, _imB2, _imC2, _imA2);

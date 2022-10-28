@@ -10,9 +10,9 @@
 // ---------------------------------------------------------------------------
 // The amplitude of a sum is simply the sum of constituent amplitudes 
 
-complex<double> amplitude_sum::reduced_amplitude(cartesian_index i, cartesian_index j)
+std::complex<double> hadMolee::amplitude_sum::reduced_amplitude(cartesian_index i, cartesian_index j)
 {
-    complex<double> sum = 0.;
+    std::complex<double> sum = 0.;
     for (amplitude* amp : _amps)
     {
         // Have to make sure to feed energy values to component amplitudes
@@ -27,7 +27,7 @@ complex<double> amplitude_sum::reduced_amplitude(cartesian_index i, cartesian_in
 // ---------------------------------------------------------------------------
 // Make sure all amplitudes being summed are compatible
 
-bool amplitude_sum::check_compatibility(amplitude* amp)
+bool hadMolee::amplitude_sum::check_compatibility(amplitude* amp)
 {
     // Compatible amplitudes have the same kineamtics and Y meson pointers
     if (amp->_kinematics != _kinematics)

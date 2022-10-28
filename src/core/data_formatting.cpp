@@ -10,7 +10,7 @@
 // ---------------------------------------------------------------------------
 // Take in three files for the central, and error values and reformat them into a single file
 // The final argument bool is whether or not to round down to "nearest event"
-void reformat_digitized(string central_value, string lower_error, string upper_error, string output, bool rounded)
+void hadMolee::reformat_digitized(std::string central_value, std::string lower_error, std::string upper_error, std::string output, bool rounded)
 {
     // Open the three files and import them into vectors 
     std::vector<double> E, central, upper, lower;
@@ -73,22 +73,22 @@ void reformat_digitized(string central_value, string lower_error, string upper_e
     {
         for (int i = 0; i < E.size(); i++)
         {
-            output_file << left;
-            output_file << setw(15) << E[i];
-            output_file << setw(15) << central[i];
-            output_file << setw(15) << central[i] - lower[i];
-            output_file << setw(15) << upper[i]   - central[i] << endl;
+            output_file << std::left;
+            output_file << std::setw(15) << E[i];
+            output_file << std::setw(15) << central[i];
+            output_file << std::setw(15) << central[i] - lower[i];
+            output_file << std::setw(15) << upper[i]   - central[i] << std::endl;
         }
     }
     else
     {
         for (int i = 0; i < E.size(); i++)
         {
-            output_file << left;
-            output_file << setw(15) << E[i];
-            output_file << setw(15) << abs(round(central[i]));
-            output_file << setw(15) << abs(round(central[i] - lower[i]));
-            output_file << setw(15) << abs(round(upper[i] - central[i])) << endl;
+            output_file << std::left;
+            output_file << std::setw(15) << E[i];
+            output_file << std::setw(15) << std::abs(round(central[i]));
+            output_file << std::setw(15) << std::abs(round(central[i] - lower[i]));
+            output_file << std::setw(15) << std::abs(round(upper[i] - central[i])) << std::endl;
         }
     }
     output_file.close();
@@ -100,7 +100,7 @@ void reformat_digitized(string central_value, string lower_error, string upper_e
 // ---------------------------------------------------------------------------
 // Take in path to a .dat file and import it as an array of vectors
 // Output will be an array of vectors containing each column
-std::array<std::vector<double>,4> import_data(string filename)
+std::array<std::vector<double>,4> hadMolee::import_data(std::string filename)
 {
     // Output will contain column data from here
     std::vector<double> E, central, upper, lower;

@@ -6,7 +6,7 @@
 
 #include "triangle.hpp"
 
-complex<double> relativistic_triangle::eval()
+std::complex<double> hadMolee::relativistic_triangle::eval()
 {
     // Desination for the result and assosiated errors
     double val[2], err[2];
@@ -29,7 +29,7 @@ complex<double> relativistic_triangle::eval()
     return result;
 };
 
-int relativistic_triangle::wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval)
+int hadMolee::relativistic_triangle::wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval)
 {
   triangle_integrand* integrand = (triangle_integrand *) fdata;
 
@@ -47,31 +47,31 @@ int relativistic_triangle::wrapped_integrand(unsigned ndim, const double *in, vo
   return 0.;
 };
 
-complex<double> nonrelativistic_triangle::eval()
+std::complex<double> hadMolee::nonrelativistic_triangle::eval()
 {
-    complex<double> imA = _imA - XI*_wA/2.;
-    complex<double> imB = _imB - XI*_wB/2.;
-    complex<double> imC = _imC - XI*_wC/2.;
+    std::complex<double> imA = _imA - XI*_wA/2.;
+    std::complex<double> imB = _imB - XI*_wB/2.;
+    std::complex<double> imC = _imC - XI*_wC/2.;
 
-    complex<double> mu_AC = imA * imC / (imA + imC);
-    complex<double> mu_BC = imB * imC / (imB + imC);
+    std::complex<double> mu_AC = imA * imC / (imA + imC);
+    std::complex<double> mu_BC = imB * imC / (imB + imC);
     
     // ieps perscription here is to make sure the cuts line up correctly
-    complex<double> q_C = sqrt((_emA2 + IEPS)-pow(_emB+_emC, 2.))*sqrt((_emA2 - IEPS)-pow(_emB-_emC, 2.))/(2.*_emA);
-    complex<double> E_C = sqrt(q_C*q_C + _emC2);
+    std::complex<double> q_C = sqrt((_emA2 + IEPS)-pow(_emB+_emC, 2.))*sqrt((_emA2 - IEPS)-pow(_emB-_emC, 2.))/(2.*_emA);
+    std::complex<double> E_C = sqrt(q_C*q_C + _emC2);
 
-    complex<double> a = pow(q_C*mu_AC/_imA, 2.);
+    std::complex<double> a = pow(q_C*mu_AC/_imA, 2.);
 
-    complex<double> b_AC = imA + imC + E_C - _emA;
-    complex<double> b_BC = imB + imC       - _emA;
+    std::complex<double> b_AC = imA + imC + E_C - _emA;
+    std::complex<double> b_BC = imB + imC       - _emA;
 
-    complex<double> c_1 = 2.*mu_BC*b_BC;
-    complex<double> c_2 = 2.*mu_AC*b_AC + q_C*q_C*mu_AC/imA;
+    std::complex<double> c_1 = 2.*mu_BC*b_BC;
+    std::complex<double> c_2 = 2.*mu_AC*b_AC + q_C*q_C*mu_AC/imA;
 
-    complex<double> prefactors = (mu_AC*mu_BC) / (16.*PI*imA*imB*imC);
+    std::complex<double> prefactors = (mu_AC*mu_BC) / (16.*PI*imA*imB*imC);
 
-    complex<double> cut_1 = atan( (c_2 - c_1)        / sqrt( 4.*a*(c_1     - XI * _eps) ));
-    complex<double> cut_2 = atan( (c_2 - c_1 - 2.*a) / sqrt( 4.*a*(c_2 - a - XI * _eps) ));
+    std::complex<double> cut_1 = atan( (c_2 - c_1)        / sqrt( 4.*a*(c_1     - XI * _eps) ));
+    std::complex<double> cut_2 = atan( (c_2 - c_1 - 2.*a) / sqrt( 4.*a*(c_2 - a - XI * _eps) ));
 
     return prefactors / sqrt(a) * (cut_1 - cut_2);
 };

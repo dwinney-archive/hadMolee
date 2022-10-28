@@ -11,7 +11,7 @@
 
 // Z meson self-energy from D* D scattering,
 // this is the "bare" self-energy with no rescattering contribution for D*D elastic diagram
-complex<double> DsD_molecule::self_energy(double E)
+std::complex<double> hadMolee::DsD_molecule::self_energy(double E)
 {
     double eps = mass_difference(E);
     double mu  = reduced_mass();
@@ -20,12 +20,12 @@ complex<double> DsD_molecule::self_energy(double E)
 };
 
 // Propagator recieves contributions from the self-energy above and the constant width
-complex<double> DsD_molecule::propagator(double s)
+std::complex<double> hadMolee::DsD_molecule::propagator(double s)
 {
     double E = sqrt(s);
     double z = _molecular_coupling;
 
-    complex<double> D = E - _pole_mass + XI * (z*z*self_energy(E) + _nonmol_width/2.);
+    std::complex<double> D = E - _pole_mass + XI * (z*z*self_energy(E) + _nonmol_width/2.);
     
     return XI / (2.*D);
 };  
@@ -36,7 +36,7 @@ complex<double> DsD_molecule::propagator(double s)
 // Bare self-energy, i.e. the simple D1 D bubble in MSbar renormalization
 // Because the D1 has a width, we include this explicitly as a constant
 // This renders the self-energy smoothly defined for all E
-complex<double> D1D_molecule::sigma(double E)
+std::complex<double> hadMolee::D1D_molecule::sigma(double E)
 {
     double eps = mass_difference(E);
     double mu  = reduced_mass();
@@ -46,15 +46,15 @@ complex<double> D1D_molecule::sigma(double E)
 };
 
 // Calcualte the renormalized self-energy by subtracting away the real parts of the function and its first derivative
-complex<double> D1D_molecule::self_energy(double E)
+std::complex<double> hadMolee::D1D_molecule::self_energy(double E)
 {
     return sigma(E) - _reS - (E - _pole_mass) * _redS;
 };
 
 // Full propagator
-complex<double> D1D_molecule::propagator(double s)
+std::complex<double> hadMolee::D1D_molecule::propagator(double s)
 {
     double E = sqrt(s);
-    complex<double> D = E - _pole_mass - _Z*self_energy(E) + XI*_nonmol_width/2.;
+    std::complex<double> D = E - _pole_mass - _Z*self_energy(E) + XI*_nonmol_width/2.;
     return XI * _Z / (2. * D);
 };

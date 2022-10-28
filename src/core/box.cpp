@@ -8,7 +8,7 @@
 #include "box.hpp"
 
 
-complex<double> relativistic_box::eval()
+std::complex<double> hadMolee::relativistic_box::eval()
 {
     // Desination for the result and assosiated errors
     double val[3], err[3];
@@ -31,7 +31,7 @@ complex<double> relativistic_box::eval()
     return result;
 };
 
-int relativistic_box::wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval)
+int hadMolee::relativistic_box::wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval)
 {
   box_integrand* integrand = (box_integrand *) fdata;
 
