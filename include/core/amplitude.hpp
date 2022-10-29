@@ -25,8 +25,6 @@ namespace hadMolee
         // -----------------------------------------------------------------------
         public: 
 
-        friend class amplitude_sum;
-
         amplitude(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> V, std::string id = "")
         : _kinematics(xkinem), _V(V),
         _nparams(0), _id(id), _classname("amplitude")
@@ -52,7 +50,7 @@ namespace hadMolee
         std::shared_ptr<charmoniumlike> _V;
 
         // Access the id tag of this amplitude
-        inline void   set_id(std::string id){ _id = id; };
+        inline void        set_id(std::string id){ _id = id; };
         inline std::string get_id()
         {
             if (_id == "") return this->_classname; 
@@ -62,15 +60,15 @@ namespace hadMolee
         // Debugging variable 
         inline void set_debug(int x){ _debug = x; };
 
-        // Every amplitude needs to be able to specify how set free parameters
-        virtual void set_parameters(std::vector<double> pars){ return; };
+        // Allocate an aggragated vector of parameters to individual amplitudes
+        virtual void set_parameters(std::vector<double> x);
 
         // Function to output the number of parameters this amplitude takes
         inline int N_parameters(){ return _nparams; };
 
         // Output the amplitude at fixed helicities for photon and particle a 
         // Needs array of two helicities (inital vector and outgoing vector) 
-        virtual std::complex<double> reduced_amplitude(cartesian_index i, cartesian_index j) = 0;
+        virtual std::complex<double> reduced_amplitude(cartesian_index i, cartesian_index j);
 
         // Spin-summed amplitude squared
         double decay_distribution(double s, double sab, double sbc);
@@ -103,6 +101,45 @@ namespace hadMolee
         
         // -----------------------------------------------------------------------
         protected:
+
+        // ----------------------------------------
+        // These first memebers are related to being able to sum amplitudes together
+
+        // Sums hold a vector of pointers to the constituent amplitudes
+        bool is_sum(){ return (_sub_amps.size() > 0);  };
+        std::vector<std::shared_ptr<amplitude>> _sub_amps;
+
+        // Make sure all amplitudes being summed are compatible
+        // This is efffectively the same as the are_compatible() method except comparisions are made against the interally stored instances 
+        bool is_compatible(std::shared_ptr<amplitude> new_amp);
+    
+        // Add a new amplitude to the vector
+        inline void add(std::shared_ptr<amplitude> new_amp)
+        {
+            if (is_compatible(new_amp))
+            {
+                _sub_amps.push_back(new_amp);
+                set_nParams(N_parameters() + new_amp->N_parameters());
+            };
+        };
+
+        // Add a whole vector of new amplitudes
+        inline void add(std::vector<std::shared_ptr<amplitude>> new_amps)
+        {
+            for (auto amp : new_amps)
+            {
+                add(amp);
+            };
+        };
+
+        // Need to make binary operators able to access the _sub_amps vector
+        friend void add(std::shared_ptr<amplitude> new_amp);
+        friend void add(std::vector<std::shared_ptr<amplitude>> new_amps);
+        friend void operator+=(std::shared_ptr<amplitude> a, std::shared_ptr<amplitude> b);
+        friend std::shared_ptr<hadMolee::amplitude> operator+(std::shared_ptr<amplitude> a, std::shared_ptr<amplitude> b);
+    
+
+        // -----------------------------------------------------------------------
 
         // Variable for setting cases for debugging messages
         int _debug; 
@@ -184,13 +221,23 @@ namespace hadMolee
         double dGamma_ac(double s, double sac);
     };
 
+    // ---------------------------------------------------------------------------
+    // Check if two amplitudes (in smart_ptr form) are compatible to be added 
+    bool are_compatible(std::shared_ptr<amplitude> a, std::shared_ptr<amplitude> b);
+
     // Smart pointer "constructor"
     template<class A>
-    inline std::shared_ptr<amplitude> make_amplitude(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> V, std::string id = "")
+    std::shared_ptr<amplitude> make_amplitude(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> V, std::string id = "")
     {
         auto amp = std::make_shared<A>(xkinem, V, id);
         return std::static_pointer_cast<amplitude>(amp);
     };
+
+    // Smart pointer "constructor" for a sum by adding two amplitudes together
+    std::shared_ptr<amplitude> operator+(std::shared_ptr<amplitude> a, std::shared_ptr<amplitude> b);
+
+    // Internally we can alias amplitude::add() with the += operator
+    void operator+=(std::shared_ptr<amplitude> a,  std::shared_ptr<amplitude> b);
 
     // Simply amplitude with no energy dependence. 
     class phase_space : public amplitude

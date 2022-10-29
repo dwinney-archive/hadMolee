@@ -7,6 +7,79 @@
 #include "amplitude.hpp"
 
 // ---------------------------------------------------------------------------
+// Make sure all amplitudes being summed are compatible
+// This is efffectively the same as the "are_compatible" except comparisions are made against the interally stored instances 
+
+bool hadMolee::are_compatible(std::shared_ptr<amplitude> a, std::shared_ptr<amplitude> b)
+{
+    // Compatible amplitudes have the same kineamtics and Y meson pointers
+    if (a->_kinematics != b->_kinematics)
+    {
+        warning("amplitude_sum", 
+                "Amplitudes " + a->get_id() + " and " + b->get_id() + " contain different stored kinematics instances (" + a->_kinematics->get_id() + " and " + b->_kinematics->get_id() + "). Returning null...");
+        return false;
+    } 
+    if (a->_V != b->_V) 
+    {
+        warning("amplitude_sum", 
+                "Amplitudes " + a->get_id() + " and " + b->get_id() + " contain different e+ e- line-shape instances (" + a->_V->get_id() + " and " + b->_V->get_id() + "). Skipping null...");
+        return false;
+    }
+    
+    return true;
+};
+
+// Smart pointer "constructor" for a sum of amplitudes 
+std::shared_ptr<hadMolee::amplitude> hadMolee::operator+(std::shared_ptr<amplitude> a, std::shared_ptr<amplitude> b)
+{
+    if ( !are_compatible(a, b) ) return nullptr;
+
+    auto sum = std::make_shared<amplitude>(a->_kinematics, a->_V, a->get_id() + " + " + b->get_id());
+
+    // If the constituent amplitudes are already sums, add the vector of contituents
+    // if theyre a 'bare' amplitude add the amplitude itself
+    (a->is_sum()) ? ( sum->add({a->_sub_amps}) ) : ( sum->add(a) );
+    (b->is_sum()) ? ( sum->add({b->_sub_amps}) ) : ( sum->add(b) );
+
+    return sum;
+};
+
+void hadMolee::operator+=(std::shared_ptr<amplitude> a,  std::shared_ptr<amplitude> b)
+{
+    if (!a->is_sum())
+    {
+        warning("amplitude", "Tried adding to an amplitude (" + a->get_id() + ") which is not already a sum!" + 
+                            "\nInitialize a sum first by using the binary + operator then increment with += to avoid unexpected behavior." + 
+                            "\nReturning without change...");
+        return;
+    };
+
+    a->add(b);
+};
+
+// ---------------------------------------------------------------------------
+// These are for amplitude summing from existing amplitudes
+
+bool hadMolee::amplitude::is_compatible(std::shared_ptr<amplitude> amp)
+{
+    // Compatible amplitudes have the same kineamtics and Y meson pointers
+    if (amp->_kinematics != _kinematics)
+    {
+        warning("amplitude_sum", 
+                "New amplitude " + amp->get_id() + " does not contain the stored kinematics instance (" + _kinematics->get_id() + "). \n Skipping amplitude...");
+        return false;
+    } 
+    if (amp->_V != _V) 
+    {
+        warning("amplitude_sum", 
+                "New amplitude " + amp->get_id() + " does not contain the stored hadronic_molecule instance (" + _V->get_id() + "). \n Skipping amplitude...");
+        return false;
+    }
+    
+    return true;
+};
+
+// ---------------------------------------------------------------------------
 // At each energy step we cach all the components of the reduced amplitude tensor to minimize re-calculation
 
 void hadMolee::amplitude::check_decay_cache()
@@ -47,6 +120,55 @@ void hadMolee::amplitude::check_decay_cache()
             }
         };
     };
+};
+
+// Allocate an aggragated vector of parameters to individual amplitudes
+void hadMolee::amplitude::set_parameters(std::vector<double> x)
+{
+    check_nParams(x);
+
+    // If called from empty amplitude, do nothing
+    if (!is_sum()) return;
+
+    // Else allocate parameters to the individual amplitudes
+    int N = 0;
+    for (auto amp : _sub_amps)
+    {
+        // Extract the subvector corresponding to the i-th amplitude
+        auto start = x.begin() + N;
+        auto end   = x.begin() + N + amp->N_parameters();
+        std::vector<double> pars(start, end);
+
+        amp->set_parameters(pars);
+        N += amp->N_parameters();
+    };
+
+    // At the end check that the number of params allocated is the same as expected
+    // However is this happpens the damage is done so we just send out a warning...
+    if (N != N_parameters())
+    {
+        std::cout << "Warning! amplitude::set_params() : Number of parameters allocated doesnt match those expected..." << std::endl;
+    };
+};
+
+// ---------------------------------------------------------------------------
+// The amplitude of a sum is simply the sum of constituent amplitudes 
+
+std::complex<double> hadMolee::amplitude::reduced_amplitude(cartesian_index i, cartesian_index j)
+{
+    // IF called without any store amplitudes, throw error
+    if (!is_sum()) return std::nan("");
+
+    // Else sum all constituent amplitudes together
+    std::complex<double> sum = 0.;
+    for (auto amp : _sub_amps)
+    {
+        // Have to make sure to feed energy values to component amplitudes
+        amp->update(_s, _sab, _sbc);
+        sum += amp->reduced_amplitude(i, j);
+    };
+
+    return sum;
 };
 
 // ---------------------------------------------------------------------------
