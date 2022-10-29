@@ -1,83 +1,17 @@
-// Container class holding all quantities relevant for a charmoniumlike particle
+// Model for Y meson, this includes both the molecular content as a D1D state
+// as well as its coupling to the photon being a 1-- state
 //
 // Author:       Daniel Winney (2022)
 // Email:        dwinney@scnu.edu.cn
 // ---------------------------------------------------------------------------
-// References:
 
-// [1] arXiv:1310.2190 [hep-ph]
-// ---------------------------------------------------------------------------
+#ifndef Y_MESON_HPP
+#define Y_MESON_HPP
 
-
-#ifndef CHARMONIUMLIKE
-#define CHARMONIUMLIKE
-
-#include "hadronic_molecule.hpp"
+#include "charmoniumlike.hpp"
 
 namespace hadMolee
 {
-    // -----------------------------------------------------------------------
-    // Charmonium-like generally described a vector state that can couple to
-    // a the initial-state photon. 
-
-    // It's derived from the hadronic molecule class because we wish primarily to
-    // describe the Y-mesons. However this may also be used to describe conventional
-    // charmonia by setting hadronic_molecule::_molecular_coupling = 0
-
-    class charmoniumlike : public hadronic_molecule
-    {
-        // -----------------------------------------------------------------------
-        public:
-
-        // Constructor with only parameters & id (i.e. no molecular content)
-        charmoniumlike( int npars, std::string id = "charmonium")
-        : hadronic_molecule(), _npars(npars), _id(id)
-        {};
-
-        charmoniumlike(std::array<double,2> m, int npars, std::string id = "molecule")
-        : hadronic_molecule(m), _npars(npars), _id(id)
-        {};
-
-        virtual std::complex<double> propagator(double s){ return 1.; };
-        virtual std::complex<double> photon_coupling(){    return 1.; };
-
-        // String identifier
-        inline std::string get_id(){ return _id; };
-
-        // Set pole mass ,coupling, and non-mol width in a single call
-        virtual inline void set_parameters(std::vector<double> pars)
-        {
-            check_size(pars);
-            return;
-        };  
-
-        // Access number of free parameters from outside
-        inline int N_parameters(){ return _npars; };
-
-        // -----------------------------------------------------------------------
-        protected:
-        
-        // Name identifier
-        std::string _id;
-
-        int _npars = 0;
-        void check_size(std::vector<double> pars)
-        {
-            if (pars.size() != _npars)
-            {
-                warning("charmoniumlike", "Wrong number of parameters given! Expected 3 but recieved " + std::to_string(pars.size()) + ". Results may vary...");
-            };
-        }
-    };
-
-    // Shortcut function to quickly create a kinematics object using smart pointers
-    template<class A>
-    inline std::shared_ptr<charmoniumlike> make_lineshape(std::string id)
-    {
-        auto model = std::make_shared<A>(id);
-        return std::static_pointer_cast<charmoniumlike>(model);
-    };
-
     // ---------------------------------------------------------------------------
     // Implementation of D1 D molecule for the Y(4260)
 

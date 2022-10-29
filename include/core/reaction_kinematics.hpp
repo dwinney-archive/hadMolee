@@ -11,6 +11,7 @@
 
 #include <array>
 #include <vector>
+#include <memory>
 
 #include "Math/GSLIntegrator.h"
 #include "Math/IntegrationTypes.h"
@@ -41,9 +42,9 @@ namespace hadMolee
         };
 
         // Return the string identifier
-        inline std::string get_id(){ return particle_a() + " " + particle_b() + " " + particle_c(); };
+        inline std::string get_id(){ return "[" + particle_a() + ", " + particle_b() + ", " + particle_c() +  "]"; };
 
-        // ------------------------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------
         // Kinematic quantities 
 
         // Momenta in different CM frames
@@ -288,6 +289,18 @@ namespace hadMolee
 
         // Particles can carry a string label
         std::string _a = "a", _b = "b", _c = "c";
+    };
+
+    // Shortcut function to quickly create a kinematics object using smart pointers
+    inline std::shared_ptr<reaction_kinematics> make_kinematics(std::array<double,3> m)
+    {
+        return std::make_shared<reaction_kinematics>(m);
+    };
+
+    // Shortcut function to quickly create a kinematics object using smart pointers
+    inline std::shared_ptr<reaction_kinematics> make_kinematics(std::array<double,3> m, std::array<std::string,3> labels)
+    {
+        return std::make_shared<reaction_kinematics>(m, labels);
     };
 };
 

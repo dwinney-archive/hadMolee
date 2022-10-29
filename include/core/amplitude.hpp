@@ -11,6 +11,7 @@
 #include "charmoniumlike.hpp"
 
 #include <vector>
+#include <memory>
 
 #include "Math/GSLIntegrator.h"
 #include "Math/IntegrationTypes.h"
@@ -26,7 +27,16 @@ namespace hadMolee
 
         friend class amplitude_sum;
 
-        amplitude(reaction_kinematics * xkinem, charmoniumlike * V, int n, std::string classname, std::string id = "")
+        amplitude(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> V, std::string id = "")
+        : _kinematics(xkinem), _V(V),
+        _nparams(0), _id(id), _classname("amplitude")
+        {
+            std::array<double, 3> m = xkinem->get_masses();
+            _ma  = m[0];      _mb  = m[1];      _mc  = m[2];
+            _ma2 = m[0]*m[0]; _mb2 = m[1]*m[1]; _mc2 = m[2]*m[2];
+        };
+
+        amplitude(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> V, int n, std::string classname, std::string id = "")
         : _kinematics(xkinem), _V(V),
         _nparams(n), _id(id), _classname(classname)
         {
@@ -36,10 +46,10 @@ namespace hadMolee
         };
 
         // This pointer holds all kinematic information
-        reaction_kinematics * _kinematics; 
+        std::shared_ptr<reaction_kinematics> _kinematics; 
 
         // Photon oscillates into spin-1 meson described by a charmoniumlike object
-        charmoniumlike * _V;
+        std::shared_ptr<charmoniumlike> _V;
 
         // Access the id tag of this amplitude
         inline void   set_id(std::string id){ _id = id; };
@@ -174,6 +184,14 @@ namespace hadMolee
         double dGamma_ac(double s, double sac);
     };
 
+    // Smart pointer "constructor"
+    template<class A>
+    inline std::shared_ptr<amplitude> make_amplitude(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> V, std::string id = "")
+    {
+        auto amp = std::make_shared<A>(xkinem, V, id);
+        return std::static_pointer_cast<amplitude>(amp);
+    };
+
     // Simply amplitude with no energy dependence. 
     class phase_space : public amplitude
     {
@@ -181,14 +199,13 @@ namespace hadMolee
 
         public: 
 
-        phase_space(reaction_kinematics * xkinem, std::string id = "")
-        : amplitude(xkinem, new charmoniumlike(0, ""), 0, "flat_amplitude", id)
+        phase_space(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> V, std::string id = "")
+        : amplitude(xkinem, V, 0, "flat_amplitude", id)
         {};
 
-        ~phase_space()
-        {
-            delete _V;
-        }
+        phase_space(std::shared_ptr<reaction_kinematics> xkinem, std::string id = "")
+        : amplitude(xkinem, nullptr, 0, "flat_amplitude", id)
+        {};
 
         // Return a constant for all the amplitudes. 
         // Since we always sum over helicities of a, we divide normalize so the spin-summed amplitude square equals 1

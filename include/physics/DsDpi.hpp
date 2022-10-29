@@ -7,6 +7,8 @@
 #ifndef DSDPI
 #define DSDPI
 
+#include <memory>
+
 #include "reaction_kinematics.hpp"
 #include "breit_wigner.hpp"
 #include "amplitude.hpp"
@@ -24,7 +26,7 @@ namespace hadMolee
         // -----------------------------------------------------------------------
         public:
         
-        DsDpi_swave(reaction_kinematics * xkinem, D1D_molecule * Y, std::string id = "DsDpi_swave")
+        DsDpi_swave(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> Y, std::string id = "DsDpi_swave")
         : amplitude(xkinem, Y, 2, "DsDpi_swave", id)
         {};
 
@@ -78,8 +80,8 @@ namespace hadMolee
         // -----------------------------------------------------------------------
         public:
         
-        DsDpi_tree(reaction_kinematics * xkinem, D1D_molecule * Y, std::string id = "DsDpi_tree")
-        : amplitude(xkinem, Y, 0, "DsDpi_tree", id),  _Y(Y), _D1(M_D1, W_D1)
+        DsDpi_tree(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> Y, std::string id = "DsDpi_tree")
+        : amplitude(xkinem, Y, 0, "DsDpi_tree", id), _D1(M_D1, W_D1)
         {};
 
         // The reduced amplitude corresponds to the S-wave contact-like interaction
@@ -104,8 +106,8 @@ namespace hadMolee
             _AD = XI * _hD * p2_pion;
 
             // Multiply by the propagator of the D1 and y coupling
-            _AS *= (_Y->molecular_coupling() / sqrt(2.)) * _D1.eval(_sac);
-            _AD *= (_Y->molecular_coupling() / sqrt(2.)) * _D1.eval(_sac);
+            _AS *= (_V->molecular_coupling() / sqrt(2.)) * _D1.eval(_sac);
+            _AD *= (_V->molecular_coupling() / sqrt(2.)) * _D1.eval(_sac);
         };
 
         double _hS = 0., _hD = HPRIME_UPPER / F_PION;    // Coupling constants to S and D wave interactions
@@ -113,10 +115,6 @@ namespace hadMolee
 
         // This channel has a D1 resonance in the Ds pi channel
         relativistic_BW _D1;
-
-        // And we explicitly require information of molecular nature of Y 
-        // so we save a D1D_molecule version of the pointer, not just charmoniumlike
-        D1D_molecule *_Y;
     };
 
     // ---------------------------------------------------------------------------
@@ -130,8 +128,8 @@ namespace hadMolee
         
         // Here we can choose whether we want a nonrelativistic triangle or the relativistic version
         // We default to the nonrel version
-        DsDpi_triangle(reaction_kinematics * xkinem, D1D_molecule * Y, std::string id = "DsDpi_triangle")
-        : amplitude(xkinem, Y, 0, "DsDpi_triangle", id), _Y(Y), _T(new nonrelativistic_triangle(_external, _internal))
+        DsDpi_triangle(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> Y, std::string id = "DsDpi_triangle")
+        : amplitude(xkinem, Y, 0, "DsDpi_triangle", id), _T(new nonrelativistic_triangle(_external, _internal))
         {};
 
         // Destructor needs to clean up the new pointer we made
@@ -183,8 +181,8 @@ namespace hadMolee
             // The normalization is matched to Qiang's paper
             complex<double> T = _internal[0] * _internal[1] * _internal[2] * _T->eval();
 
-            _AS *= - (_Y->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc.propagator(_sab);
-            _AD *= - (_Y->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc.propagator(_sab);
+            _AS *= - (_V->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc.propagator(_sab);
+            _AD *= - (_V->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc.propagator(_sab);
         };
 
         double _hS = 0., _hD = HPRIME_UPPER / F_PION;  // D1 -> D*pi coupling for the S-wave and the D-wave
@@ -199,10 +197,6 @@ namespace hadMolee
 
         // Z meson resonance in this diagram
         DsD_molecule _Zc;
-
-        // And we explicitly require information of molecular nature of Y 
-        // so we save a D1D_molecule version of the pointer, not just charmoniumlike
-        D1D_molecule *_Y;
     };
 };
 

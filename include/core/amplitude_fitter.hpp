@@ -109,7 +109,7 @@ namespace hadMolee
 
         // This pointer is the shared vector meson object that all the amplitudes being fit share
         // This can be our charmonium or Y-meson describing the total center-of-mass energy dependence
-        charmoniumlike * _V;
+        std::shared_ptr<charmoniumlike> _V;
 
         // MINUIT error code
         int _printLevel   = 0;

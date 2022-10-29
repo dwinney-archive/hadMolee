@@ -33,6 +33,16 @@ namespace hadMolee
         : _m1(m1), _m2(m2)
         {};
 
+        // Or given as an array
+        hadronic_molecule(std::array<double,2> m)
+        : _m1(m[0]), _m2(m[1])
+        {};
+
+        // Or for the "null" molecule (i.e. not a molecule) use the empty constructor
+        hadronic_molecule()
+        : _m1(0), _m2(0)
+        {};
+
         // Evaluate the propagator
         // For standardization the input argument is always asssumed to be s, take the square root internally if we need E
         virtual std::complex<double> propagator(double s){ return 1.; };
@@ -51,7 +61,7 @@ namespace hadMolee
 
         // Constituents masses 
         double _m1, _m2;
-        double _molecular_coupling = 1.;
+        double _molecular_coupling = 0.;
 
         inline double reduced_mass(){ return _m1 * _m2 / (_m1 + _m2); };
         inline double mass_difference(double E){ return E - _m1 - _m2; };
@@ -87,78 +97,30 @@ namespace hadMolee
         };
 
         // The propagator gains contributions from the self-energy
-        std::complex<double> propagator(double s);
+        inline std::complex<double> propagator(double s)
+        {
+            double E = sqrt(s);
+            double z = _molecular_coupling;
+
+            std::complex<double> D = E - _pole_mass + XI * (z*z*self_energy(E) + _nonmol_width/2.);
+            
+            return XI / (2.*D);
+        };  
 
         // Self-energy from bubble diagram of D* D scattering 
-        std::complex<double> self_energy(double E);
+        inline std::complex<double> self_energy(double E)
+        {
+            double eps = mass_difference(E);
+            double mu  = reduced_mass();
+            
+            return (1. / (8.*PI)) * sqrt(2.*mu*mu*mu*std::abs(eps)) * ( XR*(eps>=0) + XI*(eps<0) );
+        };
 
         // -----------------------------------------------------------------------
         private:
 
         // Total width of the Z from the PDG
         double _total_width;
-    };
-
-    // ---------------------------------------------------------------------------
-    // Implementation of D1 D molecule for the Y(4260)
-
-    class D1D_molecule : public hadronic_molecule, public charmoniumlike
-    {
-        // -----------------------------------------------------------------------
-        public:
-
-        D1D_molecule(std::string id = "Y(4260)")
-        : hadronic_molecule(M_D1, M_D), charmoniumlike(4, id)
-        {
-            // Set up the derivator 
-            wsigma = ROOT::Math::Functor1D(this, &D1D_molecule::resigma);
-            dsigma.SetFunction(wsigma);
-
-            // Default parameters use the QQ2016 values
-            set_parameters({MY_QQ2016, YBARE_QQ2016, YNM_WIDTH_QQ2016, F_Y_QQ2016});
-        };
-
-        // The propagator gains contributions from the self-energy
-        std::complex<double> propagator(double s);
-
-        // Since Y-meson is also charmonium-like it requires a photon coupling
-        std::complex<double> photon_coupling()
-        {
-            return XI * E * _pole_mass*_pole_mass / _fY;
-        };
-
-        // When we change the pole mass, we must recalculate renormalization quantities
-        // Set pole mass ,coupling, and non-mol width in a single call
-        inline void set_parameters(std::vector<double> pars)
-        {
-            check_size(pars);
-
-            _pole_mass              = pars[0];
-            _molecular_coupling     = pars[1];
-            _nonmol_width           = pars[2];
-            _fY                     = pars[3];
-
-            // Precalculate relevant quantities
-            _reS  = resigma(_pole_mass);
-            _redS = dsigma.Eval(_pole_mass);
-            _Z    = 1. / (1. - _redS);
-        };
-
-        private:
-
-        // Self-energy from bubble of D1 D scattering and dressed with elastic scattering
-        // renomalized
-        std::complex<double> self_energy(double E);
-
-        // Bare self-energy just from the bubble of D1 D scattering
-        std::complex<double> sigma(double E);
-        inline double resigma(double E){ return real(sigma(E)); };
-
-        // Need to be able to calculate the derivative of the above self-energy
-        ROOT::Math::Functor1D wsigma;
-        ROOT::Math::Derivator dsigma;
-
-        double _Z, _reS, _redS, _fY;
     };
 };
 

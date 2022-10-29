@@ -15,15 +15,14 @@ void Load()
     //----------------------------------------------------------------------
     // Core physics library
 
-    TString CORE_INC  = BASE;
-            CORE_INC += "/include/core";
-    TString CORE_LIB  = BASE;
-            CORE_LIB += "/lib/libHADMOLEE.";
-            CORE_LIB += LIB_EXT;
+    TString CORE_LIB  = BASE + "/lib/libHADMOLEE." + LIB_EXT;
+    TString CORE_INC  = BASE + "/include/core";
+    TString PHYS_INC  = BASE + "/include/physics";
 
     if (!gSystem->AccessPathName(CORE_LIB.Data()))
     {
         gInterpreter->AddIncludePath( CORE_INC.Data());
+        gInterpreter->AddIncludePath( PHYS_INC.Data());
         Int_t lib = gSystem->Load( CORE_LIB.Data());
     }
     else
@@ -34,11 +33,8 @@ void Load()
     //----------------------------------------------------------------------
     // Linked LT physics library
 
-    TString LT_INC  = BASE;
-            LT_INC += "/include/LoopTools";
-    TString LT_LIB  = BASE;
-            LT_LIB += "/lib/libLOOPEXT.";
-            LT_LIB += LIB_EXT;
+    TString LT_INC  = BASE + "/include/LoopTools";
+    TString LT_LIB  = BASE + "/lib/libLOOPEXT." + LIB_EXT;
 
     if (!gSystem->AccessPathName(LT_LIB.Data()))
     {
@@ -50,15 +46,17 @@ void Load()
         Warning("Load", "LoopTools extention library not found! Path given: %s", LT_LIB.Data());
     }
 
+    //----------------------------------------------------------------------
+    // Need to add cubature to apth
+    TString CUBE_INC  = gSystem->Getenv("CUBATURE");
+    gInterpreter->AddIncludePath( CUBE_INC.Data());
+
      //----------------------------------------------------------------------
     // Plotting library
 
     TString JPACSTYLE_DIR  = gSystem->Getenv("JPACSTYLE");
-    TString JPACSTYLE_INC  = JPACSTYLE_DIR;
-            JPACSTYLE_INC += "/include/";
-    TString JPACSTYLE_LIB  = JPACSTYLE_DIR;
-            JPACSTYLE_LIB += "/lib/libjpacStyle.";
-            JPACSTYLE_LIB += LIB_EXT;
+    TString JPACSTYLE_INC  = JPACSTYLE_DIR + "/include/";
+    TString JPACSTYLE_LIB  = JPACSTYLE_DIR + "/lib/libjpacStyle." + LIB_EXT;
 
     if (!gSystem->AccessPathName(JPACSTYLE_LIB.Data()))
     {
