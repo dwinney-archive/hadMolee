@@ -8,20 +8,21 @@
 #ifndef Y_MESON_HPP
 #define Y_MESON_HPP
 
-#include "charmoniumlike.hpp"
+#include "lineshape.hpp"
+#include "molecule.hpp"
 
 namespace hadMolee
 {
     // ---------------------------------------------------------------------------
     // Implementation of D1 D molecule for the Y(4260)
 
-    class D1D_molecule : public charmoniumlike
+    class D1D_molecule : public charmoniumlike, public molecular
     {
         // -----------------------------------------------------------------------
         public:
 
         D1D_molecule(std::string id = "Y(4260)")
-        : charmoniumlike({M_D1, M_D}, 4, id)
+        : charmoniumlike(4, id), molecular(M_D1, M_D)
         {
             // Set up the derivator 
             wsigma = ROOT::Math::Functor1D(this, &D1D_molecule::resigma);

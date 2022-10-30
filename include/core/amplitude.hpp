@@ -8,10 +8,7 @@
 #define AMPLITUDE
 
 #include "reaction_kinematics.hpp"
-#include "charmoniumlike.hpp"
-
-#include <vector>
-#include <memory>
+#include "lineshape.hpp"
 
 #include "Math/GSLIntegrator.h"
 #include "Math/IntegrationTypes.h"

@@ -22,12 +22,14 @@ namespace hadMolee
     template<typename T>
     inline void debug(T x)
     {
+        std::cout << std::boolalpha; 
         std::cout << x << std::endl;
     };
 
     template<typename T, typename F>
     inline void debug(T x, F y)
     {
+        std::cout << std::boolalpha; 
         std::cout << std::left << std::setw(DEBUG_SPACING) << x;
         std::cout << std::left << std::setw(DEBUG_SPACING) << y << std::endl;
     };
@@ -35,6 +37,7 @@ namespace hadMolee
     template<typename T, typename F, typename G>
     inline void debug(T x, F y, G z)
     {
+        std::cout << std::boolalpha; 
         std::cout << std::left << std::setw(DEBUG_SPACING) << x;
         std::cout << std::left << std::setw(DEBUG_SPACING) << y;
         std::cout << std::left << std::setw(DEBUG_SPACING) << z << std::endl;
@@ -43,6 +46,7 @@ namespace hadMolee
     template<typename T, typename F, typename G, typename H>
     inline void debug(T x, F y, G z, H a)
     {
+        std::cout << std::boolalpha; 
         std::cout << std::left << std::setw(DEBUG_SPACING) << x;
         std::cout << std::left << std::setw(DEBUG_SPACING) << y;
         std::cout << std::left << std::setw(DEBUG_SPACING) << z;
@@ -52,6 +56,7 @@ namespace hadMolee
     template<typename T, typename F, typename G, typename H, typename I>
     inline void debug(T x, F y, G z, H a, I b)
     {
+        std::cout << std::boolalpha; 
         std::cout << std::left << std::setw(DEBUG_SPACING) << x;
         std::cout << std::left << std::setw(DEBUG_SPACING) << y;
         std::cout << std::left << std::setw(DEBUG_SPACING) << z;
