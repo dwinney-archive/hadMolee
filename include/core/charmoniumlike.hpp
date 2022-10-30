@@ -16,6 +16,11 @@
 
 namespace hadMolee
 {
+    // Forward declaration so we can rename ptr to kinematics as just kinematics
+    // WE do this because we basically never want to work with a raw instance, but pass around a pointer
+    class charmoniumlike;
+    using lineshape = std::shared_ptr<hadMolee::charmoniumlike>;
+
     // -----------------------------------------------------------------------
     // Charmonium-like generally described a vector state that can couple to
     // a the initial-state photon. 

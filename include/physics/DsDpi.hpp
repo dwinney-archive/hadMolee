@@ -21,13 +21,13 @@ namespace hadMolee
     // Contact-like interaction in S-wave
     // This contains the exotic Zc channel, we multiply by a linear polynomial and fit the coefficients
 
-    class DsDpi_swave : public amplitude
+    class DsDpi_swave : public amplitude_base
     {
         // -----------------------------------------------------------------------
         public:
         
-        DsDpi_swave(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> Y, std::string id = "DsDpi_swave")
-        : amplitude(xkinem, Y, 2, "DsDpi_swave", id)
+        DsDpi_swave(kinematics xkinem, lineshape Y, std::string id = "DsDpi_swave")
+        : amplitude_base(xkinem, Y, 2, "DsDpi_swave", id)
         {};
 
         // The reduced amplitude corresponds to the S-wave contact-like interaction
@@ -75,13 +75,13 @@ namespace hadMolee
     // Tree level transition through intermediate D1
     // No free parameters since this assume to be known background
 
-    class DsDpi_tree : public amplitude
+    class DsDpi_tree : public amplitude_base
     {
         // -----------------------------------------------------------------------
         public:
         
-        DsDpi_tree(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> Y, std::string id = "DsDpi_tree")
-        : amplitude(xkinem, Y, 0, "DsDpi_tree", id), _D1(M_D1, W_D1)
+        DsDpi_tree(kinematics xkinem, lineshape Y, std::string id = "DsDpi_tree")
+        : amplitude_base(xkinem, Y, 0, "DsDpi_tree", id), _D1(M_D1, W_D1)
         {};
 
         // The reduced amplitude corresponds to the S-wave contact-like interaction
@@ -121,22 +121,16 @@ namespace hadMolee
     // Transition involving D1DsD triangle and Z meson
     // No free parameters since this assume to be known background
 
-    class DsDpi_triangle : public amplitude
+    class DsDpi_triangle : public amplitude_base
     {
         // -----------------------------------------------------------------------
         public:
         
         // Here we can choose whether we want a nonrelativistic triangle or the relativistic version
         // We default to the nonrel version
-        DsDpi_triangle(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> Y, std::string id = "DsDpi_triangle")
-        : amplitude(xkinem, Y, 0, "DsDpi_triangle", id), _T(new nonrelativistic_triangle(_external, _internal))
+        DsDpi_triangle(kinematics xkinem, lineshape Y, std::string id = "DsDpi_triangle")
+        : amplitude_base(xkinem, Y, 0, "DsDpi_triangle", id)
         {};
-
-        // Destructor needs to clean up the new pointer we made
-        ~DsDpi_triangle()
-        {
-            delete _T;
-        };
 
         // The reduced amplitude corresponds to the S-wave contact-like interaction
         // however it receives contributions from the propagator of the Z meson
@@ -148,17 +142,6 @@ namespace hadMolee
             // Being D-wave we get the appropriate projector
             // Assume pion (particle c) defined the +z direction
             return _AS * s_wave(i,j) + _AD * d_wave(i,j);
-        };
-
-        // Switch the evaluation of the triangle to the relativistic version
-        inline void use_relativistic(bool x = true)
-        {
-            // Delete the existing pointer
-            delete _T;
-
-            // and reallocate
-            if (x) { _T = new relativistic_triangle   (_external, _internal); } 
-            else   { _T = new nonrelativistic_triangle(_external, _internal); };
         };
 
         // -----------------------------------------------------------------------
@@ -173,6 +156,7 @@ namespace hadMolee
             _AD = XI * _hD * p_pion*p_pion;
 
             // Update arguments with floating Y and Z meson masses
+            _T->set_internal_masses(_internal); 
             _T->set_external_masses({_W, sqrt(_sab), M_PION}); 
             
             // Multiply by the propagator of the Z and triangle function
@@ -180,7 +164,7 @@ namespace hadMolee
             
             // The normalization is matched to Qiang's paper
             complex<double> T = _internal[0] * _internal[1] * _internal[2] * _T->eval();
-
+            
             _AS *= - (_V->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc.propagator(_sab);
             _AD *= - (_V->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc.propagator(_sab);
         };
@@ -190,10 +174,9 @@ namespace hadMolee
 
         // On-shell masses involved in the triangle
         std::array<double,3> _internal = {M_DSTAR, M_D1,     M_D};
-        std::array<double,3> _external = {M_Y4260, M_ZC3900, M_PION};
 
         // Default to using nonrelativistic version of the triangle
-        triangle *_T;
+        std::unique_ptr<triangle> _T = make_triangle(nonrelativistic);
 
         // Z meson resonance in this diagram
         DsD_molecule _Zc;

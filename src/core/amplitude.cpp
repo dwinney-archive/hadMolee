@@ -10,7 +10,7 @@
 // Make sure all amplitudes being summed are compatible
 // This is efffectively the same as the "are_compatible" except comparisions are made against the interally stored instances 
 
-bool hadMolee::are_compatible(std::shared_ptr<amplitude> a, std::shared_ptr<amplitude> b)
+bool hadMolee::are_compatible(amplitude a, amplitude b)
 {
     // Compatible amplitudes have the same kineamtics and Y meson pointers
     if (a->_kinematics != b->_kinematics)
@@ -30,11 +30,11 @@ bool hadMolee::are_compatible(std::shared_ptr<amplitude> a, std::shared_ptr<ampl
 };
 
 // Smart pointer "constructor" for a sum of amplitudes 
-std::shared_ptr<hadMolee::amplitude> hadMolee::operator+(std::shared_ptr<amplitude> a, std::shared_ptr<amplitude> b)
+hadMolee::amplitude hadMolee::operator+(amplitude a, amplitude b)
 {
     if ( !are_compatible(a, b) ) return nullptr;
 
-    auto sum = std::make_shared<amplitude>(a->_kinematics, a->_V, a->get_id() + " + " + b->get_id());
+    auto sum = std::make_shared<amplitude_base>(a->_kinematics, a->_V, a->get_id() + " + " + b->get_id());
 
     // If the constituent amplitudes are already sums, add the vector of contituents
     // if theyre a 'bare' amplitude add the amplitude itself
@@ -44,7 +44,7 @@ std::shared_ptr<hadMolee::amplitude> hadMolee::operator+(std::shared_ptr<amplitu
     return sum;
 };
 
-void hadMolee::operator+=(std::shared_ptr<amplitude> a,  std::shared_ptr<amplitude> b)
+void hadMolee::operator+=(amplitude a, amplitude b)
 {
     if (!a->is_sum())
     {
@@ -60,7 +60,7 @@ void hadMolee::operator+=(std::shared_ptr<amplitude> a,  std::shared_ptr<amplitu
 // ---------------------------------------------------------------------------
 // These are for amplitude summing from existing amplitudes
 
-bool hadMolee::amplitude::is_compatible(std::shared_ptr<amplitude> amp)
+bool hadMolee::amplitude_base::is_compatible(amplitude amp)
 {
     // Compatible amplitudes have the same kineamtics and Y meson pointers
     if (amp->_kinematics != _kinematics)
@@ -82,7 +82,7 @@ bool hadMolee::amplitude::is_compatible(std::shared_ptr<amplitude> amp)
 // ---------------------------------------------------------------------------
 // At each energy step we cach all the components of the reduced amplitude tensor to minimize re-calculation
 
-void hadMolee::amplitude::check_decay_cache()
+void hadMolee::amplitude_base::check_decay_cache()
 {
     bool need_recalculate;
     need_recalculate =     (abs(_cached_s - _s) > _cache_tolerance) 
@@ -123,7 +123,7 @@ void hadMolee::amplitude::check_decay_cache()
 };
 
 // Allocate an aggragated vector of parameters to individual amplitudes
-void hadMolee::amplitude::set_parameters(std::vector<double> x)
+void hadMolee::amplitude_base::set_parameters(std::vector<double> x)
 {
     check_nParams(x);
 
@@ -154,7 +154,7 @@ void hadMolee::amplitude::set_parameters(std::vector<double> x)
 // ---------------------------------------------------------------------------
 // The amplitude of a sum is simply the sum of constituent amplitudes 
 
-std::complex<double> hadMolee::amplitude::reduced_amplitude(cartesian_index i, cartesian_index j)
+std::complex<double> hadMolee::amplitude_base::reduced_amplitude(cartesian_index i, cartesian_index j)
 {
     // IF called without any store amplitudes, throw error
     if (!is_sum()) return std::nan("");
@@ -176,7 +176,7 @@ std::complex<double> hadMolee::amplitude::reduced_amplitude(cartesian_index i, c
 
 // This is split into two pieces depending on whether or not to include the e+e- components
 // The decay distribution is the amplitude squared for the process V->abc
-double hadMolee::amplitude::decay_distribution(double s, double sab, double sbc)
+double hadMolee::amplitude_base::decay_distribution(double s, double sab, double sbc)
 {
     // Update the saved energy values for easier access later
     update(s, sab, sbc);
@@ -206,7 +206,7 @@ double hadMolee::amplitude::decay_distribution(double s, double sab, double sbc)
 
 
 // The scattering distribution is the amplitude squared for the process e+e- ->abc
-double hadMolee::amplitude::scattering_distribution(double s, double sab, double sbc)
+double hadMolee::amplitude_base::scattering_distribution(double s, double sab, double sbc)
 {
     // Update the saved energy values for easier access later
     update(s, sab, sbc);
@@ -242,7 +242,7 @@ double hadMolee::amplitude::scattering_distribution(double s, double sab, double
 
 // ---------------------------------------------------------------------------
 // Doubly differential partial-width
-double hadMolee::amplitude::d2Gamma(double s, double sab, double sbc)
+double hadMolee::amplitude_base::d2Gamma(double s, double sab, double sbc)
 {
     if ( !_kinematics->in_physical_region(s, sab, sbc) ) 
     {
@@ -267,7 +267,7 @@ double hadMolee::amplitude::d2Gamma(double s, double sab, double sbc)
 // Singly differentrial partial-widths
 
 // In the ab subsystem
-double hadMolee::amplitude::dGamma_ab(double s, double sab)
+double hadMolee::amplitude_base::dGamma_ab(double s, double sab)
 {
     auto F = [&](double sbc)
     {
@@ -286,7 +286,7 @@ double hadMolee::amplitude::dGamma_ab(double s, double sab)
 };
 
 // In the bc subsystem
-double hadMolee::amplitude::dGamma_bc(double s, double sbc)
+double hadMolee::amplitude_base::dGamma_bc(double s, double sbc)
 {
     auto F = [&](double sab)
     {
@@ -305,7 +305,7 @@ double hadMolee::amplitude::dGamma_bc(double s, double sbc)
 };
 
 // In the ac subsystem
-double hadMolee::amplitude::dGamma_ac(double s, double sac)
+double hadMolee::amplitude_base::dGamma_ac(double s, double sac)
 {
     auto F = [&](double sbc)
     {
@@ -326,7 +326,7 @@ double hadMolee::amplitude::dGamma_ac(double s, double sac)
 
 // Alias for three different subchannels, specify with an argument
 // Third argument is expected to be the correct subchannel energy
-double hadMolee::amplitude::dGamma(subchannel chan, double s, double sigma)
+double hadMolee::amplitude_base::dGamma(subchannel chan, double s, double sigma)
 {
     if ( !_kinematics->in_physical_region(s, sigma, chan) ) 
     {
@@ -346,7 +346,7 @@ double hadMolee::amplitude::dGamma(subchannel chan, double s, double sigma)
 
 // ---------------------------------------------------------------------------
 // Fully integrated decay width
-double hadMolee::amplitude::Gamma(double s)
+double hadMolee::amplitude_base::Gamma(double s)
 {
     auto F = [&](double sab)
     {

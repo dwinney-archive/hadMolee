@@ -27,7 +27,7 @@ namespace hadMolee
         public:
 
         // Constructor requires a valid amplitude to be fit
-        amplitude_fitter(amplitude * amp)
+        amplitude_fitter(amplitude amp)
         : _amplitude(amp), _V(amp->_V)
         {
             // Extract how many parameters we should expect
@@ -46,7 +46,7 @@ namespace hadMolee
 
         // Constructor requires a reaction_kinematics object
         // Optional explicit choice of minimization strategy passes to minuit object
-        amplitude_fitter(amplitude * amp, std::string strategy, double tolerance = 1.E-6)
+        amplitude_fitter(amplitude amp, std::string strategy, double tolerance = 1.E-6)
         : _amplitude(amp), _tolerance(tolerance)
         {
             // Extract how many parameters we should expect
@@ -105,11 +105,11 @@ namespace hadMolee
         // Decay amplitude being fit 
         // This describes the definite final state we are considering. 
         // In future this can be a vector to include multiple final states with their own data sets
-        amplitude * _amplitude;
+        amplitude _amplitude;
 
         // This pointer is the shared vector meson object that all the amplitudes being fit share
         // This can be our charmonium or Y-meson describing the total center-of-mass energy dependence
-        std::shared_ptr<charmoniumlike> _V;
+        lineshape _V;
 
         // MINUIT error code
         int _printLevel   = 0;

@@ -11,6 +11,7 @@
 
 #include <cmath>
 #include <complex>
+#include <memory>
 #include <array>
 #include <vector>
 #include <iostream>
@@ -155,6 +156,16 @@ namespace hadMolee
     inline bool is_zero(double a)
     {
         return (abs(a) < EPS);
+    };
+
+    // ---------------------------------------------------------------------------
+    // Helper function to help "static cast" derived unique_ptr to base unique_ptr
+    // fron this https://stackoverflow.com/questions/36120424/alternatives-of-static-pointer-cast-for-unique-ptr
+
+    template<typename TO, typename FROM>
+    std::unique_ptr<TO> static_unique_pointer_cast(std::unique_ptr<FROM>&& old)
+    {
+        return std::unique_ptr<TO>{static_cast<TO*>(old.release())};
     };
 
     // ---------------------------------------------------------------------------

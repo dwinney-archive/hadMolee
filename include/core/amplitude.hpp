@@ -19,35 +19,40 @@
 
 namespace hadMolee
 {
+    // Forward declare amplitude for typedefs below
+    class amplitude_base;
+
+    // We really only want to work with pointers to amplitudes and
+    // almost never with amplitudes themselves
+    using amplitude  = std::shared_ptr<amplitude_base>;
+
     // Abstract class for a generic amplitude of the e+e- -> abc process
-    class amplitude 
+    class amplitude_base
     {
         // -----------------------------------------------------------------------
         public: 
 
-        amplitude(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> V, std::string id = "")
+        // Public constructors however these shouldnt be used directly
+        // Rather the make_amplitude<>() method should be treated like the 'constructor'
+        amplitude_base(kinematics xkinem, lineshape V, std::string id = "")
         : _kinematics(xkinem), _V(V),
         _nparams(0), _id(id), _classname("amplitude")
         {
-            std::array<double, 3> m = xkinem->get_masses();
-            _ma  = m[0];      _mb  = m[1];      _mc  = m[2];
-            _ma2 = m[0]*m[0]; _mb2 = m[1]*m[1]; _mc2 = m[2]*m[2];
+            set_up(xkinem);
         };
 
-        amplitude(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> V, int n, std::string classname, std::string id = "")
+        amplitude_base(kinematics xkinem, lineshape V, int n, std::string classname, std::string id = "")
         : _kinematics(xkinem), _V(V),
         _nparams(n), _id(id), _classname(classname)
         {
-            std::array<double, 3> m = xkinem->get_masses();
-            _ma  = m[0];      _mb  = m[1];      _mc  = m[2];
-            _ma2 = m[0]*m[0]; _mb2 = m[1]*m[1]; _mc2 = m[2]*m[2];
+            set_up(xkinem);
         };
 
         // This pointer holds all kinematic information
-        std::shared_ptr<reaction_kinematics> _kinematics; 
+        kinematics _kinematics; 
 
         // Photon oscillates into spin-1 meson described by a charmoniumlike object
-        std::shared_ptr<charmoniumlike> _V;
+        lineshape _V;
 
         // Access the id tag of this amplitude
         inline void        set_id(std::string id){ _id = id; };
@@ -107,14 +112,14 @@ namespace hadMolee
 
         // Sums hold a vector of pointers to the constituent amplitudes
         bool is_sum(){ return (_sub_amps.size() > 0);  };
-        std::vector<std::shared_ptr<amplitude>> _sub_amps;
+        std::vector<amplitude> _sub_amps;
 
         // Make sure all amplitudes being summed are compatible
         // This is efffectively the same as the are_compatible() method except comparisions are made against the interally stored instances 
-        bool is_compatible(std::shared_ptr<amplitude> new_amp);
+        bool is_compatible(amplitude new_amp);
     
         // Add a new amplitude to the vector
-        inline void add(std::shared_ptr<amplitude> new_amp)
+        inline void add(amplitude new_amp)
         {
             if (is_compatible(new_amp))
             {
@@ -124,7 +129,7 @@ namespace hadMolee
         };
 
         // Add a whole vector of new amplitudes
-        inline void add(std::vector<std::shared_ptr<amplitude>> new_amps)
+        inline void add(std::vector<amplitude> new_amps)
         {
             for (auto amp : new_amps)
             {
@@ -133,12 +138,11 @@ namespace hadMolee
         };
 
         // Need to make binary operators able to access the _sub_amps vector
-        friend void add(std::shared_ptr<amplitude> new_amp);
-        friend void add(std::vector<std::shared_ptr<amplitude>> new_amps);
-        friend void operator+=(std::shared_ptr<amplitude> a, std::shared_ptr<amplitude> b);
-        friend std::shared_ptr<hadMolee::amplitude> operator+(std::shared_ptr<amplitude> a, std::shared_ptr<amplitude> b);
+        friend void add(amplitude new_amp);
+        friend void add(amplitude new_amps);
+        friend void operator+=(amplitude a, amplitude b);
+        friend amplitude operator+(amplitude a, amplitude b);
     
-
         // -----------------------------------------------------------------------
 
         // Variable for setting cases for debugging messages
@@ -165,6 +169,12 @@ namespace hadMolee
         std::string _classname = "amplitude"; // Name of the class
 
         // Kinematic quantites below are saved so they do not need to be passed around inside amplitudes
+        inline void set_up(kinematics xkinem)
+        {
+            std::array<double, 3> m = xkinem->get_masses();
+            _ma  = m[0];      _mb  = m[1];      _mc  = m[2];
+            _ma2 = m[0]*m[0]; _mb2 = m[1]*m[1]; _mc2 = m[2]*m[2];
+        };
         inline void update(double s, double sab, double sbc)
         {
             _W = sqrt(s); _s = s;
@@ -222,36 +232,37 @@ namespace hadMolee
     };
 
     // ---------------------------------------------------------------------------
-    // Check if two amplitudes (in smart_ptr form) are compatible to be added 
-    bool are_compatible(std::shared_ptr<amplitude> a, std::shared_ptr<amplitude> b);
+    // These methods deal with manipulating amplitudes in shared_ptr form
+
+    bool are_compatible(amplitude a, amplitude b);
 
     // Smart pointer "constructor"
     template<class A>
-    std::shared_ptr<amplitude> make_amplitude(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> V, std::string id = "")
+    amplitude make_amplitude(kinematics xkinem, lineshape V, std::string id = "")
     {
         auto amp = std::make_shared<A>(xkinem, V, id);
-        return std::static_pointer_cast<amplitude>(amp);
+        return std::static_pointer_cast<amplitude_base>(amp);
     };
 
     // Smart pointer "constructor" for a sum by adding two amplitudes together
-    std::shared_ptr<amplitude> operator+(std::shared_ptr<amplitude> a, std::shared_ptr<amplitude> b);
+    amplitude operator+(amplitude a, amplitude b);
 
     // Internally we can alias amplitude::add() with the += operator
-    void operator+=(std::shared_ptr<amplitude> a,  std::shared_ptr<amplitude> b);
+    void operator+=(amplitude a,  amplitude b);
 
     // Simply amplitude with no energy dependence. 
-    class phase_space : public amplitude
+    class phase_space : public amplitude_base
     {
         // -----------------------------------------------------------------------
 
         public: 
 
-        phase_space(std::shared_ptr<reaction_kinematics> xkinem, std::shared_ptr<charmoniumlike> V, std::string id = "")
-        : amplitude(xkinem, V, 0, "flat_amplitude", id)
+        phase_space(kinematics xkinem, lineshape V, std::string id = "")
+        : amplitude_base(xkinem, V, 0, "flat_amplitude", id)
         {};
 
-        phase_space(std::shared_ptr<reaction_kinematics> xkinem, std::string id = "")
-        : amplitude(xkinem, nullptr, 0, "flat_amplitude", id)
+        phase_space(kinematics xkinem, std::string id = "")
+        : amplitude_base(xkinem, nullptr, 0, "flat_amplitude", id)
         {};
 
         // Return a constant for all the amplitudes. 

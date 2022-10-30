@@ -10,9 +10,16 @@
 #include "cubature.h"
 #include "constants.hpp"
 #include "loop_integrands.hpp"
+#include <memory>
 
 namespace hadMolee
 {
+    // Currentl availale options for the triangle implementation
+    enum triangle_options{relativistic, nonrelativistic, LoopTools};
+    class triangle;
+    class nonrelativistic_triangle;
+    class relativistic_triangle;
+
     // ---------------------------------------------------------------------------
     // Generic triangle class
     // Contains the masses and call function common to any implementation
@@ -131,6 +138,26 @@ namespace hadMolee
 
         // Wrapper for the integrand, callable function of feynman parameters
         static int wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval);
+    };
+
+    inline std::unique_ptr<triangle> make_triangle(triangle_options x = nonrelativistic)
+    {
+        switch (x)
+        {
+            case nonrelativistic: 
+            {
+                std::unique_ptr<triangle> T = std::make_unique<nonrelativistic_triangle>();
+                return T;
+            }
+            case relativistic: 
+            {
+                std::unique_ptr<triangle> T = std::make_unique<relativistic_triangle>();
+                return T;
+                break;
+            }
+            default: return nullptr;
+        }
+        return nullptr;
     };
 };
 

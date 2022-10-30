@@ -19,6 +19,11 @@
 
 namespace hadMolee
 {
+    // Forward declaration so we can rename ptr to kinematics as just kinematics
+    // WE do this because we basically never want to work with a raw instance, but pass around a pointer
+    class reaction_kinematics;
+    using kinematics = std::shared_ptr<hadMolee::reaction_kinematics>;
+
     // Three possible subchannels following the labelings inside amp->_reaction_kinematics
     enum subchannel{ab, ba = ab, bc, cb = bc, ac, ca = ac};
 
@@ -292,13 +297,13 @@ namespace hadMolee
     };
 
     // Shortcut function to quickly create a kinematics object using smart pointers
-    inline std::shared_ptr<reaction_kinematics> make_kinematics(std::array<double,3> m)
+    inline kinematics make_kinematics(std::array<double,3> m)
     {
         return std::make_shared<reaction_kinematics>(m);
     };
 
     // Shortcut function to quickly create a kinematics object using smart pointers
-    inline std::shared_ptr<reaction_kinematics> make_kinematics(std::array<double,3> m, std::array<std::string,3> labels)
+    inline kinematics make_kinematics(std::array<double,3> m, std::array<std::string,3> labels)
     {
         return std::make_shared<reaction_kinematics>(m, labels);
     };
