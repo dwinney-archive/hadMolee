@@ -41,4 +41,3 @@
 # Testing and output files
 /tests/
 *.pdf
-*.dat
