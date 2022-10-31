@@ -7,20 +7,20 @@
 #ifndef Z_MESON_HPP
 #define Z_MESON_HPP
 
-#include "hadronic_molecule.hpp"
+#include "molecule.hpp"
 
 namespace hadMolee
 {
     // ---------------------------------------------------------------------------
     // D* D molecule relevant for the Z meson
 
-    class DsD_molecule : public hadronic_molecule
+    class DsD_molecule : public molecular
     {
         // -----------------------------------------------------------------------
         public:
 
         DsD_molecule()
-        : hadronic_molecule(M_DSTAR, M_D)
+        : molecular(M_DSTAR, M_D)
         {
             // Mass and Width from PDG
             _pole_mass          = M_ZC3900;
@@ -34,18 +34,18 @@ namespace hadMolee
         };
 
         // The propagator gains contributions from the self-energy
-        inline std::complex<double> propagator(double s)
+        inline complex propagator(double s)
         {
             double E = sqrt(s);
             double z = _molecular_coupling;
 
-            std::complex<double> D = E - _pole_mass + XI * (z*z*self_energy(E) + _nonmol_width/2.);
+            complex D = E - _pole_mass + XI * (z*z*self_energy(E) + _nonmol_width/2.);
             
             return XI / (2.*D);
         };  
 
         // Self-energy from bubble diagram of D* D scattering 
-        inline std::complex<double> self_energy(double E)
+        inline complex self_energy(double E)
         {
             double eps = mass_difference(E);
             double mu  = reduced_mass();

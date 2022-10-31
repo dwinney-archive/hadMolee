@@ -70,7 +70,16 @@ namespace hadMolee
 
         // Output the amplitude at fixed helicities for photon and particle a 
         // Needs array of two helicities (inital vector and outgoing vector) 
-        virtual std::complex<double> reduced_amplitude(cartesian_index i, cartesian_index j);
+        virtual complex reduced_amplitude(cartesian_index i, cartesian_index j);
+
+        // The above needs to be supplied by the user
+        // This version is used internally and just automatically provides the _update and recalcualte() check
+        inline complex reduced_amplitude_checked(cartesian_index i, cartesian_index j)
+        {
+            // IF our kinematics has been changed, recalculate relevant quantities
+            if (updated()) recalculate();
+            return reduced_amplitude(i, j);
+        };
 
         // Spin-summed amplitude squared
         double decay_distribution(double s, double sab, double sbc);
@@ -265,7 +274,7 @@ namespace hadMolee
         // Return a constant for all the amplitudes. 
         // Since we always sum over helicities of a, we divide normalize so the spin-summed amplitude square equals 1
         // The averaging factor for the Y meson is handled in the width definition
-        inline std::complex<double> reduced_amplitude(cartesian_index i, cartesian_index j) 
+        inline complex reduced_amplitude(cartesian_index i, cartesian_index j) 
         { return s_wave(i,j) * XR; };
     };
 };

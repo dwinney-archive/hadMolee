@@ -74,23 +74,23 @@ endif()
 
 ##-----------------------------------------------------------------------
 # Find the LoopTools library
-find_library(LOOPLIB NAMES LoopTools libLoopTools
-                     HINTS "$ENV{LOOPTOOLS}/lib")
-if (LOOPLIB)
-    include_directories($ENV{LOOPTOOLS}/include)
-    message("-- LoopTools found! (${LOOPLIB})")
-else()
-    message("-- LoopTools not found!")
-endif()
+# find_library(LOOPLIB NAMES LoopTools libLoopTools
+#                      HINTS "$ENV{LOOPTOOLS}/lib")
+# if (LOOPLIB)
+#     include_directories($ENV{LOOPTOOLS}/include)
+#     message("-- LoopTools found! (${LOOPLIB})")
+# else()
+#     message("-- LoopTools not found!")
+# endif()
 
 ##-----------------------------------------------------------------------
 # Build core physics library 
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/core)
-if (LOOPLIB)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/LoopTools)
-    add_subdirectory(src/LoopTools)
-endif()
+# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/core)
+# if (LOOPLIB)
+#     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/LoopTools)
+#     add_subdirectory(src/LoopTools)
+# endif()
 add_subdirectory(src/core)
 
 if (BUILD_CLING)

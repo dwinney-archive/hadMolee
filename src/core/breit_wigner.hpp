@@ -12,59 +12,58 @@
 
 namespace hadMolee
 {
+
     // First the abstract class that can be called from anywhere
     class breit_wigner
     {
         public: 
 
         // Default constructor only requires a 'bare' mass 
-        breit_wigner(double mass, double width = 0.)
-        : _mass(mass), _width(width)
+        breit_wigner(option mode)
+        : _mode(mode)
+        {};
+
+        breit_wigner(option mode, double mass, double width = 0.)
+        : _mode(mode), _mass(mass), _width(width)
         {};
 
         // Main function, evaluates as a function of one variable
-        virtual std::complex<double> eval(double x) = 0;
+        complex eval(double x)
+        {
+            switch (_mode)
+            {
+                case (relativistic):    return rel_eval(x);
+                case (nonrelativistic): return nonrel_eval(x);
+                default:                return std::nan("");
+            }
+        };
         inline double squared(double x){ return norm(eval(x)); };
 
+        // Set the mass and width of the state
+        inline void set_mass(double m, double w = 0){ _mass = m; _width = w; };
+
         protected:
+
+        // Whether we are using the relativistic BW or not
+        option _mode;
+
+        complex nonrel_eval(double E)
+        {
+            complex D =  (E - _mass) + XI * _width/2. + IEPS;
+            return XI / (2. * D);
+        };  
+
+        complex rel_eval(double s)
+        {
+            complex D =  (s - _mass*_mass) + XI * _mass*_width + IEPS;
+            return XI / D;
+        };
 
         // Pole mass is only really needed parameter 
         double _mass;
 
         // But may also allow a width
         double _width;
-    };
-
-    // Relativistic BW with constant width
-    class relativistic_BW : public breit_wigner
-    {
-        public: 
-        // Default constructor takes in a pole mass and a constant width
-        relativistic_BW(double mass, double width)
-        : breit_wigner(mass, width)
-        {};
-
-        inline complex<double> eval(double s)
-        {
-            std::complex<double> D =  (s - _mass*_mass) + XI * _mass*_width + IEPS;
-            return XI / D;
-        };
-    };
-
-    // Non-relativistic BW with constant width
-    class nonrelativistic_BW : public breit_wigner
-    {
-        public: 
-        // Default constructor takes in a pole mass and a constant width
-        nonrelativistic_BW(double mass, double width)
-        : breit_wigner(mass, width)
-        {};
-
-        inline std::complex<double> eval(double E)
-        {
-            std::complex<double> D =  (E - _mass) + XI * _width/2. + IEPS;
-            return XI / (2. * D);
-        };
     };
 };
 

@@ -56,8 +56,8 @@ namespace hadMolee
         : _npars(npars), _id(id)
         {};
 
-        virtual std::complex<double> propagator(double s){ return 1.; };
-        virtual std::complex<double> photon_coupling(){    return 1.; };
+        virtual complex propagator(double s){ return 1.; };
+        virtual complex photon_coupling(){    return 1.; };
 
         // String identifier
         inline std::string get_id(){ return _id; };

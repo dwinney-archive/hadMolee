@@ -37,7 +37,7 @@ namespace hadMolee
         virtual ~box() = default;
 
         // Evaluate as a function of the initial state invariant mass
-        virtual std::complex<double> eval() = 0;
+        virtual complex eval() = 0;
         double squared(double s){ return norm(eval()); };
 
         // Setting functions for the masses
@@ -91,7 +91,7 @@ namespace hadMolee
 
 
         // Evaluate by integrating over Feynman parameters
-        std::complex<double> eval();
+        complex eval();
 
         // Option to change the numerical epsilon used
         void set_ieps(double e){ integrand.set_ieps(e); };

@@ -30,7 +30,7 @@ namespace hadMolee
     template<class A>
     inline molecule make_molecule(double a, double b)
     {
-        molecule model = std::make_unique<A>(a, b);
+        molecule model = std::make_shared<A>(a, b);
         return model;
     };
 
@@ -38,7 +38,7 @@ namespace hadMolee
     template<class A>
     inline molecule make_molecule()
     {
-        molecule model = std::make_unique<A>();
+        molecule model = std::make_shared<A>();
         return model;
     };
 
@@ -81,7 +81,7 @@ namespace hadMolee
 
         // Evaluate the propagator
         // For standardization the input argument is always asssumed to be s, take the square root internally if we need E
-        virtual std::complex<double> propagator(double s){ return 1.; };
+        virtual complex propagator(double s){ return 1.; };
 
         // Output the saved coupling to the constituent channel
         virtual inline double molecular_coupling(){ return _molecular_coupling; };
@@ -107,7 +107,7 @@ namespace hadMolee
         inline double sth(){ return Wth()*Wth(); };
 
         // Self-energy loop function
-        virtual std::complex<double> self_energy(double x){ return 0.; };
+        virtual complex self_energy(double x){ return 0.; };
     };
 };
 

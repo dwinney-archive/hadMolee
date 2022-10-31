@@ -33,15 +33,15 @@ namespace hadMolee
         };
 
         // The propagator gains contributions from the self-energy
-        std::complex<double> propagator(double s)
+        complex propagator(double s)
         {
             double E = sqrt(s);
-            std::complex<double> D = E - _pole_mass - _Z*self_energy(E) + XI*_nonmol_width/2.;
+            complex D = E - _pole_mass - _Z*self_energy(E) + XI*_nonmol_width/2.;
             return XI * _Z / (2. * D);
         };
 
         // Since Y-meson is also charmonium-like it requires a photon coupling
-        std::complex<double> photon_coupling()
+        complex photon_coupling()
         {
             return XI * E * _pole_mass*_pole_mass / _fY;
         };
@@ -67,13 +67,13 @@ namespace hadMolee
 
         // Self-energy from bubble of D1 D scattering and dressed with elastic scattering
         // renomalized
-        std::complex<double> self_energy(double E)
+        complex self_energy(double E)
         {
             return sigma(E) - _reS - (E - _pole_mass) * _redS;
         };
 
         // Bare self-energy just from the bubble of D1 D scattering
-        inline std::complex<double> sigma(double E)
+        inline complex sigma(double E)
         {
             double eps = mass_difference(E);
             double mu  = reduced_mass();

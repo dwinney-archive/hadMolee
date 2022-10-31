@@ -243,7 +243,7 @@ namespace hadMolee
 
         // This is the scalar coupling of e+ e- -> gammma which includes the photon propagator,
         // The lorentz index dependence is in production_tensor(i,j);
-        inline std::complex<double> ee_to_gamma(double s)
+        inline complex ee_to_gamma(double s)
         {
             // Modulous of lepton momentum squared
             double k2                    = s/4.;

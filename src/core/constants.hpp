@@ -22,6 +22,9 @@ namespace hadMolee
     // ---------------------------------------------------------------------------
     // Mathematical constants
 
+    // We use complex numbers a lot so we define this shortened data type
+    using complex = std::complex<double>;
+
     // Fundamental constants
     const double PI       = M_PI;
     const double EULER    = 0.57721566490153286060651209008240243104215933593992;
@@ -29,8 +32,8 @@ namespace hadMolee
     const double E        = sqrt(4. * PI * ALPHA);
 
     // Unit complex and real values
-    const std::complex<double> XR  (1., 0.);
-    const std::complex<double> XI  (0., 1.);
+    const complex XR  (1., 0.);
+    const complex XI  (0., 1.);
     
     // Unit conversion factors
     const double DEG2RAD  = (M_PI / 180.);
@@ -40,7 +43,7 @@ namespace hadMolee
 
     // Small offsets
     const double                EPS  = 1.E-8;
-    const std::complex<double> IEPS  = XI*EPS;
+    const complex IEPS  = XI*EPS;
 
     // Three cartesian indexes for ease;
     enum  cartesian_index{x = 0, y = 1, z = 2};
@@ -49,6 +52,9 @@ namespace hadMolee
     // Delta function, made explicit for cartesian_index so you dont need to
     // put cartesian_index::x all the time
     inline bool delta(cartesian_index i, cartesian_index j){ return (i == j); };
+
+    // Many objects have different evaluations which can be controlled through this option flag
+    enum option{ relativistic, nonrelativistic, LoopTools };
 
     // ---------------------------------------------------------------------------
     // 2022 PDG masses in GeV
@@ -110,30 +116,30 @@ namespace hadMolee
     // ---------------------------------------------------------------------------
     // Overload of multiplcation for a bool and complex<double>
 
-    inline std::complex<double> operator * (const bool & a, const std::complex<double> & b)
+    inline complex operator * (const bool & a, const complex & b)
     {
         if (a)
             return b;
         else
-            return std::complex<double>(0, 0);
+            return complex(0, 0);
     };
-    inline std::complex<double> operator * (const std::complex<double> & b, const bool & a)
+    inline complex operator * (const complex & b, const bool & a)
     {
         if (a)
             return b;
         else
-            return std::complex<double>(0, 0);
+            return complex(0, 0);
     };
 
     // Same thing but with int
-    inline std::complex<double> operator * (const int & a, const std::complex<double> & b)
+    inline complex operator * (const int & a, const complex & b)
     {
-        if (a != 0) return std::complex<double>(double(a) * real(b), double(a) * imag(b));
+        if (a != 0) return complex(double(a) * real(b), double(a) * imag(b));
         else        return 0.*XR;
     };
-    inline std::complex<double> operator * (const std::complex<double> & b, const int & a)
+    inline complex operator * (const complex & b, const int & a)
     {
-        if (a != 0) return std::complex<double>(double(a) * real(b), double(a) * imag(b));
+        if (a != 0) return complex(double(a) * real(b), double(a) * imag(b));
         else        return 0.*XR;
     };
 
@@ -147,7 +153,7 @@ namespace hadMolee
     }
 
     // Same thing for comparing complex doubles
-    inline bool is_equal(std::complex<double> a, std::complex<double> b)
+    inline bool is_equal(complex a, complex b)
     {
         return (is_equal(real(a), real(b)) && is_equal(imag(a), imag(b)));
     };
@@ -183,7 +189,7 @@ namespace hadMolee
     const double METRIC[4] = {1., -1., -1., -1.};
 
     // Gamma matrix vector in Dirac basis
-    const std::complex<double> GAMMA[4][4][4] =
+    const complex GAMMA[4][4][4] =
     {
         //gamma0
         { { 1., 0., 0., 0. },
@@ -208,7 +214,7 @@ namespace hadMolee
     };
 
     // Gamma_5
-    const std::complex<double> GAMMA_5[4][4] =
+    const complex GAMMA_5[4][4] =
     {
         { 0., 0., 1., 0. },
         { 0., 0., 0., 1. },
