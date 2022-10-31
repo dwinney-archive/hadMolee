@@ -9,7 +9,16 @@
 
 namespace hadMolee
 {
-    complex relativistic_box::eval()
+    complex box::eval()
+    {
+        switch (_mode)
+        {
+            case (relativistic):    return relativistic_eval();
+            default: return std::nan("");
+        };
+    };
+    
+    complex box::relativistic_eval()
     {
         // Desination for the result and assosiated errors
         double val[3], err[3];
@@ -18,12 +27,10 @@ namespace hadMolee
         double min[3] = {0., 0., 0.};
         double max[3] = {1., 1., 1.};
 
-        // Fix the "masses", s and ,t
-        integrand.update_masses({_s, _t}, {_emA2, _emB2, _emC2, _emD2}, {_imA2, _imB2, _imC2, _imD2}, {_wA, _wB, _wC, _wD});
 
         // TODO: Set relative errors and max calls to actual good values
         // Integrate over x and y
-        hcubature(2, wrapped_integrand, &integrand, 3, min, max, _N, 0, 1e-6, ERROR_INDIVIDUAL, val, err);
+        hcubature(2, wrapped_integrand, &_integrand, 3, min, max, _N, 0, 1e-6, ERROR_INDIVIDUAL, val, err);
 
         // Assemble the result as a complex double
         complex result(val[0], val[1]);
@@ -32,24 +39,24 @@ namespace hadMolee
         return result;
     };
 
-    int relativistic_box::wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval)
+    int box::wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval)
     {
-    box_integrand* integrand = (box_integrand *) fdata;
+        integrand* Integrand = (integrand *) fdata;
 
-    // Feynman parameters
-    double u = in[0], v = in[1], w = in[2];
+        // Feynman parameters
+        double u = in[0], v = in[1], w = in[2];
 
-    double x = u *     v  * (1.-w);
-    double y = u * (1.-v) * (1.-w);
-    double z = u *              w ;
-    double r = 1. - x - y - z; // redundant parameter
+        double x = u *     v  * (1.-w);
+        double y = u * (1.-v) * (1.-w);
+        double z = u *              w ;
+        double r = 1. - x - y - z; // redundant parameter
 
-    complex result = u*u*(1.-w) * integrand->eval(r, x, y, z);
+        complex result = u*u*(1.-w) * Integrand->eval(r, x, y, z);
 
-    // Split up the real andi imaginary parts to get them out
-    fval[0] = std::real(result);
-    fval[1] = std::imag(result);
+        // Split up the real andi imaginary parts to get them out
+        fval[0] = std::real(result);
+        fval[1] = std::imag(result);
 
-    return 0.;
+        return 0.;
     };
 };

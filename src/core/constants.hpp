@@ -22,6 +22,9 @@ namespace hadMolee
     // ---------------------------------------------------------------------------
     // Mathematical constants
 
+    // Generic particle labels
+    enum particle{a, b, c, d};
+
     // We use complex numbers a lot so we define this shortened data type
     using complex = std::complex<double>;
 
