@@ -86,9 +86,9 @@ endif()
 ##-----------------------------------------------------------------------
 # Build core physics library 
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/core)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/core)
 if (LOOPLIB)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/LoopTools)
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/LoopTools)
     add_subdirectory(src/LoopTools)
 endif()
 add_subdirectory(src/core)

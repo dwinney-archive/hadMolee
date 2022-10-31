@@ -14,10 +14,10 @@ void Load()
 
     //----------------------------------------------------------------------
     // Core physics library
+    TString PHYS_INC  = BASE + "/physics";
 
     TString CORE_LIB  = BASE + "/lib/libHADMOLEE." + LIB_EXT;
-    TString CORE_INC  = BASE + "/include/core";
-    TString PHYS_INC  = BASE + "/include/physics";
+    TString CORE_INC  = BASE + "/src/core";
 
     if (!gSystem->AccessPathName(CORE_LIB.Data()))
     {
@@ -33,7 +33,7 @@ void Load()
     //----------------------------------------------------------------------
     // Linked LT physics library
 
-    TString LT_INC  = BASE + "/include/LoopTools";
+    TString LT_INC  = BASE + "/src/LoopTools";
     TString LT_LIB  = BASE + "/lib/libLOOPEXT." + LIB_EXT;
 
     if (!gSystem->AccessPathName(LT_LIB.Data()))
@@ -55,7 +55,7 @@ void Load()
     // Plotting library
 
     TString JPACSTYLE_DIR  = gSystem->Getenv("JPACSTYLE");
-    TString JPACSTYLE_INC  = JPACSTYLE_DIR + "/include/";
+    TString JPACSTYLE_INC  = JPACSTYLE_DIR + "/include";
     TString JPACSTYLE_LIB  = JPACSTYLE_DIR + "/lib/libjpacStyle." + LIB_EXT;
 
     if (!gSystem->AccessPathName(JPACSTYLE_LIB.Data()))
