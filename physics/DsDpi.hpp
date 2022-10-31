@@ -164,7 +164,6 @@ namespace hadMolee
             // The normalization is matched to Qiang's paper
             complex T = _internal[0] * _internal[1] * _internal[2] * _T.eval();
 
-            debug(T);
             // Common pieces for both S and D wave
             _AS *= - (_Y->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc->propagator(_sab);
             _AD *= - (_Y->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc->propagator(_sab);
@@ -178,7 +177,7 @@ namespace hadMolee
         std::array<double,3> _internal = {M_DSTAR, M_D1, M_D};
 
         // Default to using nonrelativistic version of the triangle
-        triangle _T = triangle(relativistic);
+        triangle _T = triangle(nonrelativistic);
 
         // This channel recieves contribution from the Z(3900)
         molecule _Zc = make_molecule<DsD_molecule>();

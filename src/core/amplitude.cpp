@@ -260,7 +260,7 @@ namespace hadMolee
         // General prefactors for 1->3 decay width in GeV
         double prefactors = 1. / (32.*pow(2.*PI*sqrt(s), 3.));
 
-        // if (_normalize) prefactors *= _normalization;
+        if (_normalize) prefactors *= _normalization;
 
         return amp_squared * prefactors * 1.E3; // In MeV
     };

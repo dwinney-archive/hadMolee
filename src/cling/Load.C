@@ -33,18 +33,18 @@ void Load()
     //----------------------------------------------------------------------
     // Linked LT physics library
 
-    TString LT_INC  = BASE + "/src/LoopTools";
-    TString LT_LIB  = BASE + "/lib/libLOOPEXT." + LIB_EXT;
+    // TString LT_INC  = BASE + "/src/LoopTools";
+    // TString LT_LIB  = BASE + "/lib/libLOOPEXT." + LIB_EXT;
 
-    if (!gSystem->AccessPathName(LT_LIB.Data()))
-    {
-        gInterpreter->AddIncludePath( LT_INC.Data());
-        Int_t lib = gSystem->Load( LT_LIB.Data());
-    }
-    else
-    {
-        Warning("Load", "LoopTools extention library not found! Path given: %s", LT_LIB.Data());
-    }
+    // if (!gSystem->AccessPathName(LT_LIB.Data()))
+    // {
+    //     gInterpreter->AddIncludePath( LT_INC.Data());
+    //     Int_t lib = gSystem->Load( LT_LIB.Data());
+    // }
+    // else
+    // {
+    //     Warning("Load", "LoopTools extention library not found! Path given: %s", LT_LIB.Data());
+    // }
 
     //----------------------------------------------------------------------
     // Need to add cubature to apth

@@ -94,9 +94,8 @@ namespace hadMolee
         // Fully integrated decay width
         double Gamma(double s);
 
-        // Normalize widths to a constant N
-        // This is phase-space dependent so also must specify an s 
-        inline void normalize(double N, double s)
+        // Multiply decay widths with an arbitrary constant
+        inline void normalize(double N)
         {
             // If previously normalized, reset
             if (_normalize) 
@@ -105,8 +104,7 @@ namespace hadMolee
                 _normalize = false;
             };
 
-            double gam = Gamma(s);
-            _normalization = N / gam;
+            _normalization = N;
             _normalize = true;
         }
         

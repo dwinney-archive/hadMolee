@@ -4,8 +4,8 @@
 // Email:        dwinney@scnu.edu.cn
 // ---------------------------------------------------------------------------
 
-#ifndef FITTER
-#define FITTER
+#ifndef FITTER_HPP
+#define FITTER_HPP
 
 #include "reaction_kinematics.hpp"
 #include "amplitude.hpp"
@@ -47,12 +47,12 @@ namespace hadMolee
         // Constructor requires a reaction_kinematics object
         // Optional explicit choice of minimization strategy passes to minuit object
         amplitude_fitter(amplitude amp, std::string strategy, double tolerance = 1.E-6)
-        : _amplitude(amp), _tolerance(tolerance)
+        : _amplitude(amp), _V(amp->_V), _tolerance(tolerance)
         {
             // Extract how many parameters we should expect
-            int _N_V    = amp->_V->N_parameters();  // # of parameters from production & lineshape of vector meson
-            int _N_amp  = amp->N_parameters();      // # of parameters from decay to specific final state
-            int _N_pars = _N_V + _N_amp;
+            _N_V    = amp->_V->N_parameters();  // # of parameters from production & lineshape of vector meson
+            _N_amp  = amp->N_parameters();      // # of parameters from decay to specific final state
+            _N_pars = _N_V + _N_amp;
 
             // populate parameters vector of appropriate size
             for (int i = 0; i < _N_pars; i++)
@@ -74,6 +74,7 @@ namespace hadMolee
         void add_subchannel_data(subchannel abc, double sqs, std::vector<double> sqsig, std::vector<double> data, std::array<std::vector<double>,2> errors, std::string id = "");
 
         // Alternatively you can jsut specify the subchannel, fixed center-of-mass energy, and point to a data file
+        // This is assuming the file is properly formatted e.g. generated from data_formatting::reformat_digitized()
         void add_subchannel_data(subchannel abc, double sqs, std::string filename, std::string id = "");
 
         // Give each parameter a string name for outputting results
@@ -98,6 +99,11 @@ namespace hadMolee
 
         // Actually do the fit.
         void do_fit(std::vector<double> starting_guess);
+
+        // After a fit, the best-fit parameters will be allocated to the the amplitudes 
+        // however they may also be accessed from:
+        inline std::vector<double> best_fit(){       return _best_fit;       };
+        inline std::vector<double> normalizations(){ return _normalizations; };
 
         // --------------------------------------------------------------------
         private:
@@ -127,7 +133,7 @@ namespace hadMolee
         // --------------------------------------------------------------------
         // Parameter handling
 
-        int _N_pars = 0;   // total # of parameters
+        int _N_pars = 0;   // total # of (model) parameters
         int _N_amp  = 0;   // # parameters in production line-shape
         int _N_V    = 0;   // # parameters in decay amplitude
 
@@ -169,29 +175,50 @@ namespace hadMolee
 
         // This converts but also splits the single vector into two depending on the parameters which go into _V and which go to _amp
         // And passes the appropriate length vectors to amplitudes with amplitude::set_parameters
-        void allocate_parameters(const double *par);
+        void allocate_parameters(const double *par, bool best_fit = false);
+
+        // A vector to store the best-fit parameters in case we need to access them multiple times after a fit is complete
+        std::vector<double> _best_fit, _normalizations;
 
         // --------------------------------------------------------------------
         // Data handling
 
         // Running total number of data points saved
-        int _N_data = 0;
+        int _N_data  = 0;
+
+        // Number of arbitrary normalizations we need to keep track of 
+        // should be the same as _subchannel_data.size()
+        int _N_norms = 0;
 
         // Simple container struct to hold all the relevent info for each user-added data set to fit against
         struct data_set
         {
-            data_set(subchannel abc, double sqrts, std::vector<double> sqrtsigmas, std::vector<double> data, std::array<std::vector<double>,2> errors, std::string id)
+            data_set(int i, subchannel abc, double sqrts, std::vector<double> sqrtsigmas, std::vector<double> data, std::array<std::vector<double>,2> errors, std::string id)
             : _subchannel(abc), _sqrts(sqrts), _sqrtsigmas(sqrtsigmas), _data(data), _errors(errors), _id(id),
-            _N(sqrtsigmas.size())
+            _N(sqrtsigmas.size()), _I(i)
             {};
 
+            // Integer index used to label the normalization constants that are fit
+            int _I; 
+
+            // Optional string id to name each data set
             std::string _id;
+            
+            // What subchannel the mass projection data corresponds to
             subchannel _subchannel;
+
+            // Fixed sqrt(s) (i.e. e+ e- energy)
             double _sqrts;
+
+            // Actual data
             std::vector<double> _sqrtsigmas, _data;
             std::array<std::vector<double>,2> _errors;
-            int _N;
-            double _norm;
+
+            // Total number of data points
+            int _N; 
+
+            // Arbitrary normalization which is additional fitting parameter for each data set
+            double _normalization = 1.;
         };
         // Vector containing all our different data sets
         std::vector<data_set> _subchannel_data;
@@ -199,10 +226,23 @@ namespace hadMolee
         // --------------------------------------------------------------------
         // Status message handling
 
-        // Methods for printing out messages
+        // Full width is the length of how wide I want the output to be
+        static const int _full_width = 62;
+
+        inline void cout_centered(std::string words)
+        {
+            int x = words.length();
+            int gap_width = (_full_width - x)/2;
+            std::cout << std::left << std::setw(gap_width) << "" << std::setw(x) << words << std::setw(gap_width) << "" << std::endl;
+        };
+        // A nice horizontal line of length _full_width
         inline void divider()
         {
             std::cout << "--------------------------------------------------------------" << std::endl;
+        };
+        inline void dashed_divider()
+        {
+            std::cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " << std::endl;
         };
         inline void new_line()
         {
@@ -219,7 +259,7 @@ namespace hadMolee
                 case ac: return "ac";
             }
 
-            return "ERR_ID";
+            return "ERROR_ID";
         };
 
         // Print out a summary of saved data

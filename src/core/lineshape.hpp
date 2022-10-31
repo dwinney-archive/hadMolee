@@ -27,7 +27,7 @@ namespace hadMolee
 
     // Shortcut function to quickly create a kinematics object using smart pointers
     template<class A>
-    inline lineshape make_lineshape(std::string id)
+    inline lineshape make_lineshape(std::string id = "lineshape")
     {
         auto model = std::make_shared<A>(id);
         return std::static_pointer_cast<charmoniumlike>(model);

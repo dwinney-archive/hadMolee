@@ -14,6 +14,12 @@ namespace hadMolee
     // Starts fit with an user-supplied vector of starting values for all parameters
     void amplitude_fitter::do_fit(std::vector<double> starting_guess)
     {  
+        if (_N_data == 0)
+        {
+            warning("amplitude_fitter::do_fit()", "No data-points saved! Returning without fit...");
+            return;
+        };
+
         if (starting_guess.size() != _pars.size())
         {
             warning("amplitude_fitter::do_fit()", "Size of initial guess vector doesnt match number of parameters!");
@@ -28,7 +34,7 @@ namespace hadMolee
         new_line(); divider(); 
         variable_info(starting_guess, 0);
         new_line(); divider(); new_line();
-
+    
         auto start = std::chrono::high_resolution_clock::now();
         std::cout << "Beginning fit..." << std::flush; 
 
@@ -58,14 +64,13 @@ namespace hadMolee
             // Fixed e+e- invariant mass
             double s     = pow(data._sqrts, 2.);
 
-            // We assume the subchannel data set is in raw event counts
-            // Thus we normalize our curves to have the same area        
-            _amplitude->normalize(data._norm, s);
-            
             // Loop over data points calculating chi2
             double chi2_i = 0.;
             for (int i = 0; i < data._N; i++)
             {
+                // Apply the subchannel normalization to the amplitude
+                _amplitude->normalize(data._normalization);
+
                 // Fixed sub-channel invariant mass
                 double sigma = pow(data._sqrtsigmas[i], 2.);
 
@@ -101,19 +106,14 @@ namespace hadMolee
         // Number of data points for this set
         int n = sqsig.size();
 
-        if (data.size() != n || errors.size() != n) 
+        if (data.size() != n || errors[0].size() != n || errors[1].size() != n) 
         {
             warning("amplitude_fitter::add_subchannel_data", "Vectors received not the correct size! Skipping data set " + id + "...");
             return;
         };
 
         if ( id == "" ) id = subchannel_label(abc) + "_data[" + std::to_string(_subchannel_data.size()) + "]";
-        data_set new_data(abc, sqs, sqsig, data, errors, id);
-
-        // Calculate normalization
-        double sum = 0;
-        for (double data : data){ sum += data; };
-        new_data._norm = sum;
+        data_set new_data(_subchannel_data.size(), abc, sqs, sqsig, data, errors, id);
 
         _subchannel_data.push_back(new_data);
 
@@ -132,9 +132,12 @@ namespace hadMolee
         std::vector<double> sqsig  = file[0];
         std::vector<double> data   = file[1];
         std::array<std::vector<double>,2> errors = {file[2], file[3]};
-
+        
         // Save to fitter
         add_subchannel_data(abc, sqs, sqsig, data, errors, id);    
+
+        // Increment count of normalization parameters needed
+        _N_norms++;
     };
 
     //-----------------------------------------------------------------------
@@ -169,7 +172,7 @@ namespace hadMolee
     std::vector<double> amplitude_fitter::convert(const double * par)
     {
         std::vector<double> all_pars;
-        for (int n = 0; n < _N_pars; n++)
+        for (int n = 0; n < _N_pars + _N_norms; n++)
         {
             all_pars.push_back(par[n]);
         };
@@ -178,12 +181,12 @@ namespace hadMolee
     };
 
     // Takes in the double* from minuit, and feeds the vectors of appropriate size to each subamplitude
-    void amplitude_fitter::allocate_parameters(const double *par)
+    void amplitude_fitter::allocate_parameters(const double *par, bool best_fit)
     {
         // Split the parameter vector 
         std::vector<double> all_pars = convert(par);
 
-        // now we split into two sets
+        // now we split into three sets
         // The first are the parameters that belong to our production lineshape model
         auto start = all_pars.begin();
         auto end   = all_pars.begin() + _N_V;
@@ -192,13 +195,35 @@ namespace hadMolee
 
         // The second are for the decay amplitude
         start = all_pars.begin() + _N_V;
-        end   = all_pars.end();
+        end   = start + _N_amp;
 
         std::vector<double> amp_pars(start, end);
+
+        // Lastly are the data-set normalizations
+        start = all_pars.begin() + _N_V + _N_amp;
+        end   = start + _N_norms;
+        std::vector<double> norms(start, end);
 
         // And allocate them appropriately
         _V->set_parameters(V_pars); 
         _amplitude->set_parameters(amp_pars);
+        for (int i = 0; i < _N_norms; i++)
+        {
+            _subchannel_data[i]._normalization = norms[i];
+        };
+
+        // The bool best_fit saves the vector to member data so it can be output
+        if (best_fit) 
+        {
+            start = all_pars.begin();
+            end   = all_pars.begin() + _N_V + _N_amp;
+            _best_fit = std::vector<double>(start, end);
+
+            _normalizations = norms;
+
+            // In case some normalization of the amplitude is lingering we reset it 
+            _amplitude->normalize(1.);
+        }
     };
 
     //-----------------------------------------------------------------------
@@ -208,19 +233,25 @@ namespace hadMolee
     void amplitude_fitter::data_info()
     {
         divider();
-        std::cout << std::left << std::setw(30) << "Using e+e- lineshape model:" << std::setw(20) << _V->get_id() << std::endl;
+        std::cout << std::left << std::setw(28) << "Using e+e- lineshape model:" << std::setw(_V->get_id().length() + 2) << _V->get_id() << " (" + std::to_string(_V->N_parameters()) + " free parameters)" << std::endl;
         new_line();
-
-        std::cout << std::left << "Fitting decay amplitude for " << _amplitude->_kinematics->get_id() << " final-state (\"" << _amplitude->get_id() << "\") to " << _N_data << " data points: \n";
+        std::cout << std::left << "Using decays to 1 final-state with total of " << _N_data << " data points: \n";
         new_line();
-        std::cout << std::left << std::setw(25) << "DATA SET"            << std::setw(20) << "CHANNEL"         << std::setw(10) << "POINTS"  << std::endl;
-        std::cout << std::left << std::setw(25) << "----------------"    << std::setw(20) << "--------------"  << std::setw(10) << "-------" << std::endl;
+        dashed_divider();
+        cout_centered("FINAL-STATE: " +  _amplitude->_kinematics->get_id());
+        new_line();
+        std::cout << std::left << std::setw(13) <<  "AMPLITUDE: " << std::setw(_amplitude->get_id().length() + 2) << _amplitude->get_id() << " (" + std::to_string(_amplitude->N_parameters()) + " free parameters)" << std::endl;
+        new_line();
+        
+        std::cout << std::left << std::setw(23) << "DATA SET"               << std::setw(11) << "SQRT(s)"  << std::setw(13) << "CHANNEL"     << std::setw(10) << "POINTS"  << std::endl;
+        std::cout << std::left << std::setw(23) << "-------------------"   << std::setw(11) << "--------" << std::setw(13) << "----------"  << std::setw(10) << "-------" << std::endl;
 
-        for (int k = 0; k < _subchannel_data.size(); k++)
+        for (data_set dataset : _subchannel_data)
         {
-            std::cout << std::left << std::setw(25) << _subchannel_data[k]._id  
-                                << std::setw(20) << _amplitude->_kinematics->subchannel_label(_subchannel_data[k]._subchannel)  
-                                << std::setw(10) << _subchannel_data[k]._data.size()  << std::endl;  
+            std::cout << std::left  << std::setw(23) << dataset._id  
+                                    << std::setw(11) << dataset._sqrts
+                                    << std::setw(13) << _amplitude->_kinematics->subchannel_label(dataset._subchannel)  
+                                    << std::setw(10) << dataset._data.size()  << std::endl;  
         };
     };
 
@@ -244,8 +275,17 @@ namespace hadMolee
                 _minuit->FixVariable(a);
             }
         };
+        
+        // For each subchannel dataset we need to include one normalization as a fitting parameter
+        for (int b = 0; b < _N_norms; b++)
+        {
+            // Give each N a default name and start at 1
+            std::string norm_label = "N["+ std::to_string(b) + "]";
+            _minuit->SetVariable(_pars.size() + b, norm_label, 1., 0.1);
 
-        fcn = ROOT::Math::Functor(this, &amplitude_fitter::chi2, _pars.size());
+        };
+        
+        fcn = ROOT::Math::Functor(this, &amplitude_fitter::chi2, _pars.size() + _subchannel_data.size());
         _minuit->SetFunction(fcn);
     };
 
@@ -258,9 +298,11 @@ namespace hadMolee
         std::string column_3;
         (opt) ? (column_3 = "FIT VALUE") : (column_3 = "START VALUE");
 
-        if (!opt)  std::cout << std::left << "Fitting " + std::to_string(_minuit->NFree()) << " (out of " << std::to_string(_minuit->NDim()) << ") parameters:\n" << std::endl; 
-        std::cout << std::left << std::setw(10) << "N"       << std::setw(20) << "PARAMETER"  << std::setw(10) << column_3       << std::endl;
-        std::cout << std::left << std::setw(10) << "-----"   << std::setw(20) << "----------" << std::setw(10) << "------------" << std::endl;
+        if (!opt)  std::cout << std::left << "Fitting " + std::to_string(_minuit->NFree() - _N_norms) << " (out of " << std::to_string(_minuit->NDim() - _N_norms) << ") model parameters and " << _subchannel_data.size() << " normalizations:" << std::endl;
+        new_line();
+
+        std::cout << std::left << std::setw(7) << "N"       << std::setw(20) << "PARAMETER"  << std::setw(10) << column_3       << std::endl;
+        std::cout << std::left << std::setw(7) << "----"   << std::setw(20) << "----------" << std::setw(10) << "------------" << std::endl;
 
         for (int i = 0; i < _pars.size(); i++)
         {
@@ -272,14 +314,29 @@ namespace hadMolee
                 extra = ss.str();
             };
             if (_pars[i]._fixed && !opt) extra = "FIXED";
-            std::cout << std::left << std::setw(10) << i << std::setw(20) << _pars[i]._label << std::setw(20) << starting_guess[i] << std::setw(10) << extra << std::endl;
+            std::cout << std::left << std::setw(7) << i << std::setw(20) << _pars[i]._label << std::setw(20) << starting_guess[i] << std::setw(10) << extra << std::endl;
         };
+
+        if (opt)
+        {
+            new_line();
+            std::cout << std::left << std::setw(23) << "DATA SET"             << std::setw(11) << "SQRT(s)"  << std::setw(13) << "CHANNEL"     << std::setw(15) << "NORMALIZATION"  << std::endl;
+            std::cout << std::left << std::setw(23) << "-------------------"   << std::setw(11) << "--------" << std::setw(13) << "----------"  << std::setw(15) << "--------------" << std::endl;
+
+            for (data_set dataset : _subchannel_data)
+            {
+                std::cout << std::left  << std::setw(23) << dataset._id  
+                                        << std::setw(11) << dataset._sqrts
+                                        << std::setw(13) << _amplitude->_kinematics->subchannel_label(dataset._subchannel)  
+                                        << std::setw(15) << dataset._normalization << std::endl;  
+            };
+        }
     };
 
     void amplitude_fitter::print_results()
     {
         // Fit results
-        int dof = _N_pars - _minuit->NFree();
+        int dof = _N_data - _minuit->NFree();
 
         new_line();
         double chi2    = _minuit->MinValue();
@@ -291,10 +348,11 @@ namespace hadMolee
         std::cout << std::left << std::setw(10) << "chi2/dof = "  << std::setw(15) << chi2dof << std::endl;
         new_line();
         variable_info(best_params, 1);
+        new_line();
         divider();
         new_line();
         
         // At the end update the amplitude parameters to include the fit results
-        allocate_parameters(_minuit->X());
+        allocate_parameters(_minuit->X(), true);
     }
 };
