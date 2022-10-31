@@ -9,6 +9,7 @@
 
 #include "cubature.h"
 #include "constants.hpp"
+#include "reaction_kinematics.hpp"
 #include "loop_integrands.hpp"
 
 #include <memory>
@@ -49,9 +50,16 @@ namespace hadMolee
           _emA2 = m[0]*m[0]; _emB2 = m[1]*m[1]; _emC2 = m[2]*m[2]; }
         
         // Add a constant width to an internal propagator
-        inline void add_width_a(double g){ _wA = g; };
-        inline void add_width_b(double g){ _wB = g; };
-        inline void add_width_c(double g){ _wC = g; };
+        inline void add_width(particle p, double g)
+        {
+            switch (p) 
+            {
+                case a: _wA = g; break;
+                case b: _wB = g; break;
+                case c: _wC = g; break;
+                default: return;
+            };  
+        };
 
         // Option to change the numerical epsilon used
         void set_ieps(double e){ _eps = e; };
@@ -67,9 +75,8 @@ namespace hadMolee
         
         // Integrand object which will be used to evaluate the integral with the cubature library
         // Wrapper for the integrand, callable function of feynman parameters
-        triangle_integrand integrand;
+        triangle_integrand integrand = triangle_integrand();
         static int wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval);
-
 
         // Evaluation mode (i.e. relativistic / nonrelativsitic)
         option _mode;
@@ -84,7 +91,7 @@ namespace hadMolee
         double _wA = 0., _wB = 0., _wC = 0.; // Widths
 
         // Default iepsilon perscription
-        double _eps = EPS;
+        double _eps = 1.E-4;
 
         // Number of funciton calls 
         int _N = 1E7;

@@ -57,6 +57,7 @@ namespace hadMolee
         double max[2] = {1., 1.};
 
         // Fix the "masses" s and t
+        integrand.set_ieps(_eps);
         integrand.update_masses({_emA2, _emB2, _emC2}, {_imA2, _imB2, _imC2}, {_wA, _wB, _wC});
 
         // TODO: Set relative errors and max calls to actual good values
@@ -72,19 +73,19 @@ namespace hadMolee
 
     int triangle::wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval)
     {
-    triangle_integrand* integrand = (triangle_integrand *) fdata;
+        triangle_integrand* integrand = (triangle_integrand *) fdata;
 
-    // Feynman parameters
-    double x = in[0] * in[1];
-    double y = in[0] * (1. - in[1]);
-    double z = 1. - x - y;
+        // Feynman parameters
+        double x = in[0] * in[1];
+        double y = in[0] * (1. - in[1]);
+        double z = 1. - x - y;
 
-    complex result = in[0] * integrand->eval(x, y, z);
+        complex result = in[0] * integrand->eval(x, y, z);
 
-    // Split up the real andi imaginary parts to get them out
-    fval[0] = std::real(result);
-    fval[1] = std::imag(result);
+        // Split up the real andi imaginary parts to get them out
+        fval[0] = std::real(result);
+        fval[1] = std::imag(result);
 
-    return 0.;
+        return 0;
     };
 };

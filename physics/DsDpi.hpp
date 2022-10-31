@@ -155,27 +155,30 @@ namespace hadMolee
 
             // Update arguments with floating Y and Z meson masses
             _T.set_internal_masses(_internal); 
-            _T.set_external_masses({_W, sqrt(_sab), M_PION}); 
+            _T.set_external_masses({_W, sqrt(_sab), M_PION});
+            _T.add_width(b, W_D1); 
             
             // Multiply by the propagator of the Z and triangle function
             double z = _Zc->molecular_coupling();
             
             // The normalization is matched to Qiang's paper
             complex T = _internal[0] * _internal[1] * _internal[2] * _T.eval();
-            
+
+            debug(T);
+            // Common pieces for both S and D wave
             _AS *= - (_Y->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc->propagator(_sab);
             _AD *= - (_Y->molecular_coupling() / sqrt(2.)) * z*z * T * _Zc->propagator(_sab);
         };
 
         // Couplings
         double _hS = 0., _hD = HPRIME_UPPER / F_PION;  // D1 -> D*pi coupling for the S-wave and the D-wave
-        complex _AS, _AD;                 // Energy dependent S and D wave strengths
+        complex _AS, _AD;                              // Energy dependent S and D wave strengths
 
         // On-shell masses involved in the triangle
-        std::array<double,3> _internal = {M_DSTAR, M_D1,     M_D};
+        std::array<double,3> _internal = {M_DSTAR, M_D1, M_D};
 
         // Default to using nonrelativistic version of the triangle
-        triangle _T = triangle(nonrelativistic);
+        triangle _T = triangle(relativistic);
 
         // This channel recieves contribution from the Z(3900)
         molecule _Zc = make_molecule<DsD_molecule>();

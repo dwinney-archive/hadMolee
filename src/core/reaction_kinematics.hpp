@@ -25,6 +25,7 @@ namespace hadMolee
     using kinematics = std::shared_ptr<hadMolee::reaction_kinematics>;
 
     // Three possible subchannels following the labelings inside amp->_reaction_kinematics
+    enum particle{a, b, c};
     enum subchannel{ab, ba = ab, bc, cb = bc, ac, ca = ac};
 
     // Abstract class for a generic amplitude of the e+e- -> abc process

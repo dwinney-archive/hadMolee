@@ -4,8 +4,8 @@
 // Email:        dwinney@scnu.edu.cn
 // ---------------------------------------------------------------------------
 
-#ifndef INTEGRANDS
-#define INTEGRANDS
+#ifndef INTEGRANDS_HPP
+#define INTEGRANDS_HPP
 
 #include "constants.hpp"
 
@@ -15,7 +15,6 @@ namespace hadMolee
     class triangle_integrand
     {
         // -------------------------------------------------------------------
-
         public:
 
         // Empty constructor cus we dont need anything
@@ -32,12 +31,16 @@ namespace hadMolee
         // Evaluate the integrand at fixed values of the feynman parameters
         inline std::complex<double> eval(double x1, double x2, double x3)
         {
-            std::complex<double> D = x1*(_ima2 - XI*sqrt(_ima2)*_wa) 
-                            + x2*(_imb2 - XI*sqrt(_imb2)*_wb) 
-                            + x3*(_imc2 - XI*sqrt(_imc2)*_wc) 
-                            - x1*x3*_emb2
-                            - x1*x2*_emc2 
-                            - x2*x3*_ema2;
+            complex ima2 = _ima2 - XI*sqrt(_ima2)*_wa;
+            complex imb2 = _imb2 - XI*sqrt(_imb2)*_wb;
+            complex imc2 = _imc2 - XI*sqrt(_imc2)*_wc;
+            
+            std::complex<double> D =  x1*ima2
+                                    + x2*imb2
+                                    + x3*imc2
+                                    - x1*x3*_emb2
+                                    - x1*x2*_emc2 
+                                    - x2*x3*_ema2;
             return 1. / (D - XI*_eps);
         };
 
@@ -47,6 +50,8 @@ namespace hadMolee
         // -------------------------------------------------------------------
 
         private:
+
+        // triangle * _T;
 
         // Default epsilon
         double _eps = EPS;
