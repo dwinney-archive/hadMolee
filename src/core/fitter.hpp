@@ -7,7 +7,7 @@
 #ifndef FITTER_HPP
 #define FITTER_HPP
 
-#include "reaction_kinematics.hpp"
+#include "kinematics.hpp"
 #include "amplitude.hpp"
 #include "data_formatting.hpp"
 
@@ -20,14 +20,14 @@
 
 namespace hadMolee
 {
-    class amplitude_fitter 
+    class fitter 
     {
 
         // --------------------------------------------------------------------
         public:
 
         // Constructor requires a valid amplitude to be fit
-        amplitude_fitter(amplitude amp)
+        fitter(amplitude amp)
         : _amplitude(amp), _V(amp->_V)
         {
             // Extract how many parameters we should expect
@@ -46,7 +46,7 @@ namespace hadMolee
 
         // Constructor requires a reaction_kinematics object
         // Optional explicit choice of minimization strategy passes to minuit object
-        amplitude_fitter(amplitude amp, std::string strategy, double tolerance = 1.E-6)
+        fitter(amplitude amp, std::string strategy, double tolerance = 1.E-6)
         : _amplitude(amp), _V(amp->_V), _tolerance(tolerance)
         {
             // Extract how many parameters we should expect

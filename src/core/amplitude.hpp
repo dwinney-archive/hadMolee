@@ -7,7 +7,7 @@
 #ifndef AMPLITUDE
 #define AMPLITUDE
 
-#include "reaction_kinematics.hpp"
+#include "kinematics.hpp"
 #include "lineshape.hpp"
 
 #include "Math/GSLIntegrator.h"
@@ -23,6 +23,39 @@ namespace hadMolee
     // almost never with amplitudes themselves
     using amplitude  = std::shared_ptr<amplitude_base>;
 
+    // Key class with private constructor, this is required to initialize an amplitude
+    // but itself may only be initilaized by friend functions
+    class amplitude_key 
+    {
+        private:
+        amplitude_key(){};
+
+        template<class A>
+        friend amplitude make_amplitude(kinematics, lineshape, std::string);
+
+        friend amplitude operator+(amplitude, amplitude);
+    };
+    
+    // ---------------------------------------------------------------------------
+    // These methods deal with manipulating amplitudes in shared_ptr form
+
+    bool are_compatible(amplitude a, amplitude b);
+
+    // Smart pointer "constructor"
+    template<class A>
+    amplitude make_amplitude(kinematics xkinem, lineshape V, std::string id)
+    {
+        auto amp = std::make_shared<A>(amplitude_key(), xkinem, V, id);
+        return std::static_pointer_cast<amplitude_base>(amp);
+    };
+
+    // Smart pointer "constructor" for a sum by adding two amplitudes together
+    amplitude operator+(amplitude a, amplitude b);
+
+    // Internally we can alias amplitude::add() with the += operator
+    void operator+=(amplitude a,  amplitude b);
+
+    // ---------------------------------------------------------------------------
     // Abstract class for a generic amplitude of the e+e- -> abc process
     class amplitude_base
     {
@@ -31,14 +64,15 @@ namespace hadMolee
 
         // Public constructors however these shouldnt be used directly
         // Rather the make_amplitude<>() method should be treated like the 'constructor'
-        amplitude_base(kinematics xkinem, lineshape V, std::string id = "")
+        amplitude_base(amplitude_key key, kinematics xkinem, lineshape V, std::string id = "")
         : _kinematics(xkinem), _V(V),
         _nparams(0), _id(id), _classname("amplitude")
         {
             set_up(xkinem);
         };
 
-        amplitude_base(kinematics xkinem, lineshape V, int n, std::string classname, std::string id = "")
+        // Constructor which specified number of parameters and a default classname string
+        amplitude_base(amplitude_key key, kinematics xkinem, lineshape V, int n, std::string classname, std::string id = "")
         : _kinematics(xkinem), _V(V),
         _nparams(n), _id(id), _classname(classname)
         {
@@ -169,7 +203,7 @@ namespace hadMolee
             if (params.size() != _nparams) warning(get_id(), "Invalid number of parameters passed!");
         };
 
-        std::string _id;                      // String identifier for this amplitude
+        std::string _id = "";                 // String identifier for this amplitude
         std::string _classname = "amplitude"; // Name of the class
 
         // Kinematic quantites below are saved so they do not need to be passed around inside amplitudes
@@ -181,8 +215,8 @@ namespace hadMolee
         };
         inline void update(double s, double sab, double sbc)
         {
-            _W = sqrt(s); _s = s;
-            _sab = sab; _sbc = sbc;
+            _W   = sqrt(s); _s   = s;
+            _sab = sab;     _sbc = sbc;
             _sac = _ma2 + _mb2 + _mc2 + s - sab - sbc;
 
             _updated = true;
@@ -235,25 +269,6 @@ namespace hadMolee
         double dGamma_ac(double s, double sac);
     };
 
-    // ---------------------------------------------------------------------------
-    // These methods deal with manipulating amplitudes in shared_ptr form
-
-    bool are_compatible(amplitude a, amplitude b);
-
-    // Smart pointer "constructor"
-    template<class A>
-    amplitude make_amplitude(kinematics xkinem, lineshape V, std::string id = "")
-    {
-        auto amp = std::make_shared<A>(xkinem, V, id);
-        return std::static_pointer_cast<amplitude_base>(amp);
-    };
-
-    // Smart pointer "constructor" for a sum by adding two amplitudes together
-    amplitude operator+(amplitude a, amplitude b);
-
-    // Internally we can alias amplitude::add() with the += operator
-    void operator+=(amplitude a,  amplitude b);
-
     // Simply amplitude with no energy dependence. 
     class phase_space : public amplitude_base
     {
@@ -261,12 +276,12 @@ namespace hadMolee
 
         public: 
 
-        phase_space(kinematics xkinem, lineshape V, std::string id = "")
-        : amplitude_base(xkinem, V, 0, "flat_amplitude", id)
+        phase_space(amplitude_key key, kinematics xkinem, lineshape V, std::string id = "")
+        : amplitude_base(key, xkinem, V, 0, "flat_amplitude", id)
         {};
 
-        phase_space(kinematics xkinem, std::string id = "")
-        : amplitude_base(xkinem, nullptr, 0, "flat_amplitude", id)
+        phase_space(amplitude_key key, kinematics xkinem, std::string id = "")
+        : amplitude_base(key, xkinem, nullptr, 0, "flat_amplitude", id)
         {};
 
         // Return a constant for all the amplitudes. 

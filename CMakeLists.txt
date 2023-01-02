@@ -23,7 +23,7 @@ endif("${isSystemDir}" STREQUAL "-1")
 
 # Optional toggle to turn off generating cling executable
 option(BUILD_CLING "Build cling executable" "TRUE")
-option(BUILD_DICTIONARY "Build ROOT pcm files" "FALSE")
+option(BUILD_DICTIONARY "Build ROOT pcm files" "TRUE")
 
 ##-----------------------------------------------------------------------
 ## ROOT finding and connecting
@@ -72,39 +72,4 @@ else()
     message("-- cubature not found!")
 endif()
 
-##-----------------------------------------------------------------------
-# Find the LoopTools library
-# find_library(LOOPLIB NAMES LoopTools libLoopTools
-#                      HINTS "$ENV{LOOPTOOLS}/lib")
-# if (LOOPLIB)
-#     include_directories($ENV{LOOPTOOLS}/include)
-#     message("-- LoopTools found! (${LOOPLIB})")
-# else()
-#     message("-- LoopTools not found!")
-# endif()
-
-##-----------------------------------------------------------------------
-# Build core physics library 
-
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/core)
-# if (LOOPLIB)
-#     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/LoopTools)
-#     add_subdirectory(src/LoopTools)
-# endif()
-add_subdirectory(src/core)
-
-if (BUILD_CLING)
-    message("-- Building cling executable.")
-
-    if (BUILD_DICTIONARY)
-        message("-- Building ROOT dictionary (.pcm files)")
-    else()
-        message("-- Not building ROOT dictionary (.pcm files)")
-    endif()
-    
-    # Build running and loading executable
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/cling)
-    add_subdirectory(src/cling)
-else()
-    message("-- Not building cling executable.")
-endif()
+add_subdirectory(src)

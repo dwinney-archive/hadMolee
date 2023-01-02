@@ -36,7 +36,7 @@ namespace hadMolee
     {
         if ( !are_compatible(a, b) ) return nullptr;
 
-        auto sum = std::make_shared<amplitude_base>(a->_kinematics, a->_V, a->get_id() + " + " + b->get_id());
+        auto sum = std::make_shared<amplitude_base>(amplitude_key(), a->_kinematics, a->_V, a->get_id() + " + " + b->get_id());
 
         // If the constituent amplitudes are already sums, add the vector of contituents
         // if theyre a 'bare' amplitude add the amplitude itself

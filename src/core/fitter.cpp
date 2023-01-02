@@ -5,24 +5,24 @@
 // Email:        dwinney@scnu.edu.cn
 // ---------------------------------------------------------------------------
 
-#include "amplitude_fitter.hpp"
+#include "fitter.hpp"
 
 namespace hadMolee
 {
     // ---------------------------------------------------------------------------
     // Primary function, sets up the fitter with previously set parameters and data sets
     // Starts fit with an user-supplied vector of starting values for all parameters
-    void amplitude_fitter::do_fit(std::vector<double> starting_guess)
+    void fitter::do_fit(std::vector<double> starting_guess)
     {  
         if (_N_data == 0)
         {
-            warning("amplitude_fitter::do_fit()", "No data-points saved! Returning without fit...");
+            warning("fitter::do_fit()", "No data-points saved! Returning without fit...");
             return;
         };
 
         if (starting_guess.size() != _pars.size())
         {
-            warning("amplitude_fitter::do_fit()", "Size of initial guess vector doesnt match number of parameters!");
+            warning("fitter::do_fit()", "Size of initial guess vector doesnt match number of parameters!");
             return;
         };
 
@@ -53,7 +53,7 @@ namespace hadMolee
     };
 
     // Minimization function for the subchannel data
-    double amplitude_fitter::chi2_subchannels(const double *par)
+    double fitter::chi2_subchannels(const double *par)
     {   
         allocate_parameters(par);
 
@@ -101,14 +101,14 @@ namespace hadMolee
     // - vector data points
     // - vector of errors
     // String id optional parameter for feeding fit results to a plotter object
-    void amplitude_fitter::add_subchannel_data(subchannel abc, double sqs, std::vector<double> sqsig, std::vector<double> data, std::array<std::vector<double>,2> errors, std::string id)
+    void fitter::add_subchannel_data(subchannel abc, double sqs, std::vector<double> sqsig, std::vector<double> data, std::array<std::vector<double>,2> errors, std::string id)
     {
         // Number of data points for this set
         int n = sqsig.size();
 
         if (data.size() != n || errors[0].size() != n || errors[1].size() != n) 
         {
-            warning("amplitude_fitter::add_subchannel_data", "Vectors received not the correct size! Skipping data set " + id + "...");
+            warning("fitter::add_subchannel_data", "Vectors received not the correct size! Skipping data set " + id + "...");
             return;
         };
 
@@ -122,7 +122,7 @@ namespace hadMolee
     };
 
     // Alternatively you can jsut specify the subchannel, fixed center-of-mass energy, and point to a data file
-    void amplitude_fitter::add_subchannel_data(subchannel abc, double sqs, std::string filename, std::string id)
+    void fitter::add_subchannel_data(subchannel abc, double sqs, std::string filename, std::string id)
     {
         // Import data
         // The resulting format will be in 4 vectors
@@ -143,11 +143,11 @@ namespace hadMolee
     //-----------------------------------------------------------------------
     // Parameter management methods 
 
-    void amplitude_fitter::set_parameter_labels(std::vector<std::string> labels)
+    void fitter::set_parameter_labels(std::vector<std::string> labels)
     {
         if (labels.size() != _pars.size())
         {
-            std::cout << "amplitude_fitter::set_parameter_labels() : Input vector is of incorrect size! Expected " << _pars.size() << " but recieved " << labels.size() << "!" << std::endl;
+            std::cout << "fitter::set_parameter_labels() : Input vector is of incorrect size! Expected " << _pars.size() << " but recieved " << labels.size() << "!" << std::endl;
             std::cout << "Continuing without adding labels..." << std::endl;
             return;
         };
@@ -158,7 +158,7 @@ namespace hadMolee
         }
     };
 
-    void amplitude_fitter::set_parameter_limits(int i, std::array<double,2> ranges, double step)
+    void fitter::set_parameter_limits(int i, std::array<double,2> ranges, double step)
     {
         _pars[i]._custom_limits = true;
         _pars[i]._lower_limit   = ranges[0];
@@ -169,7 +169,7 @@ namespace hadMolee
     // convert double[] to vector<double>'s
     // Also splits the single vector into two depending on the parameters which go into _V and which go to _amp
     // This splitting is necessary in case multiple _amps all share the same _V
-    std::vector<double> amplitude_fitter::convert(const double * par)
+    std::vector<double> fitter::convert(const double * par)
     {
         std::vector<double> all_pars;
         for (int n = 0; n < _N_pars + _N_norms; n++)
@@ -181,7 +181,7 @@ namespace hadMolee
     };
 
     // Takes in the double* from minuit, and feeds the vectors of appropriate size to each subamplitude
-    void amplitude_fitter::allocate_parameters(const double *par, bool best_fit)
+    void fitter::allocate_parameters(const double *par, bool best_fit)
     {
         // Split the parameter vector 
         std::vector<double> all_pars = convert(par);
@@ -230,7 +230,7 @@ namespace hadMolee
     // Methods to print out relevant info to command line
 
     // Print out a summary of saved data
-    void amplitude_fitter::data_info()
+    void fitter::data_info()
     {
         divider();
         std::cout << std::left << std::setw(28) << "Using e+e- lineshape model:" << std::setw(_V->get_id().length() + 2) << _V->get_id() << " (" + std::to_string(_V->N_parameters()) + " free parameters)" << std::endl;
@@ -255,7 +255,7 @@ namespace hadMolee
         };
     };
 
-    void amplitude_fitter::set_up(std::vector<double> starting_guess)
+    void fitter::set_up(std::vector<double> starting_guess)
     {
         _minuit->Clear();
         _minuit->SetTolerance(_tolerance);
@@ -285,13 +285,13 @@ namespace hadMolee
 
         };
         
-        fcn = ROOT::Math::Functor(this, &amplitude_fitter::chi2, _pars.size() + _subchannel_data.size());
+        fcn = ROOT::Math::Functor(this, &fitter::chi2, _pars.size() + _subchannel_data.size());
         _minuit->SetFunction(fcn);
     };
 
 
     // Print out a little table of the current status of parameters
-    void amplitude_fitter::variable_info(std::vector<double> starting_guess, bool opt)
+    void fitter::variable_info(std::vector<double> starting_guess, bool opt)
     {  
         std::cout << std::setprecision(10);
 
@@ -333,7 +333,7 @@ namespace hadMolee
         }
     };
 
-    void amplitude_fitter::print_results()
+    void fitter::print_results()
     {
         // Fit results
         int dof = _N_data - _minuit->NFree();

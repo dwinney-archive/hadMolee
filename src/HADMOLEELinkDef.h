@@ -5,10 +5,13 @@
 #pragma link off all functions;
 #pragma link C++ nestedclasses;
 
-#pragma link C++ defined_in "reaction_kinematics.hpp";
+#pragma link C++ defined_in "kinematics.hpp";
+#pragma link C++ defined_in "lineshape.hpp";
 #pragma link C++ defined_in "amplitude.hpp";
 #pragma link C++ defined_in "breit_wigner.hpp";
 #pragma link C++ defined_in "triangle.hpp";
+#pragma link C++ defined_in "box.hpp";
 #pragma link C++ defined_in "molecule.hpp";
+#pragma link C++ defined_in "fitter.hpp";
 
 #endif
