@@ -87,9 +87,9 @@ namespace hadMolee
     void amplitude_base::check_decay_cache()
     {
         bool need_recalculate;
-        need_recalculate =     (abs(_cached_s - _s) > _cache_tolerance) 
-                            || (abs(_cached_sab - _sab) > _cache_tolerance) 
-                            || (abs(_cached_sbc - _sbc) > _cache_tolerance);
+        need_recalculate =     (std::abs(_cached_s - _s) > _cache_tolerance) 
+                            || (std::abs(_cached_sab - _sab) > _cache_tolerance) 
+                            || (std::abs(_cached_sbc - _sbc) > _cache_tolerance);
         if (need_recalculate)
         {
             // We neeed to calcualte the amplitude squared summed over the final state polarizations
@@ -225,7 +225,7 @@ namespace hadMolee
                 complex x = 1.;
                 //e+ e- -> gamma 
                 // x *= _kinematics->ee_to_gamma(s) * production;
-                x = XR * production;
+                x = production;
 
                 // gamma -> V
                 // x *= norm(_V->photon_coupling() * _V->propagator(s));

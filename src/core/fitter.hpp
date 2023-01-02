@@ -226,29 +226,6 @@ namespace hadMolee
         // --------------------------------------------------------------------
         // Status message handling
 
-        // Full width is the length of how wide I want the output to be
-        static const int _full_width = 62;
-
-        inline void cout_centered(std::string words)
-        {
-            int x = words.length();
-            int gap_width = (_full_width - x)/2;
-            std::cout << std::left << std::setw(gap_width) << "" << std::setw(x) << words << std::setw(gap_width) << "" << std::endl;
-        };
-        // A nice horizontal line of length _full_width
-        inline void divider()
-        {
-            std::cout << "--------------------------------------------------------------" << std::endl;
-        };
-        inline void dashed_divider()
-        {
-            std::cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " << std::endl;
-        };
-        inline void new_line()
-        {
-            std::cout << std::endl;
-        };
-
         // Simply return string for default particle labels
         inline std::string subchannel_label(subchannel x)
         {

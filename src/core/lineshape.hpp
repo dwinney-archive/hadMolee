@@ -13,7 +13,6 @@
 #define LINESHAPE_HPP
 
 #include "constants.hpp"
-#include "debug.hpp"
 
 namespace hadMolee
 {

@@ -288,7 +288,7 @@ namespace hadMolee
         // Since we always sum over helicities of a, we divide normalize so the spin-summed amplitude square equals 1
         // The averaging factor for the Y meson is handled in the width definition
         inline complex reduced_amplitude(cartesian_index i, cartesian_index j) 
-        { return s_wave(i,j) * XR; };
+        { return s_wave(i,j); };
     };
 };
 

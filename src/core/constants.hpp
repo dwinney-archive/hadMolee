@@ -10,33 +10,24 @@
 #define CONSTANTS
 
 #include <cmath>
-#include <complex>
 #include <memory>
 #include <array>
 #include <vector>
 #include <iostream>
-#include "debug.hpp"
+
+#include "complex.hpp"
+#include "print.hpp"
 
 namespace hadMolee
 {
     // ---------------------------------------------------------------------------
     // Mathematical constants
 
-    // Generic particle labels
-    enum particle{a, b, c, d};
-
-    // We use complex numbers a lot so we define this shortened data type
-    using complex = std::complex<double>;
-
     // Fundamental constants
     const double PI       = M_PI;
     const double EULER    = 0.57721566490153286060651209008240243104215933593992;
     const double ALPHA    = 1. / 137.;
     const double E        = sqrt(4. * PI * ALPHA);
-
-    // Unit complex and real values
-    const complex XR  (1., 0.);
-    const complex XI  (0., 1.);
     
     // Unit conversion factors
     const double DEG2RAD  = (M_PI / 180.);
@@ -45,8 +36,8 @@ namespace hadMolee
     const double GEV2NB   = 0.3894E6;    // GeV^{-2} -> nb 
 
     // Small offsets
-    const double                EPS  = 1.E-8;
-    const complex IEPS  = XI*EPS;
+    const double  EPS  = 1.E-8;
+    const complex IEPS = I*EPS;
 
     // Three cartesian indexes for ease;
     enum  cartesian_index{x = 0, y = 1, z = 2};
@@ -117,36 +108,6 @@ namespace hadMolee
     const double F_PION           = 132.E-3;  // Pion decay constant in GeV
 
     // ---------------------------------------------------------------------------
-    // Overload of multiplcation for a bool and complex<double>
-
-    inline complex operator * (const bool & a, const complex & b)
-    {
-        if (a)
-            return b;
-        else
-            return complex(0, 0);
-    };
-    inline complex operator * (const complex & b, const bool & a)
-    {
-        if (a)
-            return b;
-        else
-            return complex(0, 0);
-    };
-
-    // Same thing but with int
-    inline complex operator * (const int & a, const complex & b)
-    {
-        if (a != 0) return complex(double(a) * real(b), double(a) * imag(b));
-        else        return 0.*XR;
-    };
-    inline complex operator * (const complex & b, const int & a)
-    {
-        if (a != 0) return complex(double(a) * real(b), double(a) * imag(b));
-        else        return 0.*XR;
-    };
-
-    // ---------------------------------------------------------------------------
     // Function for easier comparison of doubles using the EPS value defined above
     // be careful when using this in general purposes since its a fixed-tolerance comparision and not always appropriate
 
@@ -164,66 +125,28 @@ namespace hadMolee
     // Aliases for special cases of the above
     inline bool is_zero(double a)
     {
-        return (abs(a) < EPS);
-    };
-
-    // ---------------------------------------------------------------------------
-    // Helper function to help "static cast" derived unique_ptr to base unique_ptr
-    // fron this https://stackoverflow.com/questions/36120424/alternatives-of-static-pointer-cast-for-unique-ptr
-
-    template<typename TO, typename FROM>
-    std::unique_ptr<TO> static_unique_pointer_cast(std::unique_ptr<FROM>&& old)
-    {
-        return std::unique_ptr<TO>{static_cast<TO*>(old.release())};
+        return (std::abs(a) < EPS);
     };
 
     // ---------------------------------------------------------------------------
     // Kallen triangle function
+
+    // Only way to get a double or int Kallen is if all inputs are double/int
     template <typename T>
     inline T Kallen(T x, T y, T z)
     {
         return x*x + y*y + z*z - 2. * (x*y + x*z + y*z);
     };
+    // If any of them are complex, return complex
+    inline complex Kallen(complex z, double a, double b) { return Kallen<complex>(z, R*a, R*b); };
+    inline complex Kallen(double a, complex z, double b) { return Kallen<complex>(R*a, z, R*b); };
+    inline complex Kallen(double a, double b, complex z) { return Kallen<complex>(R*a, R*b, z); };
 
     // ---------------------------------------------------------------------------
     // Related to spinors and Lorentz tensor algebra
 
     // Mostly minus metric
     const double METRIC[4] = {1., -1., -1., -1.};
-
-    // Gamma matrix vector in Dirac basis
-    const complex GAMMA[4][4][4] =
-    {
-        //gamma0
-        { { 1., 0., 0., 0. },
-        { 0., 1., 0., 0. },
-        { 0., 0., -1., 0. },
-        { 0., 0., 0., -1. } },
-        //gamma1
-        { { 0., 0., 0., 1. },
-        { 0., 0., 1., 0. },
-        { 0., -1., 0., 0. },
-        { -1., 0., 0., 0. } },
-        //gamma2
-        { { 0., 0., 0., -XI },
-        { 0., 0., XI, 0. },
-        { 0.,  XI, 0., 0. },
-        { -XI, 0., 0., 0. } },
-        //gamma3
-        { { 0., 0., 1., 0. },
-        { 0., 0., 0., -1. },
-        { -1., 0., 0., 0. },
-        { 0., 1., 0., 0. } }
-    };
-
-    // Gamma_5
-    const complex GAMMA_5[4][4] =
-    {
-        { 0., 0., 1., 0. },
-        { 0., 0., 0., 1. },
-        { 1., 0., 0., 0. },
-        { 0., 1., 0., 0. }
-    };
 };
 
 #endif

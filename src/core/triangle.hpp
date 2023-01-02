@@ -52,13 +52,13 @@ namespace hadMolee
         }
         
         // Add a constant width to an internal propagator
-        inline void add_width(particle p, double g)
+        inline void add_width(int i, double g)
         {
-            switch (p) 
+            switch (i) 
             {
-                case a: _integrand._wa = g; break;
-                case b: _integrand._wb = g; break;
-                case c: _integrand._wc = g; break;
+                case 1: _integrand._wa = g; break;
+                case 2: _integrand._wb = g; break;
+                case 3: _integrand._wc = g; break;
                 default: return;
             };  
         };
@@ -77,9 +77,9 @@ namespace hadMolee
             // Evaluate the integrand at fixed values of the feynman parameters
             inline std::complex<double> eval(double x1, double x2, double x3)
             {
-                complex ima2 = _ima2 - XI*sqrt(_ima2)*_wa;
-                complex imb2 = _imb2 - XI*sqrt(_imb2)*_wb;
-                complex imc2 = _imc2 - XI*sqrt(_imc2)*_wc;
+                complex ima2 = _ima2 - I*sqrt(_ima2)*_wa;
+                complex imb2 = _imb2 - I*sqrt(_imb2)*_wb;
+                complex imc2 = _imc2 - I*sqrt(_imc2)*_wc;
                 
                 std::complex<double> D =  x1*ima2
                                         + x2*imb2
@@ -87,7 +87,7 @@ namespace hadMolee
                                         - x1*x3*_emb2
                                         - x1*x2*_emc2 
                                         - x2*x3*_ema2;
-                return 1. / (D - XI*_eps);
+                return 1. / (D - I*_eps);
             };
 
             // Default epsilon

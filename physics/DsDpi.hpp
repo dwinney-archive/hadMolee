@@ -9,7 +9,7 @@
 
 #include <memory>
 
-#include "reaction_kinematics.hpp"
+#include "kinematics.hpp"
 #include "breit_wigner.hpp"
 #include "amplitude.hpp"
 #include "constants.hpp"
@@ -28,8 +28,8 @@ namespace hadMolee
         // -----------------------------------------------------------------------
         public:
         
-        DsDpi_swave(kinematics xkinem, lineshape Y, std::string id = "DsDpi_swave")
-        : amplitude_base(xkinem, Y, 2, "DsDpi_swave", id)
+        DsDpi_swave(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "DsDpi_swave")
+        : amplitude_base(key, xkinem, Y, 2, "DsDpi_swave", id)
         {};
 
         // The reduced amplitude corresponds to the S-wave contact-like interaction
@@ -79,8 +79,8 @@ namespace hadMolee
         // -----------------------------------------------------------------------
         public:
         
-        DsDpi_tree(kinematics xkinem, lineshape V, std::string id = "DsDpi_tree")
-        : amplitude_base(xkinem, V, 0, "DsDpi_tree", id)
+        DsDpi_tree(amplitude_key key, kinematics xkinem, lineshape V, std::string id = "DsDpi_tree")
+        : amplitude_base(key, xkinem, V, 0, "DsDpi_tree", id)
         {};
 
         // The reduced amplitude corresponds to the S-wave contact-like interaction
@@ -99,8 +99,8 @@ namespace hadMolee
             double p2_pion = p_pion*p_pion;
 
             // sab is assumed to be DsD channel
-            _AS = XI * _hS * sqrt(p2_pion + _mc2);
-            _AD = XI * _hD * p2_pion;
+            _AS = I * _hS * sqrt(p2_pion + _mc2);
+            _AD = I * _hD * p2_pion;
 
             // Multiply by the propagator of the D1 and y coupling
             _AS *= (_Y->molecular_coupling() / sqrt(2.)) * _D1.eval(_sac);
@@ -129,8 +129,8 @@ namespace hadMolee
         
         // Here we can choose whether we want a nonrelativistic triangle or the relativistic version
         // We default to the nonrel version
-        DsDpi_triangle(kinematics xkinem, lineshape V, std::string id = "DsDpi_triangle")
-        : amplitude_base(xkinem, V, 0, "DsDpi_triangle", id)
+        DsDpi_triangle(amplitude_key key, kinematics xkinem, lineshape V, std::string id = "DsDpi_triangle")
+        : amplitude_base(key, xkinem, V, 0, "DsDpi_triangle", id)
         {};
 
         // The reduced amplitude corresponds to the S-wave contact-like interaction
@@ -150,8 +150,8 @@ namespace hadMolee
             double p_pion = _kinematics->decay_momentum_c(_s, _sab);
 
             // sab is assumed to be DsD channel
-            _AS = XI * _hS * sqrt(p_pion*p_pion + _mc2);
-            _AD = XI * _hD * p_pion*p_pion;
+            _AS = I * _hS * sqrt(p_pion*p_pion + _mc2);
+            _AD = I * _hD * p_pion*p_pion;
 
             // Update arguments with floating Y and Z meson masses
             _T.set_internal_masses(_internal); 

@@ -30,17 +30,17 @@ namespace hadMolee
         set_up(starting_guess);
 
         // Print out info on variables and data to command line
-        new_line(); data_info();
-        new_line(); divider(); 
+        empty_line(); data_info();
+        empty_line(); divider(); 
         variable_info(starting_guess, 0);
-        new_line(); divider(); new_line();
+        empty_line(); divider(); empty_line();
     
         auto start = std::chrono::high_resolution_clock::now();
         std::cout << "Beginning fit..." << std::flush; 
 
-        if (_printLevel != 0) new_line();   
+        if (_printLevel != 0) empty_line();   
         _minuit->Minimize();
-        if (_printLevel != 0) new_line();   
+        if (_printLevel != 0) empty_line();   
 
         std::cout << "Done! \n";
         auto stop = std::chrono::high_resolution_clock::now();
@@ -234,14 +234,14 @@ namespace hadMolee
     {
         divider();
         std::cout << std::left << std::setw(28) << "Using e+e- lineshape model:" << std::setw(_V->get_id().length() + 2) << _V->get_id() << " (" + std::to_string(_V->N_parameters()) + " free parameters)" << std::endl;
-        new_line();
+        empty_line();
         std::cout << std::left << "Using decays to 1 final-state with total of " << _N_data << " data points: \n";
-        new_line();
+        empty_line();
         dashed_divider();
-        cout_centered("FINAL-STATE: " +  _amplitude->_kinematics->get_id());
-        new_line();
+        centered("FINAL-STATE: " +  _amplitude->_kinematics->get_id());
+        empty_line();
         std::cout << std::left << std::setw(13) <<  "AMPLITUDE: " << std::setw(_amplitude->get_id().length() + 2) << _amplitude->get_id() << " (" + std::to_string(_amplitude->N_parameters()) + " free parameters)" << std::endl;
-        new_line();
+        empty_line();
         
         std::cout << std::left << std::setw(23) << "DATA SET"               << std::setw(11) << "SQRT(s)"  << std::setw(13) << "CHANNEL"     << std::setw(10) << "POINTS"  << std::endl;
         std::cout << std::left << std::setw(23) << "-------------------"   << std::setw(11) << "--------" << std::setw(13) << "----------"  << std::setw(10) << "-------" << std::endl;
@@ -299,7 +299,7 @@ namespace hadMolee
         (opt) ? (column_3 = "FIT VALUE") : (column_3 = "START VALUE");
 
         if (!opt)  std::cout << std::left << "Fitting " + std::to_string(_minuit->NFree() - _N_norms) << " (out of " << std::to_string(_minuit->NDim() - _N_norms) << ") model parameters and " << _subchannel_data.size() << " normalizations:" << std::endl;
-        new_line();
+        empty_line();
 
         std::cout << std::left << std::setw(7) << "N"       << std::setw(20) << "PARAMETER"  << std::setw(10) << column_3       << std::endl;
         std::cout << std::left << std::setw(7) << "----"   << std::setw(20) << "----------" << std::setw(10) << "------------" << std::endl;
@@ -319,7 +319,7 @@ namespace hadMolee
 
         if (opt)
         {
-            new_line();
+            empty_line();
             std::cout << std::left << std::setw(23) << "DATA SET"             << std::setw(11) << "SQRT(s)"  << std::setw(13) << "CHANNEL"     << std::setw(15) << "NORMALIZATION"  << std::endl;
             std::cout << std::left << std::setw(23) << "-------------------"   << std::setw(11) << "--------" << std::setw(13) << "----------"  << std::setw(15) << "--------------" << std::endl;
 
@@ -338,7 +338,7 @@ namespace hadMolee
         // Fit results
         int dof = _N_data - _minuit->NFree();
 
-        new_line();
+        empty_line();
         double chi2    = _minuit->MinValue();
         double chi2dof = chi2 / double(dof) ;
         std::vector<double> best_params = convert(_minuit->X());
@@ -346,11 +346,11 @@ namespace hadMolee
         divider();
         std::cout << std::left << std::setw(10) << "chi2 = "      << std::setw(15) << chi2;
         std::cout << std::left << std::setw(10) << "chi2/dof = "  << std::setw(15) << chi2dof << std::endl;
-        new_line();
+        empty_line();
         variable_info(best_params, 1);
-        new_line();
+        empty_line();
         divider();
-        new_line();
+        empty_line();
         
         // At the end update the amplitude parameters to include the fit results
         allocate_parameters(_minuit->X(), true);

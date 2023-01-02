@@ -24,6 +24,9 @@ namespace hadMolee
     class reaction_kinematics;
     using kinematics = std::shared_ptr<hadMolee::reaction_kinematics>;
 
+    // Generic particle labels
+    enum particle{a, b, c};
+
     // Three possible subchannels following the labelings inside amp->_reaction_kinematics
     enum subchannel{ab, ba = ab, bc, cb = bc, ac, ca = ac};
 

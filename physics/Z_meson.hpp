@@ -39,9 +39,9 @@ namespace hadMolee
             double E = sqrt(s);
             double z = _molecular_coupling;
 
-            complex D = E - _pole_mass + XI * (z*z*self_energy(E) + _nonmol_width/2.);
+            complex D = E - _pole_mass + I * (z*z*self_energy(E) + _nonmol_width/2.);
             
-            return XI / (2.*D);
+            return I / (2.*D);
         };  
 
         // Self-energy from bubble diagram of D* D scattering 
@@ -50,7 +50,7 @@ namespace hadMolee
             double eps = mass_difference(E);
             double mu  = reduced_mass();
             
-            return (1. / (8.*PI)) * sqrt(2.*mu*mu*mu*std::abs(eps)) * ( XR*(eps>=0) + XI*(eps<0) );
+            return (1. / (8.*PI)) * csqrt(2.*mu*mu*mu*std::abs(eps)) * ( (eps>=0) + I*(eps<0) );
         };
 
         // -----------------------------------------------------------------------

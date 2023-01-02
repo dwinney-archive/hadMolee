@@ -59,14 +59,14 @@ namespace hadMolee
         };
         
         // Add a constant width to an internal propagator
-        inline void add_width(particle p, double w)
+        inline void add_width(int i, double w)
         {
-            switch (p)
+            switch (i)
             {
-                case a: _integrand._w0 = w; return;
-                case b: _integrand._w1 = w; return;
-                case c: _integrand._w2 = w; return;
-                case d: _integrand._w3 = w; return;
+                case 0: _integrand._w0 = w; return;
+                case 1: _integrand._w1 = w; return;
+                case 2: _integrand._w2 = w; return;
+                case 3: _integrand._w3 = w; return;
                 default: return;
             };
         };
@@ -109,10 +109,10 @@ namespace hadMolee
             {
                 complex Y01, Y02, Y03, Y12, Y13, Y23;
 
-                complex M0 = _m0 - XI*sqrt(_m0*XR)*_w0;
-                complex M1 = _m1 - XI*sqrt(_m1*XR)*_w1;
-                complex M2 = _m2 - XI*sqrt(_m2*XR)*_w2;
-                complex M3 = _m3 - XI*sqrt(_m3*XR)*_w3;
+                complex M0 = _m0 - I*csqrt(_m0)*_w0;
+                complex M1 = _m1 - I*csqrt(_m1)*_w1;
+                complex M2 = _m2 - I*csqrt(_m2)*_w2;
+                complex M3 = _m3 - I*csqrt(_m3)*_w3;
 
                 Y01 = M0 + M1 - _p01;
                 Y02 = M0 + M2 - _p02;
@@ -125,7 +125,7 @@ namespace hadMolee
                                      + x0*x1*Y01  + x0*x2*Y02 + x0*x3*Y03
                                                   + x1*x2*Y12 + x1*x3*Y13 
                                                               + x2*x3*Y23;
-                return pow(D - XI*_eps, -2.);
+                return pow(D - I*_eps, -2.);
             };
         };
 

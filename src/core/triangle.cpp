@@ -58,9 +58,9 @@ namespace hadMolee
 
     complex triangle::nonrelativistic_eval()
     {
-        complex imA = _integrand._ima - XI*_integrand._wa/2.;
-        complex imB = _integrand._imb - XI*_integrand._wb/2.;
-        complex imC = _integrand._imc - XI*_integrand._wc/2.;
+        complex imA = _integrand._ima - I*_integrand._wa/2.;
+        complex imB = _integrand._imb - I*_integrand._wb/2.;
+        complex imC = _integrand._imc - I*_integrand._wc/2.;
 
         complex mu_AC = imA * imC / (imA + imC);
         complex mu_BC = imB * imC / (imB + imC);
@@ -79,8 +79,8 @@ namespace hadMolee
 
         complex prefactors = (mu_AC*mu_BC) / (16.*PI*imA*imB*imC);
 
-        complex cut_1 = atan( (c_2 - c_1)        / sqrt( 4.*a*(c_1     - XI * _integrand._eps) ));
-        complex cut_2 = atan( (c_2 - c_1 - 2.*a) / sqrt( 4.*a*(c_2 - a - XI * _integrand._eps) ));
+        complex cut_1 = atan( (c_2 - c_1)        / sqrt( 4.*a*(c_1     - I * _integrand._eps) ));
+        complex cut_2 = atan( (c_2 - c_1 - 2.*a) / sqrt( 4.*a*(c_2 - a - I * _integrand._eps) ));
 
         return prefactors / sqrt(a) * (cut_1 - cut_2);
     };

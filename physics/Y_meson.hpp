@@ -36,14 +36,14 @@ namespace hadMolee
         complex propagator(double s)
         {
             double E = sqrt(s);
-            complex D = E - _pole_mass - _Z*self_energy(E) + XI*_nonmol_width/2.;
-            return XI * _Z / (2. * D);
+            complex D = E - _pole_mass - _Z*self_energy(E) + I*_nonmol_width/2.;
+            return I * _Z / (2. * D);
         };
 
         // Since Y-meson is also charmonium-like it requires a photon coupling
         complex photon_coupling()
         {
-            return XI * E * _pole_mass*_pole_mass / _fY;
+            return I * E * _pole_mass*_pole_mass / _fY;
         };
 
         // When we change the pole mass, we must recalculate renormalization quantities
@@ -79,7 +79,7 @@ namespace hadMolee
             double mu  = reduced_mass();
             double y   = _molecular_coupling;
 
-            return (-XI/ (8.*PI)) * sqrt( 2.*mu*mu*mu* (eps + XI*W_D1/2.) ) * (y*y);
+            return (-I/ (8.*PI)) * csqrt( 2.*mu*mu*mu* (eps + I*W_D1/2.) ) * (y*y);
         };
         inline double resigma(double E){ return real(sigma(E)); };
 
