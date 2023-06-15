@@ -54,6 +54,7 @@ namespace hadMolee
     // Light unflavored
     const double M_PION      = 0.13957039;
     const double M_PION0     = 0.1349768;
+    const double M_RHO       = 0.77526;
 
     // Charged charmed
     const double M_D         = 1.86966;
@@ -139,7 +140,7 @@ namespace hadMolee
     inline complex Kallen(complex z, double a, double b) { return Kallen<complex>(z, R*a, R*b); };
     inline complex Kallen(double a, complex z, double b) { return Kallen<complex>(R*a, z, R*b); };
     inline complex Kallen(double a, double b, complex z) { return Kallen<complex>(R*a, R*b, z); };
-
+    
     // ---------------------------------------------------------------------------
     // Related to spinors and Lorentz tensor algebra
 

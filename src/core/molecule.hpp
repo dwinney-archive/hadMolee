@@ -86,6 +86,38 @@ namespace hadMolee
         // Output the saved coupling to the constituent channel
         virtual inline double molecular_coupling(){ return _molecular_coupling; };
 
+        // Self-energy loop function
+        virtual inline complex self_energy(double s)
+        {
+            double mu2  = M_RHO*M_RHO; // renormalization at rho mass
+            double sub  = 0;           // subtraction
+
+            // double    W  = sqrt(s);
+            // complex   k  = csqrt(Kallen(s, m1sq, m2sq))/(2*sqrt(s));
+            // double Delta = m1sq - m2sq;
+
+            // complex  sig = log(m1sq/mu2) + (m2sq - m1sq + s)/(2*s)*log(m2sq/m1sq) 
+                        //  + k/W* (log(2*k*W + s - Delta) + log(2*k*W + s - Delta) 
+                        //        - log(2*k*W - s - Delta) - log(2*k*W - s - Delta) ); 
+            // return (sub + sig) / (16*PI*PI);
+
+            complex rho, xi, DR;
+            complex result;
+
+            rho    = csqrt(Kallen(s, _m1*_m1, _m2*_m2)) / s;
+            xi     = 1 - (_m1+_m2)*(_m1+_m2)/s;
+            rho /= 16*PI; xi /= 16*PI;
+            result = (rho*log((xi + rho) / (xi - rho)) - xi*(_m2-_m1)/(_m2+_m1)*log(_m2/_m1)) / PI;
+            DR = (sub + log(_m1*_m1/_m2*_m2) + (_m2*_m2 - _m1*_m1 + s)/(2*s)*log(_m2*_m2/_m1*_m1)) / (16*PI*PI);
+
+            return (DR + result);
+
+        };
+
+
+        // Return masses 
+        inline std::array<double,2> constituent_masses(){ return {_m1, _m2}; };
+
         // -----------------------------------------------------------------------
         protected:
 
@@ -105,9 +137,6 @@ namespace hadMolee
         // Intermediate state threshold openings of the constituent channel
         inline double Wth(){ return _m1 + _m2; };
         inline double sth(){ return Wth()*Wth(); };
-
-        // Self-energy loop function
-        virtual complex self_energy(double x){ return 0.; };
     };
 };
 

@@ -23,11 +23,11 @@ namespace hadMolee
         : molecular(M_DSTAR, M_D)
         {
             // Mass and Width from PDG
-            _pole_mass          = M_ZC3900;
-            _total_width        = W_ZC3900;
+            _pole_mass          = 3.87;
+            _total_width        = 100E-3;
             
             // Coupling taken from [1]
-            _molecular_coupling      = ZBARE_QQ2016;  
+            _molecular_coupling  = 2.891;  
             
             // residual width taken to recover the full PDG width at the pole
             _nonmol_width = _total_width - 2.* imag(self_energy(_pole_mass));
@@ -44,14 +44,14 @@ namespace hadMolee
             return I / (2.*D);
         };  
 
-        // Self-energy from bubble diagram of D* D scattering 
-        inline complex self_energy(double E)
-        {
-            double eps = mass_difference(E);
-            double mu  = reduced_mass();
+        // // Self-energy from bubble diagram of D* D scattering 
+        // inline complex self_energy(double E)
+        // {
+        //     double eps = mass_difference(E);
+        //     double mu  = reduced_mass();
             
-            return (1. / (8.*PI)) * csqrt(2.*mu*mu*mu*std::abs(eps)) * ( (eps>=0) + I*(eps<0) );
-        };
+        //     return (1. / (8.*PI)) * csqrt(2.*mu*mu*mu*std::abs(eps)) * ( (eps>=0) + I*(eps<0) );
+        // };
 
         // -----------------------------------------------------------------------
         private:

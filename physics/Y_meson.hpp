@@ -65,12 +65,12 @@ namespace hadMolee
 
         private:
 
-        // Self-energy from bubble of D1 D scattering and dressed with elastic scattering
-        // renomalized
-        complex self_energy(double E)
-        {
-            return sigma(E) - _reS - (E - _pole_mass) * _redS;
-        };
+        // // Self-energy from bubble of D1 D scattering and dressed with elastic scattering
+        // // renomalized
+        // complex self_energy(double E)
+        // {
+        //     return sigma(E) - _reS - (E - _pole_mass) * _redS;
+        // };
 
         // Bare self-energy just from the bubble of D1 D scattering
         inline complex sigma(double E)
