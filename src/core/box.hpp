@@ -22,17 +22,17 @@ namespace hadMolee
         public:
 
         // Empty, default constructor
-        box(option mode)
+        box(int mode)
         : _mode(mode)
         {
-            if (mode != relativistic)
+            if (mode != kRelativistic)
             {
                 warning("box", "Initialized with unavailable option, numerical output may be NaN...");
             }
         };
 
         // Parameterized constructor that sets masses
-        box(option mode, std::array<double,4> external_masses, std::array<double,4> internal_masses)
+        box(int mode, std::array<double,4> external_masses, std::array<double,4> internal_masses)
         : _mode(mode)
         {
             set_external_masses(external_masses);
@@ -77,12 +77,16 @@ namespace hadMolee
         // Set the maximum number of function calls the integrator is allowed
         void set_max_calls(int n){ _N = n; };
 
+        // Different options for evaluation
+        static const int kRelativistic    = 0;
+        static const int kLoopTools       = 1;
+
         // ---------------------------------------------------------------------------
 
         private:
 
         // Flag whether or not we're using brute-forced box or LoopTools
-        option _mode;
+        int _mode;
     
         // ---------------------------------------------------------------------------
         // These are related to the box evaluated with cubature integration over Feynman parameters

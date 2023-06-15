@@ -17,6 +17,7 @@
 
 #include "complex.hpp"
 #include "print.hpp"
+#include "debug.hpp"
 
 namespace hadMolee
 {
@@ -46,9 +47,6 @@ namespace hadMolee
     // Delta function, made explicit for cartesian_index so you dont need to
     // put cartesian_index::x all the time
     inline bool delta(cartesian_index i, cartesian_index j){ return (i == j); };
-
-    // Many objects have different evaluations which can be controlled through this option flag
-    enum option{ relativistic, nonrelativistic, LoopTools };
 
     // ---------------------------------------------------------------------------
     // 2022 PDG masses in GeV

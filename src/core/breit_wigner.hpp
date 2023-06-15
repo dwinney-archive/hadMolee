@@ -19,11 +19,11 @@ namespace hadMolee
         public: 
 
         // Default constructor only requires a 'bare' mass 
-        breit_wigner(option mode)
+        breit_wigner(int mode)
         : _mode(mode)
         {};
 
-        breit_wigner(option mode, double mass, double width = 0.)
+        breit_wigner(int mode, double mass, double width = 0.)
         : _mode(mode), _mass(mass), _width(width)
         {};
 
@@ -32,8 +32,8 @@ namespace hadMolee
         {
             switch (_mode)
             {
-                case (relativistic):    return rel_eval(x);
-                case (nonrelativistic): return nonrel_eval(x);
+                case (kRelativistic):    return rel_eval(x);
+                case (kNonrelativistic): return nonrel_eval(x);
                 default:                return std::nan("");
             }
         };
@@ -42,10 +42,14 @@ namespace hadMolee
         // Set the mass and width of the state
         inline void set_mass(double m, double w = 0){ _mass = m; _width = w; };
 
+        // Different options for evaluation
+        static const int kRelativistic    = 0;
+        static const int kNonrelativistic = 1;
+
         protected:
 
         // Whether we are using the relativistic BW or not
-        option _mode;
+        int _mode;
 
         complex nonrel_eval(double E)
         {

@@ -23,12 +23,12 @@ namespace hadMolee
         public:
 
         // Empty, default constructor
-        triangle(option mode)
+        triangle(int mode)
         : _mode(mode)
         {};
 
         // Parameterized constructor that sets masses
-        triangle(option mode, std::array<double,3> external_masses, std::array<double,3> internal_masses)
+        triangle(int mode, std::array<double,3> external_masses, std::array<double,3> internal_masses)
         : _mode(mode)
         {
             set_external_masses(external_masses);
@@ -68,6 +68,11 @@ namespace hadMolee
 
         // Set the maximum number of function calls the integrator is allowed
         void set_max_calls(int n){ _N = n; };
+
+        // Different options for evaluation
+        static const int kRelativistic    = 0;
+        static const int kNonrelativistic = 1;
+        static const int kLoopTools       = 2;
 
         private:
           // Auxillary class to help interfacing with the cubature library
@@ -112,7 +117,7 @@ namespace hadMolee
         static int wrapped_integrand(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval);
 
         // Evaluation mode (i.e. relativistic / nonrelativsitic)
-        option _mode;
+        int _mode;
 
         // Number of funciton calls 
         int _N = 1E7;

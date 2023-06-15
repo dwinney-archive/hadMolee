@@ -28,31 +28,6 @@ namespace hadMolee
     const int STRING_PRECISION = 3;
 
     // ---------------------------------------------------------------------------
-    // ERROR Messages
-
-    // Throw an error message then quits code 
-    inline void fatal()
-    {
-        std::cout << std::left << "FATAL ERROR! Quiting..." << std::endl;
-        exit( EXIT_FAILURE );
-    };
-
-    // Error message with location and reason messages too
-    inline void fatal(std::string location, std::string reason = "")
-    {
-        std::cout << std::left << "FATAL ERROR! " + location + ": " + reason << std::endl;
-        std::cout << std::left << "Quiting..." << std::endl;
-
-        exit( EXIT_FAILURE );
-    };
-
-    // Warning message does not exit code but throws a message up
-    inline void warning(std::string location, std::string message = "")
-    {
-        std::cout << std::left << "WARNING! " + location + ": " + message << std::endl;
-    };
-
-    // ---------------------------------------------------------------------------
     // Non-error printing
 
      // Output an empty line to the terminal

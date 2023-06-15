@@ -1,7 +1,8 @@
 cmake_minimum_required (VERSION 3.0)
 
-project ( HADMOLEE LANGUAGES CXX Fortran)
+project ( HADMOLEE LANGUAGES C CXX Fortran)
 
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-fPIC -O3") 
 set(CMAKE_BUILD_TYPE "Release")
 
@@ -49,27 +50,6 @@ else()
 endif()
 
 ##-----------------------------------------------------------------------
-## Look for jpacStyle to build the cling executable 
-
-# Find the jpacStyle library
-find_library(JSTYLELIB NAMES jpacStyle libjpacStyle 
-                       HINTS "$ENV{JPACSTYLE}/lib")
-if (JSTYLELIB)
-    include_directories($ENV{JPACSTYLE}/include)
-    message("-- jpacStyle found! (${JSTYLELIB})")
-else()
-    message("-- jpacStyle not found!")
-endif()
-
-##-----------------------------------------------------------------------
-# Find the cubature  library
-find_library(CUBATURELIB NAMES cubature libcubature
-                         HINTS "$ENV{CUBATURE}/lib")
-if (CUBATURELIB) 
-    include_directories($ENV{CUBATURE}/lib)
-    message("-- cubature found! (${CUBATURELIB})")
-else()
-    message("-- cubature not found!")
-endif()
+# build core library
 
 add_subdirectory(src)

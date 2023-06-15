@@ -1,51 +1,45 @@
 #include "triangle.hpp"
-
-#include "jpacGraph1D.hpp"
-#include "jpacUtils.hpp"
-
-using namespace std;
+#include "plotter.hpp"
 
 void triangle_singularities()
-{   
-    array<double,3> internal = {M_DSTAR, M_D1,     M_D};
-    array<double,3> external = {M_Y4260, M_ZC3900, M_PION};
+{
+    using namespace hadMolee;
 
-    relativistic_triangle r_triangle;
-    r_triangle.set_internal_masses(internal);
-    r_triangle.set_external_masses(external);
-    r_triangle.set_ieps(1.E-5);
+    std::array<double,3> internal = {M_DSTAR, M_D1,     M_D};
+    std::array<double,3> external = {M_Y4260, M_ZC3900, M_PION};
 
-    nonrelativistic_triangle nr_triangle;
-    nr_triangle.set_internal_masses(internal);
-    nr_triangle.set_external_masses(external);
-    nr_triangle.set_ieps(1.E-5);
+    triangle r_tri(triangle::kRelativistic, external, internal);
+    r_tri.set_ieps(1E-3);
 
-    vector<triangle*> triangles = {&r_triangle, &nr_triangle};
-    
+    triangle nr_tri(triangle::kNonrelativistic, external, internal);
+    nr_tri.set_ieps(1E-3);
+
+    std::vector<triangle> triangles = {r_tri, nr_tri};
+
     // ------------------------------------------------------
-    int N = 100;
-    bool PRINT = true;
+    
+    // Plotter object
+    plotter plotter;
+
+    int N = 50;
 
     double xmin, xmax, ymin, ymax;
-    string xlabel, filename;
+    string xlabel;
 
-    string ylabel   = "#it{T}_{#it{D}*#it{D}_{1}#it{D}} #times 100";
-
-    // Plotter object
-    jpacGraph1D * plotter = new jpacGraph1D(0);
+    std::string ylabel   = "#it{T}_{#it{D}*#it{D}_{1}#it{D}} #times 100";
 
     int i;
     auto re = [&](double E)
     {
         external[0] = E;
-        triangles[i]->set_external_masses(external);
-        return real(triangles[i]->eval() * 1.E2);
+        triangles[i].set_external_masses(external);
+        return real(triangles[i].eval() * 1.E2);
     };
     auto im = [&](double E)
     {
-        external[1] = E;
-        triangles[i]->set_external_masses(external);
-        return imag(triangles[i]->eval() * 1.E2);
+        external[0] = E;
+        triangles[i].set_external_masses(external);
+        return imag(triangles[i].eval() * 1.E2);
     };
 
     xmin = 4.2;
@@ -53,38 +47,37 @@ void triangle_singularities()
     ymin = -1.;
     ymax = 5.;
     xlabel   = "#sqrt{#it{s}}  [GeV]";
-    filename = "triangle_s.pdf";
 
+    plot p1 = plotter.new_plot();
+    p1.set_curve_points(N);
     i = 0;
-    plotter->AddEntry(N, re, {xmin, xmax}, "Real", PRINT);
+    p1.add_curve({xmin, xmax}, re, "Real");
     i = 1;
-    plotter->AddDashedEntry(N, re, {xmin, xmax}, PRINT);
-
+    p1.add_dashed({xmin, xmax}, re);
     i = 0;
-    plotter->AddEntry(N, im, {xmin, xmax}, "Imaginary", PRINT);
+    p1.add_curve({xmin, xmax}, im, "Imaginary");
     i = 1;
-    plotter->AddDashedEntry(N, im, {xmin, xmax}, PRINT);
+    p1.add_dashed({xmin, xmax}, im);
 
-    plotter->SetXaxis(xlabel, xmin, xmax);
-    plotter->SetYaxis(ylabel, ymin, ymax);
-    plotter->SetLegend(0.7,0.7);
-    plotter->SetLegendOffset(0.4, 0.07);
-    plotter->Plot(filename);
+    p1.add_header("#sqrt{#sigma_{D*D}} = 3.89 GeV");
+    p1.set_ranges({xmin, xmax}, {ymin, ymax});
+    p1.set_labels(xlabel, ylabel);
+    p1.set_legend(0.7, 0.7);
+    p1.save("tri_s.pdf");
 
-    plotter->ClearData();
+    // Reset the masses
     external = {M_Y4260, M_ZC3900, M_PION};
-
     auto re2 = [&](double E)
     {
         external[1] = E;
-        triangles[i]->set_external_masses(external);
-        return real(triangles[i]->eval() * 1.E2);
+        triangles[i].set_external_masses(external);
+        return real(triangles[i].eval() * 1.E2);
     };
     auto im2 = [&](double E)
     {
         external[1] = E;
-        triangles[i]->set_external_masses(external);
-        return imag(triangles[i]->eval() * 1.E2);
+        triangles[i].set_external_masses(external);
+        return imag(triangles[i].eval() * 1.E2);
     };
 
     xmin = 3.8;
@@ -92,23 +85,22 @@ void triangle_singularities()
     ymin = 0.;
     ymax = 1.5;
     xlabel   = "#sqrt{#sigma_{#it{D}*#it{D}}}  [GeV]";
-    filename = "triangle_sab.pdf";
 
+    plot p2 = plotter.new_plot();
+    p2.set_curve_points(N);
     i = 0;
-    plotter->AddEntry(N, re2, {xmin, xmax}, "Real", PRINT);
+    p2.add_curve({xmin, xmax}, re2, "Real");
     i = 1;
-    plotter->AddDashedEntry(N, re2, {xmin, xmax}, PRINT);
-
+    p2.add_dashed({xmin, xmax}, re2);
     i = 0;
-    plotter->AddEntry(N, im2, {xmin, xmax}, "Imaginary", PRINT);
+    p2.add_curve({xmin, xmax}, im2, "Imaginary");
     i = 1;
-    plotter->AddDashedEntry(N, im2, {xmin, xmax}, PRINT);
+    p2.add_dashed({xmin, xmax}, im2);
+    
+    p2.add_header("#sqrt{s} = 4.22 GeV");
+    p2.set_ranges({xmin, xmax}, {ymin, ymax});
+    p2.set_labels(xlabel, ylabel);
+    p2.set_legend(0.7, 0.7);
 
-    plotter->SetXaxis(xlabel, xmin, xmax);
-    plotter->SetYaxis(ylabel, ymin, ymax);
-    plotter->SetLegend(0.7,0.7);
-    plotter->SetLegendOffset(0.4, 0.07);
-    plotter->Plot(filename);
-
-    delete plotter;
+    p2.save("tri_sig.pdf");
 };  

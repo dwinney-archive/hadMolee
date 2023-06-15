@@ -45,26 +45,4 @@ void Load()
     // {
     //     Warning("Load", "LoopTools extention library not found! Path given: %s", LT_LIB.Data());
     // }
-
-    //----------------------------------------------------------------------
-    // Need to add cubature to apth
-    TString CUBE_INC  = gSystem->Getenv("CUBATURE");
-    gInterpreter->AddIncludePath( CUBE_INC.Data());
-
-     //----------------------------------------------------------------------
-    // Plotting library
-
-    TString JPACSTYLE_DIR  = gSystem->Getenv("JPACSTYLE");
-    TString JPACSTYLE_INC  = JPACSTYLE_DIR + "/include";
-    TString JPACSTYLE_LIB  = JPACSTYLE_DIR + "/lib/libjpacStyle." + LIB_EXT;
-
-    if (!gSystem->AccessPathName(JPACSTYLE_LIB.Data()))
-    {
-        gInterpreter->AddIncludePath( JPACSTYLE_INC.Data());
-        Int_t stylib = gSystem->Load( JPACSTYLE_LIB.Data());
-    }
-    else
-    {
-        Warning("Load", "jpacStyle library not found! Path given: %s", JPACSTYLE_LIB.Data());
-    }
 }

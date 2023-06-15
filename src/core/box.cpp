@@ -13,7 +13,7 @@ namespace hadMolee
     {
         switch (_mode)
         {
-            case (relativistic):    return relativistic_eval();
+            case (kRelativistic):    return relativistic_eval();
             default: return std::nan("");
         };
     };
