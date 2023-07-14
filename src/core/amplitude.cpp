@@ -87,9 +87,10 @@ namespace hadMolee
     void amplitude_base::check_decay_cache()
     {
         bool need_recalculate;
-        need_recalculate =     (std::abs(_cached_s - _s) > _cache_tolerance) 
-                            || (std::abs(_cached_sab - _sab) > _cache_tolerance) 
-                            || (std::abs(_cached_sbc - _sbc) > _cache_tolerance);
+        need_recalculate =     (std::abs(_cached_s   - _s   ) > _cache_tolerance) 
+                            || (std::abs(_cached_sab - _sab ) > _cache_tolerance) 
+                            || (std::abs(_cached_sbc - _sbc ) > _cache_tolerance)
+                            || (std::abs(_cached_cos - _cos ) > _cache_tolerance);
         if (need_recalculate)
         {
             // We neeed to calcualte the amplitude squared summed over the final state polarizations
@@ -110,6 +111,7 @@ namespace hadMolee
                 for (auto j : C_INDICES)
                 {
                     double x = 0.;
+
                     // K is the external polarization
                     for (auto k : C_INDICES)
                     {
@@ -166,7 +168,7 @@ namespace hadMolee
         for (auto amp : _sub_amps)
         {
             // Have to make sure to feed energy values to component amplitudes
-            amp->update(_s, _sab, _sbc);
+            amp->update(_s, _sab, _sbc, _cos);
             sum += amp->reduced_amplitude_checked(i, j);
         };
 
@@ -176,42 +178,11 @@ namespace hadMolee
     // ---------------------------------------------------------------------------
     // Spin-summed amplitude squared. 
 
-    // This is split into two pieces depending on whether or not to include the e+e- components
-    // The decay distribution is the amplitude squared for the process V->abc
-    double amplitude_base::decay_distribution(double s, double sab, double sbc)
-    {
-        // Update the saved energy values for easier access later
-        update(s, sab, sbc);
-
-        // Contract over Cartesian indices
-        double sum = 0;
-        for (auto i : C_INDICES)
-        {
-            for (auto j : C_INDICES)
-            {
-                // This is \int_-1^1 dcos (3 * \sum eps eps*)
-                // Where eps is the Y-polarization oriented an angle costheta with respect to +z axis
-                // The factor of 3 is just to make it an int
-                int V_polarization = 3*delta(i, j) - 2*delta(i,x)*delta(j,x) - delta(i,z)*delta(j,z);
-                if (V_polarization == 0) continue;
-                
-                // V -> abc 
-                double Asqr = _cached_decay_tensor[i][j];
-                if ( is_zero(Asqr) ) continue;
-
-                sum += (V_polarization / 3.) * Asqr;
-            };
-        };
-
-        return sum;
-    };
-
-
     // The scattering distribution is the amplitude squared for the process e+e- ->abc
-    double amplitude_base::scattering_distribution(double s, double sab, double sbc)
+    double amplitude_base::decay_distribution(double s, double sab, double sbc, double cos)
     {
         // Update the saved energy values for easier access later
-        update(s, sab, sbc);
+        update(s, sab, sbc, cos);
 
         // Contract over Cartesian indices
         double sum = 0;
@@ -219,16 +190,28 @@ namespace hadMolee
         {
             for (auto j : C_INDICES)
             {
-                int production = delta(i, j) - delta(i,z)*delta(j,z);
-                if (production == 0) continue;
+                complex x; //Output
 
-                complex x = 1.;
-                //e+ e- -> gamma 
-                // x *= _kinematics->ee_to_gamma(s) * production;
-                x = production;
+                // --------------------------
+                // e+ e- -> gamma component
 
-                // gamma -> V
-                // x *= norm(_V->photon_coupling() * _V->propagator(s));
+                // Production tensor of the e+ e- polarization component
+                int production_pol = delta(i, j) - delta(i,z)*delta(j,z);
+                if (production_pol == 0) continue;
+
+                // ( e^2 * 2k^2 * polarization)
+                double k = sqrt(s)/2; // e+ momentum in CM frame
+                x  = E*E * 2*k*k * production_pol;
+
+                // --------------------------
+                // gamma -> V component
+
+                // ( proton propagator * Vgamma coupling * V propagator)
+                complex Gprime = (1/s) * _V->photon_coupling() * _V->propagator(s);
+                x *= norm( Gprime );
+
+                // --------------------------
+                // Decay component
 
                 // V -> abc 
                 x *= _cached_decay_tensor[i][j];
@@ -241,28 +224,37 @@ namespace hadMolee
         return sum;
     };
 
+    // Without specifying an angle assumes we integrate over cos
+    double amplitude_base::decay_distribution(double s, double sab, double sbc)
+    {
+        auto dF = [&](double cos)
+        {
+            return decay_distribution(s, sab, sbc, cos);
+        };
+
+        ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
+        ROOT::Math::Functor1D wF(dF);
+        ig.SetFunction(wF);
+
+        return ig.Integral(-1., 1.);
+    };
 
     // ---------------------------------------------------------------------------
     // Doubly differential partial-width
+
     double amplitude_base::d2Gamma(double s, double sab, double sbc)
     {
         if ( !_kinematics->in_physical_region(s, sab, sbc) ) 
         {
-            // warning(get_id(), "Evaluating amplitude outside physical region! Returning 0...");
             return 0.;
         };
-
-        double amp_squared = decay_distribution(s, sab, sbc); 
-
-        // // Average over the spins of the inital electron-positron pair
-        amp_squared /= 2.;
 
         // General prefactors for 1->3 decay width in GeV
         double prefactors = 1. / (32.*pow(2.*PI*sqrt(s), 3.));
 
         if (_normalize) prefactors *= _normalization;
 
-        return amp_squared * prefactors * 1.E3; // In MeV
+        return decay_distribution(s, sab, sbc) * prefactors * 1.E3; // In MeV
     };
 
     // ---------------------------------------------------------------------------

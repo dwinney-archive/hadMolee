@@ -214,53 +214,6 @@ namespace hadMolee
         inline double mass_c(){ return _mc; };
 
         // -----------------------------------------------------------------------
-        // Vectors and tensors
-
-        // Lepton-tensor gives the e+ e- -> photon interaction
-        // Given as a function of s and the pion angle z
-        double _cached_cos = 500.; // start costheta at an unphysical value as a starting value
-        std::array<double,3> _cached_phat;
-        inline double production_tensor(cartesian_index i, cartesian_index j, double cos)
-        {
-            if ( !is_equal(_cached_cos, cos) )
-            {
-                _cached_phat[cartesian_index::x] = sqrt(1. - cos*cos);
-                _cached_phat[cartesian_index::y] = 0.;
-                _cached_phat[cartesian_index::z] = cos;
-
-                _cached_cos = cos;
-            };
-
-            // In massless approximation, this reduces to the polarization sum of transverse photon
-            // We assume the final state pion defines the +z axis and cos is the cosine of the pi e- angle
-            return double(delta(i,j)) - _cached_phat[i]*_cached_phat[j];
-        };
-
-        // Without specifying an angle this produces the tensor already integrated over the orientation
-        inline int production_tensor(cartesian_index i, cartesian_index j)
-        {
-            // Numerical prefactors come from only non-zero terms \int_{-1}^1 dos sin^2 and same integral for cos^2 
-            // off diagnals are either 0 or sin*cos which vanishes in the integration
-            return delta(i,j) - delta(i, z)*delta(j,z) ;
-        };
-
-        // This is the scalar coupling of e+ e- -> gammma which includes the photon propagator,
-        // The lorentz index dependence is in production_tensor(i,j);
-        inline complex ee_to_gamma(double s)
-        {
-            // Modulous of lepton momentum squared
-            double k2                    = s/4.;
-
-            // Ultra-relativistic dependence of the spinors
-            double production_dependence = E*E * 4.*k2;
-
-            // Photon propagator squared
-            double photon_propagator     = -(1./s/s);
-
-            return production_dependence * photon_propagator;
-        };
-
-        // -----------------------------------------------------------------------
         // Momenta in the lab frame
 
         // Particle a momentum 
@@ -274,13 +227,7 @@ namespace hadMolee
         {
             return sqrt(Kallen(s, sac, _mb2)) / (2. * sqrt(s));
         };
-
-        // Particle c momentum in the decay frame
-        inline double decay_momentum_c(double s, double sab)
-        {
-            return sqrt(Kallen(s, sab, _mc2)) / (2. * sqrt(s));
-        };
-
+        
         // -----------------------------------------------------------------------
         
         protected:

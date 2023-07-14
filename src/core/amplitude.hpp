@@ -32,6 +32,8 @@ namespace hadMolee
 
         template<class A>
         friend amplitude make_amplitude(kinematics, lineshape, std::string);
+        template<class A>
+        friend amplitude make_amplitude(kinematics, std::string);
 
         friend amplitude operator+(amplitude, amplitude);
     };
@@ -46,6 +48,13 @@ namespace hadMolee
     amplitude make_amplitude(kinematics xkinem, lineshape V, std::string id)
     {
         auto amp = std::make_shared<A>(amplitude_key(), xkinem, V, id);
+        return std::static_pointer_cast<amplitude_base>(amp);
+    };
+
+    template<class A>
+    amplitude make_amplitude(kinematics xkinem, std::string id)
+    {
+        auto amp = std::make_shared<A>(amplitude_key(), xkinem, id);
         return std::static_pointer_cast<amplitude_base>(amp);
     };
 
@@ -115,9 +124,9 @@ namespace hadMolee
             return reduced_amplitude(i, j);
         };
 
-        // Spin-summed amplitude squared
-        double decay_distribution(double s, double sab, double sbc);
-        double scattering_distribution(double s, double sab, double sbc);
+        // 2->3 distribution including a polar orientation angle to the beam
+        virtual double decay_distribution(double s, double sab, double sbc, double cos);
+        virtual double decay_distribution(double s, double sab, double sbc);
 
         // Doubly differential partial-width
         double d2Gamma(double s, double sab, double sbc);
@@ -182,6 +191,7 @@ namespace hadMolee
         friend amplitude operator+(amplitude a, amplitude b);
     
         // -----------------------------------------------------------------------
+        // Setters and debugging 
 
         // Variable for setting cases for debugging messages
         int _debug; 
@@ -213,9 +223,27 @@ namespace hadMolee
             _ma  = m[0];      _mb  = m[1];      _mc  = m[2];
             _ma2 = m[0]*m[0]; _mb2 = m[1]*m[1]; _mc2 = m[2]*m[2];
         };
-        inline void update(double s, double sab, double sbc)
+
+        // -----------------------------------------------------------------------
+        // Related to caching 
+
+        // Total invairant energies
+        double _W, _s;
+
+        // Orientation polar angle to the beam
+        double _cos;
+
+        // Sub-channel energies
+        double _sab, _sbc, _sac;
+
+        // Masses of the particles
+        double _ma,  _mb,  _mc;
+        double _ma2, _mb2, _mc2;
+
+        // Caching energy variables
+        inline void update(double s, double sab, double sbc, double cos)
         {
-            _W   = sqrt(s); _s   = s;
+            _W   = sqrt(s); _s   = s; _cos = cos;
             _sab = sab;     _sbc = sbc;
             _sac = _ma2 + _mb2 + _mc2 + s - sab - sbc;
 
@@ -246,22 +274,19 @@ namespace hadMolee
         // Save all the components of the reduced amplitude at each step of sab and bc to avoid having to recalculate
         std::array<std::array<double,3>,3> _cached_decay_tensor;
         double _cache_tolerance = EPS;
-        double _cached_s, _cached_sab, _cached_sbc;
+        double _cached_s, _cached_sab, _cached_sbc, _cached_cos;
         void check_decay_cache();
 
-        // Total invairant energies
-        double _W, _s;
-
-        // Sub-channel energies
-        double _sab, _sbc, _sac;
-
-        // Masses of the particles
-        double _ma,  _mb,  _mc;
-        double _ma2, _mb2, _mc2;
-
         // Short cuts for characteristic angular behavior
-        inline int s_wave(cartesian_index i, cartesian_index j) { return delta(i,j); }                            // S-wave is just a delta-function
-        inline int d_wave(cartesian_index i, cartesian_index j) { return 3*delta(i,z)*delta(j,z) - delta(i,j); }; // D-wave 
+        inline double phat(cartesian_index i)
+        {
+            switch (i)
+            {
+                case x : return sqrt(1 - _cos*_cos);
+                case y : return 0;
+                case z : return _cos;
+            };
+        };
 
         // Differential widths in terms of specific channels
         double dGamma_ab(double s, double sab);
@@ -287,8 +312,10 @@ namespace hadMolee
         // Return a constant for all the amplitudes. 
         // Since we always sum over helicities of a, we divide normalize so the spin-summed amplitude square equals 1
         // The averaging factor for the Y meson is handled in the width definition
-        inline complex reduced_amplitude(cartesian_index i, cartesian_index j) 
-        { return s_wave(i,j); };
+        inline double decay_distribution(double s, double sab, double sbc, double cos)
+        {
+            return 1;
+        }
     };
 };
 
