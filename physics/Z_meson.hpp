@@ -34,13 +34,6 @@ namespace hadMolee
             // Calcualte the non-moleculat component to the width from the total
             _total_width         = 100E-3;
             _nonmol_width        = _total_width - imag(_sigma_pole);
-
-            // print("sigma_pole", _sigma_pole);
-            // print("pole mass", _pole_mass);
-            // print("bare_mass", _bare_mass);
-
-            // print("total width", _total_width);
-            // print("nonmol_width", _nonmol_width);
         };
 
         // The propagator gains contributions from the self-energy

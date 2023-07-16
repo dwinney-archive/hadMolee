@@ -93,15 +93,6 @@ namespace hadMolee
             double mu2  = M_RHO*M_RHO; // renormalization at rho mass
             double sub  = 0;           // subtraction
 
-            // double    W  = sqrt(s);
-            // complex   k  = csqrt(Kallen(s, m1sq, m2sq))/(2*sqrt(s));
-            // double Delta = m1sq - m2sq;
-
-            // complex  sig = log(m1sq/mu2) + (m2sq - m1sq + s)/(2*s)*log(m2sq/m1sq) 
-                        //  + k/W* (log(2*k*W + s - Delta) + log(2*k*W + s - Delta) 
-                        //        - log(2*k*W - s - Delta) - log(2*k*W - s - Delta) ); 
-            // return (sub + sig) / (16*PI*PI);
-
             complex rho, xi, DR;
             complex result;
 
@@ -112,9 +103,7 @@ namespace hadMolee
             DR = (sub + log(_m1*_m1/_m2*_m2) + (_m2*_m2 - _m1*_m1 + s)/(2*s)*log(_m2*_m2/_m1*_m1)) / (16*PI*PI);
 
             return (DR + result);
-
         };
-
 
         // Return masses 
         inline std::array<double,2> constituent_masses(){ return {_m1, _m2}; };
