@@ -13,6 +13,7 @@ namespace hadMolee
 {
     // ---------------------------------------------------------------------------
     // D* D molecule relevant for the Z meson
+    // this class is only molecular because its axial-vector and doesnt couple to the photon
 
     class DsD_molecule : public molecular
     {
@@ -22,42 +23,39 @@ namespace hadMolee
         DsD_molecule()
         : molecular(M_DSTAR, M_D)
         {
-            // Mass and Width from PDG
-            _pole_mass          = 3.87;
-            _total_width        = 100E-3;
-            
-            // Coupling taken from [1]
-            _molecular_coupling  = 2.891;  
-            
-            // residual width taken to recover the full PDG width at the pole
-            _nonmol_width = _total_width - 2.* imag(self_energy(_pole_mass));
+            // Given a pole mass calculate the bare mass
+            _pole_mass           = 3.87;
+            _z                   = 2.871;
+            _molecular_coupling  = _z;
+
+            _sigma_pole          = _z*_z*self_energy(_pole_mass*_pole_mass);
+            _bare_mass           = _pole_mass - real(_sigma_pole);
+
+            // Calcualte the non-moleculat component to the width from the total
+            _total_width         = 100E-3;
+            _nonmol_width        = _total_width - imag(_sigma_pole);
+
+            // print("sigma_pole", _sigma_pole);
+            // print("pole mass", _pole_mass);
+            // print("bare_mass", _bare_mass);
+
+            // print("total width", _total_width);
+            // print("nonmol_width", _nonmol_width);
         };
 
         // The propagator gains contributions from the self-energy
         inline complex propagator(double s)
         {
             double E = sqrt(s);
-            double z = _molecular_coupling;
-
-            complex D = E - _pole_mass + I * (z*z*self_energy(E) + _nonmol_width/2.);
+            complex D = E - _bare_mass - _z*_z*self_energy(s) + I*_nonmol_width/2;
             
-            return I / (2.*D);
+            return I / D;
         };  
 
-        // // Self-energy from bubble diagram of D* D scattering 
-        // inline complex self_energy(double E)
-        // {
-        //     double eps = mass_difference(E);
-        //     double mu  = reduced_mass();
-            
-        //     return (1. / (8.*PI)) * csqrt(2.*mu*mu*mu*std::abs(eps)) * ( (eps>=0) + I*(eps<0) );
-        // };
-
-        // -----------------------------------------------------------------------
         private:
-
-        // Total width of the Z from the PDG
-        double _total_width;
+        
+        // Rename molecular coupling to z
+        double _z;
     };
 };
 

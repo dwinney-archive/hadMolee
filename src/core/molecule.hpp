@@ -87,6 +87,7 @@ namespace hadMolee
         virtual inline double molecular_coupling(){ return _molecular_coupling; };
 
         // Self-energy loop function
+        // Always a function of s (GeV^2)
         virtual inline complex self_energy(double s)
         {
             double mu2  = M_RHO*M_RHO; // renormalization at rho mass
@@ -123,9 +124,14 @@ namespace hadMolee
 
         // Masses of the molecule
         double _pole_mass;
+        double _bare_mass;
+
+        // Self-energy evaluated at the pole mass
+        complex _sigma_pole;
 
         // Width coming from decays other than m1 m2 final state
         double _nonmol_width;
+        double _total_width;
 
         // Constituents masses 
         double _m1, _m2;
