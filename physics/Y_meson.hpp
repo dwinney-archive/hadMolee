@@ -57,7 +57,7 @@ namespace hadMolee
         double _y;
 
         // Y decay constant
-        double _fY;
+        double _fY = 2.194;
     };
 };
 
