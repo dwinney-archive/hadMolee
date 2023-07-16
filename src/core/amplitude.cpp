@@ -110,17 +110,20 @@ namespace hadMolee
             {
                 for (auto j : C_INDICES)
                 {
-                    double x = 0.;
+                    complex x = 0.;
 
                     // K is the external polarization
                     for (auto k : C_INDICES)
                     {
                         // Polarization sum over the final state vector gives a delta function fixing k here
-                        complex y = amp[i][k] * conj(amp[j][k]);
-                        if (!is_zero( imag(y) )) warning("check_decay_cache", "Reduced amplitude squared is imaginary!");
-                        x += real(y);
+                        x += amp[i][k] * conj(amp[j][k]);
                     };
-                    _cached_decay_tensor[i][j] = x;
+
+                    if (!is_zero( imag(x) ))
+                    {
+                        warning("check_decay_cache", "Reduced amplitude squared is imaginary!");
+                    };
+                    _cached_decay_tensor[i][j] = real(x);
                 }
             };
         };
@@ -162,7 +165,7 @@ namespace hadMolee
     {
         // IF called without any store amplitudes, throw error
         if (!is_sum()) return std::nan("");
-
+        
         // Else sum all constituent amplitudes together
         complex sum = 0.;
         for (auto amp : _sub_amps)
@@ -171,7 +174,6 @@ namespace hadMolee
             amp->update(_s, _sab, _sbc, _cos);
             sum += amp->reduced_amplitude_checked(i, j);
         };
-
         return sum;
     };
 
