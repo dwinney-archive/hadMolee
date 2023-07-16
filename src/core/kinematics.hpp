@@ -216,16 +216,22 @@ namespace hadMolee
         // -----------------------------------------------------------------------
         // Momenta in the lab frame
 
-        // Particle a momentum 
+        // Particle a momentum in the vector helicity frame
         inline double decay_momentum_a(double s, double sbc)
         {
             return sqrt(Kallen(s, sbc, _ma2)) / (2. * sqrt(s));
         };
 
-        // Particle b momentum
+        // Particle b momentum in the vector helicity frame
         inline double decay_momentum_b(double s, double sac)
         {
             return sqrt(Kallen(s, sac, _mb2)) / (2. * sqrt(s));
+        };
+
+        // Particle c momentum in the vector helicity frame
+        inline double decay_momentum_c(double s, double sab)
+        {
+            return sqrt(Kallen(s, sab, _mc2)) / (2. * sqrt(s));
         };
         
         // -----------------------------------------------------------------------
