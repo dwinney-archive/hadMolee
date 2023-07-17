@@ -28,7 +28,8 @@ namespace hadMolee
         public:
         
         DsDpi_swave(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "DsDpi_swave")
-        : amplitude_base(key, xkinem, Y, 2, "DsDpi_swave", id)
+        : amplitude_base(key, xkinem, Y, 2, "DsDpi_swave", id),
+          _Zc(make_molecule<DsD_molecule>())
         {};
 
         // The reduced amplitude corresponds to the S-wave contact-like interaction
@@ -36,17 +37,7 @@ namespace hadMolee
         inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
         {
             // Being S-wave the s-wave strength gets multiplied by a delta-function
-            return _AS * delta(i,j);
-        };
-
-        // Set the two parameters
-        // These are the coefficients of the linear polynomial multiplying the s-wave strength
-        inline void set_parameters(std::vector<double> par)
-        {
-            check_nParams(par);
-
-            _a = par[0];
-            _b = par[1];
+            return _AS * sqrt(sqrt(_s)*M_DSTAR*M_D) * delta(i,j);
         };
 
         // -----------------------------------------------------------------------
@@ -54,13 +45,13 @@ namespace hadMolee
 
         // Parameterize with two real polynomial coefficients
         // Values from Leon's note
-        double _a = 2.501*1, _b = -15.12;
+        double _a = 2.501, _b = -15.12;
 
         // S-wave coupling strength
         complex _AS; 
 
         // This channel recieves contribution from the Z(3900)
-        molecule _Zc = make_molecule<DsD_molecule>();
+        molecule _Zc;
 
         // S-wave amplitude is easy, because its only the Z propagator that needs to be calcualted
         inline void recalculate()
@@ -70,80 +61,37 @@ namespace hadMolee
             double omega_pi = sqrt(M_PION*M_PION + p_pi*p_pi);
 
             // sab is assumed to be DsD channel
-            _AS = _a * (_b + _sab) * _Zc->propagator(_sab) * omega_pi;
+            _AS = _a*(_b + _sab)*_Zc->propagator(_sab)*omega_pi;
         };
     };
 
     // ---------------------------------------------------------------------------
-    // Tree level transition through intermediate D1
+    // Transition involving D1DsD triangle with the Z as well as 
     // No free parameters since this assume to be known background
 
-    class DsDpi_tree : public amplitude_base
-    {
-        // -----------------------------------------------------------------------
-        public:
-        
-        DsDpi_tree(amplitude_key key, kinematics xkinem, lineshape V, std::string id = "DsDpi_tree")
-        : amplitude_base(key, xkinem, V, 0, "DsDpi_tree", id)
-        {};
-
-        // The reduced amplitude corresponds to the S-wave contact-like interaction
-        // however it receives contributions from the propagator of the Z meson
-        inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
-        {
-            double p_pion  = _kinematics->decay_momentum_c(_s, _sab);
-
-            return _AD * p_pion*p_pion * (3.*phat(i)*phat(j) - delta(i,j));
-        };
-
-        // -----------------------------------------------------------------------
-        private:
-
-        inline void recalculate()
-        {
-            // sab is assumed to be DsD channel
-            _AD = - sqrt(2./3.)*_hD/_fpi;
-
-            // Multiply by the propagator of the D1 and y coupling
-            _AD *= _Y->molecular_coupling()/sqrt(2) * M_D1 * _D1.eval(_sac);
-        };
-        
-        // Energy dependent D wave strength
-        complex _AD;                         
-
-        // HQSS couplings
-        double  _fpi = sqrt(2)*92E-3;   // Pion decay constant in GeV
-        double  _hD  = 0.89;            // HQSS constant in GeV-1
-
-        // This channel has a D1 resonance in the Ds pi channel
-        breit_wigner _D1 = breit_wigner(breit_wigner::kRelativistic, M_D1, W_D1);
-
-        // It also explciity depends on D1D molecular nature of the Y state
-        molecule _Y = get_molecular_component(_V);
-    };
-
-    // ---------------------------------------------------------------------------
-    // Transition involving D1DsD triangle and Z meson
-    // No free parameters since this assume to be known background
-
-    class DsDpi_triangle : public amplitude_base
+    class DsDpi_dwave : public amplitude_base
     {
         // -----------------------------------------------------------------------
         public:
         
         // Here we can choose whether we want a nonrelativistic triangle or the relativistic version
         // We default to the nonrel version
-        DsDpi_triangle(amplitude_key key, kinematics xkinem, lineshape V, std::string id = "DsDpi_triangle")
-        : amplitude_base(key, xkinem, V, 0, "DsDpi_triangle", id)
-        {};
+        DsDpi_dwave(amplitude_key key, kinematics xkinem, lineshape V, std::string id = "DsDpi_dwave")
+        : amplitude_base(key, xkinem, V, 0, "DsDpi_dwave", id),
+          _T(triangle::kNonrelativistic), 
+          _D1(breit_wigner::kNonrelativistic,  M_D1, W_D1),
+          _Zc(make_molecule<DsD_molecule>()),
+          _Y(get_molecular_component(_V))
+        {
+            _T.set_internal_masses(_internal); 
+            _T.add_width(2, W_D1); 
+        };
 
         // The reduced amplitude corresponds to the S-wave contact-like interaction
         // however it receives contributions from the propagator of the Z meson
         inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
         {
-            double p_pion  = _kinematics->decay_momentum_c(_s, _sab);
-
-            return _AD * p_pion*p_pion * (3.*phat(i)*phat(j) - delta(i,j));
+            return _AD * sqrt(sqrt(_s)*M_DSTAR*M_D) *_ppi*_ppi*(3.*phat(i)*phat(j) - delta(i,j));
         };
 
         // -----------------------------------------------------------------------
@@ -152,39 +100,41 @@ namespace hadMolee
         inline void recalculate()
         {
             // Update arguments with floating Y and Z meson masses for the triangle
-            _T.set_internal_masses(_internal); 
             _T.set_external_masses({_W, sqrt(_sab), M_PION});
-            _T.add_width(2, W_D1); 
-            
-            // The normalization is matched to Qiang's paper
-            complex T = _internal[0] * _internal[1] * _internal[2] * _T.eval();
 
+            // Update the pion momentum 
+            _ppi = _kinematics->decay_momentum_c(_s, _sab);
+            
             // This gets multiplied by the propagator of the Z prop and triangle function
             double z = _Zc->molecular_coupling();
 
-            _AD  = sqrt(2./3.)*_hD/_fpi;
-            _AD *= (_Y->molecular_coupling() / sqrt(2.));
-            _AD *= - z*z * T * _Zc->propagator(_sab);
+            _AD  = sqrt(2./3.)*_hp/_fpi;
+            _AD *= (_Y->molecular_coupling()/sqrt(2.));
+            _AD *= z*z*M_D1*M_D*M_DSTAR*_T.eval()*_Zc->propagator(_sab)/*  + M_D1*_D1.eval(sqrt(_sac)) */;
         };
 
         // Couplings
         complex _AD;  // Energy dependent D wave strength
 
-        // HQSS couplings
-        double  _fpi = sqrt(2)*92E-3;   // Pion decay constant in GeV
-        double  _hD  = 0.89;            // HQSS constant in GeV-1
+        // Couplings related to pion
+        double  _ppi;                            // Pion 3-momentum
+        double  _fpi = /* sqrt(2)* */92.8E-3;    // Pion decay constant in GeV
+        double  _hp  =  /* 0.89 */ 0.62;         // HQSS constant in GeV-1   
 
         // On-shell masses involved in the triangle
         std::array<double,3> _internal = {M_DSTAR, M_D1, M_D};
 
         // Default to using nonrelativistic version of the triangle
-        triangle _T = triangle(triangle::kNonrelativistic);
+        triangle _T;
 
         // This channel recieves contribution from the Z(3900)
-        molecule _Zc = make_molecule<DsD_molecule>();
+        molecule _Zc;
+
+        // In addition we have the tree level transition
+        breit_wigner _D1;
 
         // It also explciity depends on D1D molecular nature of the Y state
-        molecule _Y = get_molecular_component(_V);
+        molecule _Y;
     };
 };
 
