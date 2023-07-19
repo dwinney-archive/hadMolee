@@ -57,10 +57,15 @@ namespace hadMolee
     const double M_RHO       = 0.77526;
 
     // Charged charmed
-    const double M_D         = 1.86966;
-    const double M_DSTAR     = 2.01026;
-    const double M_D1        = 2.4221;
+    // const double M_D         = 1.86966;
+    // const double M_DSTAR     = 2.01026;
+    // const double M_D1        = 2.4221;
 
+    // Use Qians numbers
+    const double M_D     = 1.867;
+    const double M_DSTAR = 2.008;
+    const double M_D1    = 2.4234;
+    
     // Neutral charmed
     const double M_D0        = 1.86484;
     const double M_DSTAR0    = 2.00685;
