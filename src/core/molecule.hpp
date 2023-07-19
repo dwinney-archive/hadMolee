@@ -86,23 +86,35 @@ namespace hadMolee
         // Output the saved coupling to the constituent channel
         virtual inline double molecular_coupling(){ return _molecular_coupling; };
 
-        // Self-energy loop function
+        // Self-energy loop function subtracted at threshold
         // Always a function of s (GeV^2)
         virtual inline complex self_energy(double s)
         {
-            double mu2  = M_RHO*M_RHO; // renormalization at rho mass
-            double sub  = 0;           // subtraction
-
             complex rho, xi, DR;
-            complex result;
+            rho  = csqrt(Kallen(s, _m1*_m1, _m2*_m2)) / s;
+            xi   = 1 - (_m1+_m2)*(_m1+_m2)/s;
+            result = rho*log((xi + rho) / (xi - rho)) - xi*(_m2-_m1)/(_m2+_m1)*log(_m2/_m1);
+            return result / (16*PI*PI);
+        };
 
-            rho    = csqrt(Kallen(s, _m1*_m1, _m2*_m2)) / s;
-            xi     = 1 - (_m1+_m2)*(_m1+_m2)/s;
-            rho /= 16*PI; xi /= 16*PI;
-            result = (rho*log((xi + rho) / (xi - rho)) - xi*(_m2-_m1)/(_m2+_m1)*log(_m2/_m1)) / PI;
-            DR = (sub + log(_m1*_m1/_m2*_m2) + (_m2*_m2 - _m1*_m1 + s)/(2*s)*log(_m2*_m2/_m1*_m1)) / (16*PI*PI);
+        // Self-energy loop function from DR
+        // Always a function of s (GeV^2)
+        virtual inline complex self_energy_DR(double s)
+        {
+            double mu   = M_RHO;  // renormalization at rho mass
+            double amu  = 0;      // DR renomalization coefficient
 
-            return (DR + result);
+            complex rho = 2*csqrt(Kallen(s, _m1*_m1, _m2*_m2))/s;
+            complex xi  = 1 - (_m1+_m2)*(_m1+_m2)/s;
+
+            // Imaginary part comes from this piece
+            complex log = rho*log((xi + rho)/(xi - rho)) - xi*(_m2-_m1)/(_m2+_m1)*log(_m2/_m1);
+            
+            // To match the energy dependence of the dimensionally regularization formula,
+            // we add this piece
+            complex  DR = log(_m1*_m1/mu*mu) + (s-_m1*_m1+_m2*_m2)/s*log(_m2/_m1);
+
+            return (DR + log)/(16.*PI*PI);
         };
 
         // Return masses 
