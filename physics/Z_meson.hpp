@@ -25,23 +25,38 @@ namespace hadMolee
         {
             // Given a pole mass calculate the bare mass
             _pole_mass           = 3.87;
-            _z                   = 2.871;
+            _z                   = 2.891;
+            _total_width         = 100.E-3;
             _molecular_coupling  = _z;
 
-            _sigma_pole          = _z*_z*self_energy(_pole_mass*_pole_mass);
-            _bare_mass           = _pole_mass - real(_sigma_pole);
+            // IF WE TAKE THE INPUT MASS AS THE BARE MASS
+            _bare_mass    = _pole_mass;
+            _nonmol_width = _total_width;
+
+            // IF WE TAKE THE INPUT MASS AS THE (RENORMALIZED) POLE MASS
+            // _sigma_pole          = _z*_z*self_energy(_pole_mass*_pole_mass);
+            // _bare_mass           = _pole_mass - real(_sigma_pole);
 
             // Calcualte the non-moleculat component to the width from the total
-            _total_width         = 100E-3;
-            _nonmol_width        = _total_width - imag(_sigma_pole);
+            // _nonmol_width        = _total_width - imag(_sigma_pole);
         };
 
         // The propagator gains contributions from the self-energy
         inline complex propagator(double s)
         {
-            double E = sqrt(s);
-            complex D = E - _bare_mass - _z*_z*self_energy(s) + I*_nonmol_width/2;
+            double E  = sqrt(s);
+            complex D = (E - _bare_mass) - _z*_z*self_energy(s) + I*_nonmol_width/2;
             
+            print("E", E);
+            print("pole_mass", _pole_mass);
+            print("bare_mass", _bare_mass);
+            print("z", _z);
+            print("Sigma", self_energy(s));
+            print("-z^2 Sigma",  - _z*_z*self_energy(s));
+            print("Gamma_nonmol", _nonmol_width);
+            print("D", D);
+            exit(1);
+
             return I / D;
         };  
 

@@ -90,8 +90,8 @@ namespace hadMolee
         // Always a function of s (GeV^2)
         virtual inline complex self_energy(double s)
         {
-            double mu   = M_RHO;  // renormalization at rho mass
-            double amu  = 0;      // DR renomalization coefficient
+            double mu   = 1;  // renormalization at rho mass
+            double amu  = 0;  // DR renomalization coefficient
 
             complex rho = 2*csqrt(Kallen(s, _m1*_m1, _m2*_m2))/s;
             complex xi  = 1 - (_m1+_m2)*(_m1+_m2)/s;
@@ -101,7 +101,7 @@ namespace hadMolee
             
             // To match the energy dependence of the dimensionally regularization formula,
             // we add this piece
-            complex  DR = log(_m1*_m1/mu*mu) + (s-_m1*_m1+_m2*_m2)/s*log(_m2/_m1);
+            complex  DR = amu + log(_m1*_m1/mu*mu) + (s-_m1*_m1+_m2*_m2)/s*log(_m2/_m1);
 
             return (DR + logs)/(16.*PI*PI);
         };
