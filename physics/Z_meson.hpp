@@ -47,16 +47,6 @@ namespace hadMolee
             double E  = sqrt(s);
             complex D = (E - _bare_mass) - _z*_z*self_energy(s) + I*_nonmol_width/2;
             
-            print("E", E);
-            print("pole_mass", _pole_mass);
-            print("bare_mass", _bare_mass);
-            print("z", _z);
-            print("Sigma", self_energy(s));
-            print("-z^2 Sigma",  - _z*_z*self_energy(s));
-            print("Gamma_nonmol", _nonmol_width);
-            print("D", D);
-            exit(1);
-
             return I / D;
         };  
 

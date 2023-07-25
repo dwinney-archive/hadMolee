@@ -69,17 +69,16 @@ namespace hadMolee
     // Transition involving D1DsD triangle with the Z as well as 
     // No free parameters since this assume to be known background
 
-    class DsDpi_dwave : public amplitude_base
+    class DsDpi_triangle : public amplitude_base
     {
         // -----------------------------------------------------------------------
         public:
         
         // Here we can choose whether we want a nonrelativistic triangle or the relativistic version
         // We default to the nonrel version
-        DsDpi_dwave(amplitude_key key, kinematics xkinem, lineshape V, std::string id = "DsDpi_dwave")
+        DsDpi_triangle(amplitude_key key, kinematics xkinem, lineshape V, std::string id = "DsDpi_triangle")
         : amplitude_base(key, xkinem, V, 0, "DsDpi_dwave", id),
           _T(triangle::kNonrelativistic), 
-          _D1(breit_wigner::kNonrelativistic,  M_D1, W_D1),
           _Zc(make_molecule<DsD_molecule>()),
           _Y(get_molecular_component(_V))
         {
@@ -108,9 +107,10 @@ namespace hadMolee
             // This gets multiplied by the propagator of the Z prop and triangle function
             double z = _Zc->molecular_coupling();
 
-            _AD  = sqrt(2./3.)*_hp/_fpi;
+            _AD  = I * sqrt(2./3.)*_hp/_fpi;
             _AD *= (_Y->molecular_coupling()/sqrt(2.));
-            _AD *= z*z*M_D1*M_D*M_DSTAR*_T.eval()*_Zc->propagator(_sab)/*  + M_D1*_D1.eval(sqrt(_sac)) */;
+            _AD *= z*z*M_D1*M_D*M_DSTAR*(2*_T.eval())*_Zc->propagator(_sab);
+            // Factor of 2 comes from sum of charge conjugated diagrams
         };
 
         // Couplings
@@ -129,6 +129,55 @@ namespace hadMolee
 
         // This channel recieves contribution from the Z(3900)
         molecule _Zc;
+
+        // It also explciity depends on D1D molecular nature of the Y state
+        molecule _Y;
+    };
+
+    // ---------------------------------------------------------------------------
+    // Also include the D1 tree transition 
+    // No free parameters since this assume to be known background
+
+    class DsDpi_tree : public amplitude_base
+    {
+        // -----------------------------------------------------------------------
+        public:
+        
+        // Here we can choose whether we want a nonrelativistic triangle or the relativistic version
+        // We default to the nonrel version
+        DsDpi_tree(amplitude_key key, kinematics xkinem, lineshape V, std::string id = "DsDpi_tree")
+        : amplitude_base(key, xkinem, V, 0, "DsDpi_dwave", id),
+          _D1(breit_wigner::kNonrelativistic,  M_D1, W_D1),
+          _Y(get_molecular_component(_V))
+        {};
+
+        // The reduced amplitude corresponds to the S-wave contact-like interaction
+        // however it receives contributions from the propagator of the Z meson
+        inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
+        {
+            return _AD * sqrt(sqrt(_s)*M_DSTAR*M_D) *_ppi*_ppi*(3.*phat(i)*phat(j) - delta(i,j));
+        };
+
+        // -----------------------------------------------------------------------
+        private:
+        
+        inline void recalculate()
+        {
+            // Update the pion momentum 
+            _ppi = _kinematics->decay_momentum_c(_s, _sab);
+            
+            _AD  = sqrt(2./3.)*_hp/_fpi;
+            _AD *= (_Y->molecular_coupling()/sqrt(2.));
+            _AD *= M_D1*_D1.eval(sqrt(_sac));
+        };
+
+        // Couplings
+        complex _AD;  // Energy dependent D wave strength
+
+        // Couplings related to pion
+        double  _ppi;                            // Pion 3-momentum
+        double  _fpi = /* sqrt(2)* */92.8E-3;    // Pion decay constant in GeV
+        double  _hp  =  /* 0.89 */ 0.62;         // HQSS constant in GeV-1   
 
         // In addition we have the tree level transition
         breit_wigner _D1;
