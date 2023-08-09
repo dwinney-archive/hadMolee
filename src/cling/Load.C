@@ -30,19 +30,20 @@ void Load()
         Warning("Load", "hadMolee library not found! Path given: %s", CORE_LIB.Data());
     }
 
-    //----------------------------------------------------------------------
-    // Linked LT physics library
+    // ----------------------------------------------------------------------
+    // Linked LoopTools physics library
 
-    // TString LT_INC  = BASE + "/src/LoopTools";
-    // TString LT_LIB  = BASE + "/lib/libLOOPEXT." + LIB_EXT;
+    TString LT_DIR  = gSystem->Getenv("LOOPTOOLS");
+    TString LT_INC  = LT_DIR + "/include";
+    TString LT_LIB  = BASE + "/lib/libLOOPTOOLS." + LIB_EXT;
 
-    // if (!gSystem->AccessPathName(LT_LIB.Data()))
-    // {
-    //     gInterpreter->AddIncludePath( LT_INC.Data());
-    //     Int_t lib = gSystem->Load( LT_LIB.Data());
-    // }
-    // else
-    // {
-    //     Warning("Load", "LoopTools extention library not found! Path given: %s", LT_LIB.Data());
-    // }
+    if (!gSystem->AccessPathName(LT_LIB.Data()))
+    {
+        gInterpreter->AddIncludePath( LT_INC.Data());
+        Int_t lib = gSystem->Load( LT_LIB.Data());
+    }
+    else
+    {
+        Warning("Load", "LoopTools extention library not found! Path given: %s", LT_LIB.Data());
+    }
 }

@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 
-project ( HADMOLEE LANGUAGES C CXX Fortran)
+project ( HADMOLEE LANGUAGES C CXX Fortran )
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-fPIC -O3") 
@@ -21,10 +21,6 @@ list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib"
 if("${isSystemDir}" STREQUAL "-1")
     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_CURRENT_SOURCE_DIR}/lib")
 endif("${isSystemDir}" STREQUAL "-1")
-
-# Optional toggle to turn off generating cling executable
-option(BUILD_CLING "Build cling executable" "TRUE")
-option(BUILD_DICTIONARY "Build ROOT pcm files" "TRUE")
 
 ##-----------------------------------------------------------------------
 ## ROOT finding and connecting
@@ -48,6 +44,27 @@ if (ROOT_FOUND)
 else()
     message(SEND_ERROR "-- Root not found")
 endif()
+
+##-----------------------------------------------------------------------
+# Find LoopTools
+
+if (DEFINED ENV{LOOPTOOLS})
+    message("-- Environment variable LOOPTOOLS set! ($ENV{LOOPTOOLS})")
+    set(LOOPTOOLS_INC  $ENV{LOOPTOOLS}/include)
+    set(LOOPTOOLS_LIB  $ENV{LOOPTOOLS}/lib)
+else()
+    message(WARNING "-- LOOPTOOLS environment variable not set!")
+endif()
+
+find_library(STATIC_LOOPTOOLS REQUIRED NAMES  ooptools libooptools
+                                HINTS "${LOOPTOOLS_LIB}"  )
+
+if ( STATIC_LOOPTOOLS )
+    message("-- LoopTools found (${STATIC_LOOPTOOLS})")
+else()
+    message("-- LoopTools not found")
+endif()
+
 
 ##-----------------------------------------------------------------------
 # build core library
