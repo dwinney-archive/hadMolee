@@ -31,6 +31,8 @@ ROOT_GENERATE_DICTIONARY(G__HADMOLEE
         )
 add_library( HADMOLEE SHARED ${SRC} G__HADMOLEE.cxx )
 target_link_libraries( HADMOLEE ROOT::Core ROOT::MathMore )
+set_target_properties( HADMOLEE PROPERTIES LINKER_LANGUAGE Fortran )
+target_link_libraries( HADMOLEE LOOPTOOLS )
 
 # INSTALLATION 
 install(TARGETS LOOPTOOLS
@@ -45,5 +47,3 @@ install (FILES  ${CMAKE_CURRENT_BINARY_DIR}/libHADMOLEE_rdict.pcm
          DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 add_executable( hadMolee "cling/hadMolee.cpp")
-target_link_libraries( hadMolee ROOT::Core ROOT::MathMore ROOT::RIO ROOT::Rint )
-target_link_libraries( hadMolee HADMOLEE )

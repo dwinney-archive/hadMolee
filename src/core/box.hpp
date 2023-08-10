@@ -15,6 +15,7 @@
 
 #include "constants.hpp"
 #include "cubature.h"
+#include "clooptools.h"
 
 namespace hadMolee
 {
@@ -127,10 +128,10 @@ namespace hadMolee
             {
                 complex Y01, Y02, Y03, Y12, Y13, Y23;
 
-                complex M0 = _m0 - I*csqrt(_m0)*_w0;
-                complex M1 = _m1 - I*csqrt(_m1)*_w1;
-                complex M2 = _m2 - I*csqrt(_m2)*_w2;
-                complex M3 = _m3 - I*csqrt(_m3)*_w3;
+                complex M0 = _m0 - I*csqrt(_m0)*_w0 + IEPS;
+                complex M1 = _m1 - I*csqrt(_m1)*_w1 + IEPS;
+                complex M2 = _m2 - I*csqrt(_m2)*_w2 + IEPS;
+                complex M3 = _m3 - I*csqrt(_m3)*_w3 + IEPS;
 
                 Y01 = M0 + M1 - _p01;
                 Y02 = M0 + M2 - _p02;
@@ -155,6 +156,10 @@ namespace hadMolee
         
         // Maximum number of function calls allowed
         int _N = 1E7;
+
+        // ----------------------------------------------------------------------
+        // Methods for evaluating using LoopTools
+        complex looptools_eval();
     };
 };
 
