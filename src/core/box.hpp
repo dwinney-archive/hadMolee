@@ -1,9 +1,14 @@
 // Class to evaluate the scalar box function
 // We assume external particles are: A + B -> C + D
+// and use the notation for particle masses as in [1]
 //
 // Author:       Daniel Winney (2022)
 // Email:        dwinney@scnu.edu.cn
 // ---------------------------------------------------------------------------
+// REFERENCES:
+// [1] - https://arxiv.org/abs/1005.2076
+// ---------------------------------------------------------------------------
+
 
 #ifndef BOX_HPP
 #define BOX_HPP
@@ -41,15 +46,24 @@ namespace hadMolee
 
         // Evaluate as a function of the initial state invariant mass
         complex eval();
+        inline complex eval(std::array<double,4> external, std::array<double,4> internal, double s, double t)
+        {
+            set_external_masses(external); 
+            set_internal_masses(internal);
+            set_invariant_masses(s, t);
+            return eval();
+        };
         inline double squared(double s){ return norm(eval()); };
 
         // Setting function for the masses of the internal masses in the loop
-        inline void set_internal_masses(std::array<double,4> ex_m2)
-        {  _integrand._p01 = ex_m2[0]; _integrand._p12 = ex_m2[1]; _integrand._p23 = ex_m2[2]; _integrand._p03 = ex_m2[3]; }
+        // Order of arguments starts at top left leg and goes counter-clockwise
+        inline void set_external_masses(std::array<double,4> m)
+        {  _integrand._p01 = m[0]*m[0]; _integrand._p12 = m[1]*m[1]; _integrand._p23 = m[2]*m[2]; _integrand._p03 = m[3]*m[3]; }
 
         // Setting function for the (on-shell) masses of external particles
-        inline void set_external_masses(std::array<double,4> in_m2)
-        { _integrand._m0  = in_m2[0]; _integrand._m1  = in_m2[1]; _integrand._m2  = in_m2[2]; _integrand._m3  = in_m2[3]; }
+        // Order of arguments starts at top, horizontal propagator and goes counter-clockwise
+        inline void set_internal_masses(std::array<double,4> m)
+        { _integrand._m0  = m[0]*m[0]; _integrand._m1  = m[1]*m[1]; _integrand._m2  = m[2]*m[2]; _integrand._m3  = m[3]*m[3]; }
 
         // Invariant masses of the 02 and 13 systems 
         // Equivalently particles AC and AB respectively
