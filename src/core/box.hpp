@@ -31,7 +31,7 @@ namespace hadMolee
         box(int mode)
         : _mode(mode)
         {
-            if (mode != kRelativistic)
+            if (mode != kRelativistic && mode != kLoopTools)
             {
                 warning("box", "Initialized with unavailable option, numerical output may be NaN...");
             }
