@@ -13,5 +13,7 @@
 #pragma link C++ defined_in "box.hpp";
 #pragma link C++ defined_in "molecule.hpp";
 #pragma link C++ defined_in "fitter.hpp";
+#pragma link C++ defined_in "plotter.hpp";
+#pragma link C++ defined_in "plot.hpp";
 
 #endif
