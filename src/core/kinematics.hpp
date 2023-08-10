@@ -133,6 +133,18 @@ namespace hadMolee
             return _ma2 + _mb2 - (sbc - s + _ma2)*(sbc - _mc2 + _mb2) / (2. * sbc) + 2.*initial_momentum_bc(s, sbc)*final_momentum_bc(s, sbc)*cos;
         };
 
+        inline double sac_from_sab(double s, double sab, double cos)
+        {
+            double sbc = sbc_from_sab(s, sab, cos);
+            return _ma2 + _mb2 + _mc2 + s - sbc - sab;
+        };  
+
+        inline double sac_from_sbc(double s, double sbc, double cos)
+        {
+            double sab = sab_from_sbc(s, sbc, cos);
+            return _ma2 + _mb2 + _mc2 + s - sab - sbc;
+        };
+
         inline double Kibble(double s, double sab, double sbc)
         {
             double sac = _ma2 + _mb2 + _mc2 + s - sab - sbc;
