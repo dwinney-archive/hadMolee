@@ -151,6 +151,11 @@ namespace hadMolee
         void add_dashed(std::array<double,2> bounds, std::function<double(double)> F);
 
         // -----------------------------------------------------------------------
+        // Add curve directly from an amplitude
+
+        inline void set_curve_points(int N){ _Npoints = N; };
+
+        // -----------------------------------------------------------------------
         // Add an error band
 
         void add_band(std::vector<double> x, std::array<std::vector<double>,2> band, int fill = 1001);
@@ -169,9 +174,6 @@ namespace hadMolee
 
         // -----------------------------------------------------------------------
         // OPTION SETTERS
-
-        // Number of points to plot
-        inline void set_curve_points(int N){ _Npoints = N; };
 
         // Add string labels to the axes, follows TLatex 
         inline void set_labels(std::string x, std::string y){ _xlabel = x; _ylabel = y;};

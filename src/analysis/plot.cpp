@@ -223,7 +223,6 @@ namespace hadMolee
         add_dashed(x, fx);
     };
 
- 
     // -----------------------------------------------------------------------
     // Add an error band
 
@@ -248,4 +247,7 @@ namespace hadMolee
         style._add_to_legend = false;
         _entries.push_front(plot_entry(graph, style, false));
     };
+
+    // -----------------------------------------------------------------------
+    // Draw other things such as a vertical line at a certain x value
 };
