@@ -28,9 +28,10 @@ int main(int argc, char **argv)
     // ROOT opens without a welcome message...
     std::vector<char*> new_argv(argv, argv + argc);
     new_argv.push_back((char *) "-l");
+    new_argv.push_back((char *) "-b");
     new_argv.push_back(NULL);
     argv = new_argv.data();
-    argc += 1;    
+    argc += 2;   
 
     TRint * app = new TRint( "hadMolee", &argc, argv);
     TString HADMOLEE = gSystem->Getenv("HADMOLEE");
