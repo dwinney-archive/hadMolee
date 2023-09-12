@@ -34,7 +34,7 @@ namespace hadMolee
             {
                 case (kRelativistic):    return rel_eval(x);
                 case (kNonrelativistic): return nonrel_eval(x);
-                default:                return std::nan("");
+                default:                 return std::nan("");
             }
         };
         inline double squared(double x){ return norm(eval(x)); };
@@ -54,13 +54,13 @@ namespace hadMolee
         complex nonrel_eval(double E)
         {
             complex D =  (E - _mass) + I * _width/2. + IEPS;
-            return I / (2. * D);
+            return 1. / (2. * _mass * D);
         };  
 
         complex rel_eval(double s)
         {
             complex D =  (s - _mass*_mass) + I * _mass*_width + IEPS;
-            return I / D;
+            return 1. / D;
         };
 
         // Pole mass is only really needed parameter 
