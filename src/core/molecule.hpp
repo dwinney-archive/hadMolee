@@ -90,11 +90,11 @@ namespace hadMolee
         // Always a function of s (GeV^2)
         virtual inline complex self_energy(double s)
         {
-            double mu   = 1;  // renormalization at rho mass
-            double amu  = 0;  // DR renomalization coefficient
+            double mu   = 1.;  // renormalization at rho mass
+            double amu  = 0.;  // DR renomalization coefficient
 
-            complex rho = 2*csqrt(Kallen(s, _m1*_m1, _m2*_m2))/s;
-            complex xi  = 1 - (_m1+_m2)*(_m1+_m2)/s;
+            complex rho = 2.*csqrt(Kallen(s, _m1*_m1, _m2*_m2))/s;
+            complex xi  = 1. - (_m1+_m2)*(_m1+_m2)/s;
 
             // Imaginary part comes from this piece
             complex logs = rho*log((xi + rho)/(xi - rho)) - xi*(_m2-_m1)/(_m2+_m1)*log(_m2/_m1);
@@ -105,6 +105,9 @@ namespace hadMolee
 
             return (DR + logs)/(16.*PI*PI);
         };
+
+        // Return the renormalized pole mass
+        inline double pole_mass(){ return _pole_mass; };
 
         // Return masses 
         inline std::array<double,2> constituent_masses(){ return {_m1, _m2}; };
