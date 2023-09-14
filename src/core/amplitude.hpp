@@ -129,13 +129,13 @@ namespace hadMolee
         virtual double decay_distribution(double s, double sab, double sbc);
 
         // Doubly differential partial-width
-        double d2Gamma(double s, double sab, double sbc);
+        double differential_xsection(double s, double sab, double sbc);
 
         // Integrated widths into given subsystem
-        double dGamma(subchannel chan, double s, double sigma);
-        
-        // Fully integrated decay width
-        double Gamma(double s);
+        double differential_xsection(subchannel chan, double s, double sigma);
+
+        // Integrated production cross-section
+        double integrated_xsection(double S);
 
         // Multiply decay widths with an arbitrary constant
         inline void normalize(double N)
@@ -282,7 +282,7 @@ namespace hadMolee
         {
             switch (i)
             {
-                case x : return sqrt(1 - _cos*_cos);
+                case x : return sqrt(1. - _cos*_cos);
                 case y : return 0;
                 case z : return _cos;
             };

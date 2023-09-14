@@ -75,7 +75,7 @@ namespace hadMolee
                 double sigma = pow(data._sqrtsigmas[i], 2.);
 
                 // Caculate intensity from saved amplitude and from data
-                double I_th   = _amplitude->dGamma(data._subchannel, s, sigma);
+                double I_th   = _amplitude->differential_xsection(data._subchannel, s, sigma);
                 double I_ex   = data._data[i];
                 double error  = (data._errors[0][i] + data._errors[1][i]);
 

@@ -244,19 +244,21 @@ namespace hadMolee
     // ---------------------------------------------------------------------------
     // Doubly differential partial-width
 
-    double amplitude_base::d2Gamma(double s, double sab, double sbc)
+    double amplitude_base::differential_xsection(double s, double sab, double sbc)
     {
         if ( !_kinematics->in_physical_region(s, sab, sbc) ) 
         {
             return 0.;
         };
 
-        // General prefactors for 1->3 decay width in GeV
-        double prefactors = 1. / (32.*pow(2.*PI*sqrt(s), 3.));
+        // General prefactors for 2->3 cross section
+        double flux_factor = 2.*s; // Massless electrons
+        double prefactors  = 32.* s * pow(2.*PI, 3.) * flux_factor;
 
-        if (_normalize) prefactors *= _normalization;
+        if (_normalize) prefactors /= _normalization;
 
-        return decay_distribution(s, sab, sbc) * prefactors * 1.E3; // In MeV
+        // Return in nanobarn
+        return decay_distribution(s, sab, sbc) / prefactors / 2.56819E-6;
     };
 
     // ---------------------------------------------------------------------------
@@ -267,7 +269,7 @@ namespace hadMolee
     {
         auto F = [&](double sbc)
         {
-            return d2Gamma(s, sab, sbc);
+            return differential_xsection(s, sab, sbc);
         };
 
         ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
@@ -286,7 +288,7 @@ namespace hadMolee
     {
         auto F = [&](double sab)
         {
-            return d2Gamma(s, sab, sbc);
+            return differential_xsection(s, sab, sbc);
         };
 
         ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
@@ -306,7 +308,7 @@ namespace hadMolee
         auto F = [&](double sbc)
         {
             double sab = _ma2 + _mb2 + _mc2 + s - sac - sbc;
-            return d2Gamma(s, sab, sbc);
+            return differential_xsection(s, sab, sbc);
         };
 
         ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
@@ -322,7 +324,7 @@ namespace hadMolee
 
     // Alias for three different subchannels, specify with an argument
     // Third argument is expected to be the correct subchannel energy
-    double amplitude_base::dGamma(subchannel chan, double s, double sigma)
+    double amplitude_base::differential_xsection(subchannel chan, double s, double sigma)
     {
         if ( !_kinematics->in_physical_region(s, sigma, chan) ) 
         {
@@ -342,11 +344,11 @@ namespace hadMolee
 
     // ---------------------------------------------------------------------------
     // Fully integrated decay width
-    double amplitude_base::Gamma(double s)
+    double amplitude_base::integrated_xsection(double s)
     {
         auto F = [&](double sab)
         {
-            return dGamma(ab, s, sab);
+            return differential_xsection(ab, s, sab);
         };
 
         ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
