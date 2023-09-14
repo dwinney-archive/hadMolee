@@ -24,40 +24,36 @@ namespace hadMolee
         D1D_molecule(std::string id = "Y(4260)")
         : charmoniumlike(4, id), molecular(M_D1, M_D)
         {
-            // Given a pole mass calculate the bare mass
             _pole_mass           = 4.23;
             _y                   = 42.8E-3;
+            _total_width         = 46E-3;
+            _fY                  = 2.194;
             _molecular_coupling  = _y;
 
-            _sigma_pole          = _y*_y*self_energy(_pole_mass*_pole_mass);
-            _bare_mass           = _pole_mass + real(_sigma_pole);
+            _bare_mass           = _pole_mass;
+            _nonmol_width        = _total_width;
 
-            // Calcualte the non-moleculat component to the width from the total
-            _total_width         = 46E-3;
-            _nonmol_width        = _total_width + 2*imag(_sigma_pole);
+            _reSigmaPole = std::real(self_energy(_bare_mass*_bare_mass));
         };
 
         // The propagator gains contributions from the self-energy
-        complex propagator(double s)
+        inline complex propagator(double s)
         {
-            double  E = sqrt(s);
-            complex D = E - _pole_mass - _y*_y*self_energy(s) + I*_nonmol_width/2.;
-            return I / (2*D);
-        };
+            complex Sigma = self_energy(s) - _reSigmaPole;
+            complex D = sqrt(s) - _pole_mass - _y*_y*Sigma + I*_nonmol_width/2.;
+            
+            return 1. / (2. * _pole_mass * D);
+        };  
 
         // Since Y-meson is also charmonium-like it requires a photon coupling
         complex photon_coupling()
         {
-            return I * E * _pole_mass*_pole_mass / _fY;
+            return E * _pole_mass*_pole_mass / _fY;
         };
 
         private:
 
-        // Rename the molecular coupling to just y
-        double _y;
-
-        // Y decay constant
-        double _fY = 2.194;
+        double _y, _fY, _reSigmaPole;
     };
 };
 
