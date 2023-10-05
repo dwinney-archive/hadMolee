@@ -19,6 +19,41 @@ namespace hadMolee
         };
     };
 
+    std::array<complex,4> box::eval_vector()
+    {
+        if (_mode != kLoopTools) return {std::nan(""), std::nan(""), std::nan(""), std::nan("")};
+
+         // Grab all the masses
+        double p01 = _integrand._p01;
+        double p02 = _integrand._p02;
+        double p03 = _integrand._p03;
+        double p12 = _integrand._p12;
+        double p13 = _integrand._p13;
+        double p23 = _integrand._p23;
+
+        double m0  = _integrand._m0;
+        double m1  = _integrand._m1;
+        double m2  = _integrand._m2;
+        double m3  = _integrand._m3;
+
+        // And widths 
+        double w0  = _integrand._w0 + EPS;
+        double w1  = _integrand._w1 + EPS;
+        double w2  = _integrand._w2 + EPS;
+        double w3  = _integrand._w3 + EPS;
+
+        ltini();
+        std::array<int,4> dd = {dd0, dd1, dd2, dd3};
+        std::array<complex,4> vector;
+        for (int i = 0; i < 4; i++)
+        {
+           vector[i] = D0iC(dd[i], p01, p03, p23, p12, p13, p02, m1 - I*csqrt(m1)*w1, m0 - I*csqrt(m0)*w0, m3 - I*csqrt(m3)*w3, m2 - I*csqrt(m2)*w2) / pow(4.*PI, 2.);
+        };
+        ltexi();
+        
+        return vector;
+    };
+
     complex box::looptools_eval()
     {
         // Grab all the masses
@@ -43,8 +78,8 @@ namespace hadMolee
 
         ltini();
         complex integral;
-        if ( use_complex_masses ) {integral = D0 (p01, p03, p23, p12, p13, p02, m1, m0, m3, m2);}
-        else                      {integral = D0C(p01, p03, p23, p12, p13, p02, m1 - I*csqrt(m1)*w1, m0 - I*csqrt(m0)*w0, m3 - I*csqrt(m3)*w3, m2 - I*csqrt(m2)*w2);}
+        if ( use_complex_masses ) {integral = D0i (dd0, p01, p03, p23, p12, p13, p02, m1, m0, m3, m2);}
+        else                      {integral = D0iC(dd0, p01, p03, p23, p12, p13, p02, m1 - I*csqrt(m1)*w1, m0 - I*csqrt(m0)*w0, m3 - I*csqrt(m3)*w3, m2 - I*csqrt(m2)*w2);}
         ltexi();
         
         return integral / pow(4.*PI, 2.);

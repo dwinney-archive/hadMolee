@@ -56,6 +56,16 @@ namespace hadMolee
         };
         inline double squared(double s){ return norm(eval()); };
 
+        // Output the components of the vector integral
+        std::array<complex,4> eval_vector();
+        inline std::array<complex,4> eval_vector(std::array<double,4> external, std::array<double,4> internal, double s, double t)
+        {
+            set_external_masses(external); 
+            set_internal_masses(internal);
+            set_invariant_masses(s, t);
+            return eval_vector();
+        };
+
         // Setting function for the masses of the internal masses in the loop
         // Order of arguments starts at top left leg and goes counter-clockwise
         inline void set_external_masses(std::array<double,4> m)
