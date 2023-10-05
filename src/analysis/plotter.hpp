@@ -50,11 +50,11 @@ namespace hadMolee
             // Set up a new canvas 
             _Nplots++;
             std::string name = "c" + std::to_string(_Nplots);
-            TCanvas *canvas = new TCanvas(name.c_str(), name.c_str(), 600, 600);
+            TCanvas *canvas = new TCanvas(name.c_str(), name.c_str(), 600, 300);
             canvas->UseCurrentStyle();
             canvas->SetTopMargin(0.05);
-            canvas->SetRightMargin(0.03);
-            canvas->SetLeftMargin(0.16);
+            canvas->SetRightMargin(0.02);
+            canvas->SetLeftMargin(0.1);
             canvas->SetBottomMargin(0.12);
             canvas->SetFixedAspectRatio();
 

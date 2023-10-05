@@ -67,7 +67,7 @@ namespace hadMolee
         _style->SetTitleOffset(1.25, "xz");
 
         // More space for y-axis to avoid clashing with big numbers
-        _style->SetTitleOffset(1.5, "y");
+        _style->SetTitleOffset(1.1, "y");
 
         // This applies the same settings to the overall plot title
         _style->SetTitleSize(.055, "");
