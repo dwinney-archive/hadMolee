@@ -19,13 +19,16 @@
 #include "print.hpp"
 #include "debug.hpp"
 
+#ifndef PI
+    const double PI       = M_PI;
+#endif
+
 namespace hadMolee
 {
     // ---------------------------------------------------------------------------
     // Mathematical constants
 
     // Fundamental constants
-    const double PI       = M_PI;
     const double EULER    = 0.57721566490153286060651209008240243104215933593992;
     const double ALPHA    = 1. / 137.;
     const double E        = sqrt(4. * PI * ALPHA);
@@ -90,26 +93,14 @@ namespace hadMolee
     const double W_ZC3900   = 28.4E-3;
 
     // ---------------------------------------------------------------------------
-    // Couplings associated with HQSS and previous analyses 
+    // Couplings associated with HQSS
+    
+    const double F_PION           = sqrt(2.) * 91E-3;  // Pion decay constant in GeV
+    const double F_JPSI           = 0.416;
 
-    // Qin & Qiang (2016) [arXiv:1509.01398]
-    const double MY_QQ2016        = 4.217;    // Pole mass
-    const double YNM_WIDTH_QQ2016 = 0.056;    // Non-molecular width of the Y-meson
-    const double F_Y_QQ2016       = 1./0.063; // Y-meson decay constant (unitless)
-    const double YBARE_QQ2016     = 10.88;    // YD1D coupling in GeV-1/2  
-    const double ZBARE_QQ2016     = 0.77;     // ZD*D coupling in GeV-1/2
-    const double G1_QQ2016        = 29.50;    // Elastic D1D  coupling in GeV-2
-    const double A_QQ2016         = 12.67;    // Overall S-wave normalization coeff in GeV-5/2
-    const double B_QQ2016         = -15.23;   // Const S-wave polynomail coeff in GeV2
-
-    // Cleven et al (2014) 	[arXiv:1310.2190]
-    const double A_CLEVEN2014     = 6.72;     // Overall S-wave normalization coeff in GeV -1
-    const double B_CLEVEN2014     = -15.28;   // Const S-wave polynomial coeff in GeV2 
-
-    // HQSS constants
-    // Primed couplings have 
-    const double HPRIME_UPPER     = 1.31;     // Upperbound of D1 D* pi coupling using full width (Gamma = 25 MeV) in GeV-1
-    const double F_PION           = 132.E-3;  // Pion decay constant in GeV
+    // D1 -> D* pi
+    const double H_PRIME          = 1.197;
+    const double H1               = sqrt(2./3.)*H_PRIME/F_PION;
 
     // ---------------------------------------------------------------------------
     // Function for easier comparison of doubles using the EPS value defined above

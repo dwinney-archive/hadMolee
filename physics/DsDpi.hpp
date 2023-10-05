@@ -103,7 +103,7 @@ namespace hadMolee
 
             // Update arguments with floating Y and Z meson masses for the triangle
             _T.set_external_masses({_W, sqrt(_sab), M_PION});
-            complex T = 0.8*_T.eval();
+            _AD = _T.eval();
 
             // Update the pion momentum 
             _ppi = _kinematics->decay_momentum_c(_s, _sab);
@@ -113,17 +113,13 @@ namespace hadMolee
             double  M_Z = _Zc->pole_mass();
             complex G_Z = _Zc->propagator(_sab);
 
-            // T is normalized with relativistic normalization so no additional mass factors appear
-            // Factor of 2 comes from sum of charge conjugated diagrams
-            _AD  =  2.* I * T; 
-
             // Couplings at the vertices of the triangle
-            _AD *= y/sqrt(2.)            * sqrt(M_Y*M_D1*M_D);  
-            _AD *= sqrt(2./3.)*_hp/_fpi  * sqrt(M_D1*M_DSTAR); // D-wave momenta are factored out
-            _AD *= z                     * sqrt(M_D*M_DSTAR*M_Z); 
+            _AD *= y/sqrt(2.) * sqrt(M_Y*M_D1*M_D);  
+            _AD *= H1         * sqrt(M_D1*M_DSTAR); // D-wave momenta are factored out
+            _AD *= z          * sqrt(M_D*M_DSTAR*M_Z); 
 
             // Z decay vertex
-            _AD *= z * G_Z               * sqrt(M_D*M_DSTAR*M_Z);
+            _AD *= z * G_Z    * sqrt(M_D*M_DSTAR*M_Z);
         };
 
         // Energy dependent D wave strength
@@ -131,8 +127,6 @@ namespace hadMolee
 
         // Couplings related to pion
         double  _ppi;                     // Pion 3-momentum
-        double  _fpi = sqrt(2.)*91E-3;    // Pion decay constant in GeV
-        double  _hp  = 1.197;             // HQSS constant in GeV-1   
 
         // On-shell masses involved in the triangle
         std::array<double,3> _internal = {M_DSTAR, M_D1, M_D};
@@ -188,17 +182,15 @@ namespace hadMolee
 
             // Only two verices
             _AD  = G_D1; 
-            _AD *= y/sqrt(2.)            * sqrt(M_Y*M_D1*M_D);  
-            _AD *= sqrt(2./3.)*_hp/_fpi  * sqrt(M_D1*M_DSTAR); // D-wave momenta are factored out
+            _AD *= y/sqrt(2.) * sqrt(M_Y*M_D1*M_D);  
+            _AD *= H1         * sqrt(M_D1*M_DSTAR); // D-wave momenta are factored out
         };
 
         // Couplings
         complex _AD;  // Energy dependent D wave strength
 
         // Couplings related to pion
-        double  _ppi;                     // Pion 3-momentum
-        double  _fpi = sqrt(2.)*91E-3;    // Pion decay constant in GeV
-        double  _hp  = 1.197;             // HQSS constant in GeV-1   
+        double  _ppi = 0.;                     // Pion 3-momentum
 
         // In addition we have the tree level transition
         breit_wigner _D1;
