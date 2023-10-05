@@ -1,6 +1,6 @@
 #include "kinematics.hpp"
 #include "DsDpi.hpp"
-#include "Y_meson.hpp"
+#include "Y(4260).hpp"
 #include "plotter.hpp"
 
 using namespace hadMolee;

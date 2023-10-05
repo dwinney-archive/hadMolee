@@ -14,8 +14,8 @@
 #include "amplitude.hpp"
 #include "constants.hpp"
 #include "triangle.hpp"
-#include "Y_meson.hpp"
-#include "Z_meson.hpp"
+#include "Y(4260).hpp"
+#include "Z(3900).hpp"
 
 namespace hadMolee
 {
