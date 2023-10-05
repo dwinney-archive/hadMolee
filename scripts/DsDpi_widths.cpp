@@ -47,7 +47,7 @@ void DsDpi_widths()
     plotter plotter;
     plot pab = plotter.new_plot();
     pab.set_curve_points(100);
-    pab.set_labels("#it{E}_{#it{D}#it{D}*}   [GeV]", "d#sig [nb / GeV^{-2}]");
+    pab.set_labels("#it{E}_{#it{D}#it{D}*}   [GeV]", "d#sigma [nb / GeV^{-2}]");
 
     to_plot = swave;
     pab.add_curve({ma + mb, W - mc}, dGamma_ab, to_plot->get_id());
@@ -77,5 +77,5 @@ void DsDpi_widths()
     pac.add_curve({ma + mc, W - mb}, dGamma_ac, to_plot->get_id());
 
 
-    plotter.combine({3,1}, {pab, pac, pbc}, "Gammas.pdf");
+    plotter.combine({1,3}, {pab, pac, pbc}, "Gammas.pdf");
 };
