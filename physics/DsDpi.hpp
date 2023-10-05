@@ -103,7 +103,7 @@ namespace hadMolee
 
             // Update arguments with floating Y and Z meson masses for the triangle
             _T.set_external_masses({_W, sqrt(_sab), M_PION});
-            complex T = _T.eval();
+            complex T = 0.8*_T.eval();
 
             // Update the pion momentum 
             _ppi = _kinematics->decay_momentum_c(_s, _sab);
