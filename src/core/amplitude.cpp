@@ -209,7 +209,7 @@ namespace hadMolee
                 // gamma -> V component
 
                 // ( proton propagator * Vgamma coupling * V propagator)
-                complex Gprime = (1/s) * _V->photon_coupling() * _V->propagator(s);
+                complex Gprime = (1/s) * sqrt(s) * _V->photon_coupling() * _V->propagator(s);
                 x *= norm( Gprime );
 
                 // --------------------------
