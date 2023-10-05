@@ -102,6 +102,16 @@ namespace hadMolee
     const double H_PRIME          = 1.197;
     const double H1               = sqrt(2./3.)*H_PRIME/F_PION;
 
+    // D* -> D pi
+    const double G_TILDE          = 0.57;
+    const double G1               = 2.*G_TILDE*sqrt(M_DSTAR*M_D)/F_PION;
+
+    // D* -> D* pi
+    const double G2               = 2.*G_TILDE*M_DSTAR/F_PION;
+
+    // Jpsi to charm
+    const double G_PSI            = sqrt(M_JPSI) / (2*M_D*F_PSI);
+
     // ---------------------------------------------------------------------------
     // Function for easier comparison of doubles using the EPS value defined above
     // be careful when using this in general purposes since its a fixed-tolerance comparision and not always appropriate
