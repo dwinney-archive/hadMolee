@@ -81,7 +81,7 @@ namespace hadMolee
 
         complex cut_1 = atan( (c_2 - c_1)        / sqrt( 4.*a*(c_1     - I * _integrand._eps) ));
         complex cut_2 = atan( (c_2 - c_1 - 2.*a) / sqrt( 4.*a*(c_2 - a - I * _integrand._eps) ));
-
+        
         return prefactors / sqrt(a) * (cut_1 - cut_2);
     };
 };

@@ -104,7 +104,7 @@ namespace hadMolee
 
             double _ema2, _emb2, _emc2;
             double _ima2, _imb2, _imc2;
-            double _wa, _wb, _wc;
+            double _wa = EPS, _wb = EPS, _wc = EPS;
         };
 
         // The evaluation depends on what mode is selected and filters through these
