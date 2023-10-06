@@ -21,36 +21,40 @@ void xsections()
     amplitude  tree      = make_amplitude<DsDpi::tree>(     kDsDpi, Y, "Tree");
     amplitude  triangle  = make_amplitude<DsDpi::triangle>( kDsDpi, Y, "Triangle");
 
-    lineshape psi4160    = make_lineshape<charmonium>({4.191, 70.E-3, 1.});
+    lineshape  psi4160   = make_lineshape<charmonium>({4.191, 70.E-3, 6.9E-6}, "#psi");
+    amplitude  psi       = make_amplitude<DsDpi::psi_contact>(kDsDpi, psi4160, "#psi(4160)");
 
     amplitude  dwave     = tree + triangle;
     dwave->set_id("D-wave");
 
-    amplitude  sum     = swave + dwave;
+    amplitude  sum       = swave + dwave;
     sum->set_id("Sum");
 
-    amplitude to_plot;
-
-    // Lambdas for each of the partial widths
-    auto xsection = [&] (double w)
+    auto plot_amp = [] (plot &p, amplitude amp)
     {
-        double x = to_plot->integrated_xsection(w*w) * 1E3;
-        print(w, x);
-        return x;
+        std::array<double,2> bounds = {4.05, 4.40};
+
+        print("Plotting: ", amp->get_id());
+        auto xsection = [&] (double w)
+        {
+            double x = amp->integrated_xsection(w*w) * 1E3; // in pb
+            print(w, x);
+            return x;
+        };
+        p.add_curve(bounds, xsection, amp->get_id());
+        line();
     };
-    std::array<double,2> bounds = {4.05, 4.40};
+
 
     plotter plotter;
     plot sig = plotter.new_plot();
-    sig.set_curve_points(15);
+    sig.set_curve_points(50);
     sig.set_labels("#sqrt{#it{s}}  [GeV]", "#sigma [pb]");
 
-    to_plot = swave;
-    sig.add_curve(bounds, xsection, to_plot->get_id());
-    to_plot = dwave;
-    sig.add_curve(bounds, xsection, to_plot->get_id());
-    to_plot = sum;
-    sig.add_curve(bounds, xsection, to_plot->get_id());
+    // plot_amp(sig, swave);
+    plot_amp(sig, psi);
+    // plot_amp(sig, dwave);
+    // plot_amp(sig, sum);
 
-    sig.save("sig.pdf");
+    sig.save("xsections.pdf");
 };

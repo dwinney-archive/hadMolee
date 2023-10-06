@@ -25,56 +25,53 @@ void widths()
     amplitude  sum     = swave + dwave;
     sum->set_id("Sum");
 
-    amplitude to_plot;
-
     double W = 4.23;
-    double s = W*W;
 
-    // Lambdas for each of the partial widths
-    auto dGamma_ab = [&] (double Eab)
+    auto plot_amp = [W, ma, mb, mc] (plot &p, subchannel abc, amplitude amp)
     {
-        return to_plot->differential_xsection(ab, s, Eab*Eab);
-    };
-    auto dGamma_ac = [&] (double Eac)
-    {
-        return to_plot->differential_xsection(ac, s, Eac*Eac);
-    };
-    auto dGamma_bc = [&] (double Ebc)
-    {
-        return to_plot->differential_xsection(bc, s, Ebc*Ebc);
+        std::array<double,2> bounds;
+        switch (abc)
+        {
+            case ab: bounds = {ma + mb, W - mc}; break;
+            case bc: bounds = {mc + mb, W - ma}; break;
+            case ac: bounds = {ma + mc, W - mb}; break;
+        }
+
+        print("Plotting: ", amp->get_id());
+        auto xsection = [&] (double E)
+        {
+            double x = amp->differential_xsection(abc, W*W, E*E) * 1E3; // in pb
+            print(E, x);
+            return x;
+        };
+        p.add_curve(bounds, xsection, amp->get_id());
+        line();
     };
 
     plotter plotter;
     plot pab = plotter.new_plot();
     pab.set_curve_points(100);
-    pab.set_labels("#it{E}_{#it{D}#it{D}*}   [GeV]", "d#sigma [nb / GeV^{-2}]");
+    pab.set_labels("#it{E}_{#it{D}#it{D}*}   [GeV]", "d#sigma/dE^{2} [nb / GeV^{-2}]");
 
-    to_plot = swave;
-    pab.add_curve({ma + mb, W - mc}, dGamma_ab, to_plot->get_id());
-    to_plot = dwave;
-    pab.add_curve({ma + mb, W - mc}, dGamma_ab, to_plot->get_id());
-    to_plot = sum;
-    pab.add_curve({ma + mb, W - mc}, dGamma_ab, to_plot->get_id());
+    plot_amp(pab, ab, swave);
+    plot_amp(pab, ab, dwave);
+    plot_amp(pab, ab, sum);
 
     plot pbc = plotter.new_plot();
     pbc.set_curve_points(100);
-    pbc.set_labels("#it{E}_{#pi#it{D}}   [GeV]", "d#sigma [nb / GeV^{-2}]");
-    to_plot = swave;
-    pbc.add_curve({mc + mb, W - ma}, dGamma_bc, to_plot->get_id());
-    to_plot = dwave;
-    pbc.add_curve({mc + mb, W - ma}, dGamma_bc, to_plot->get_id());
-    to_plot = sum;
-    pbc.add_curve({mc + mb, W - ma}, dGamma_bc, to_plot->get_id());
+    pbc.set_labels("#it{E}_{#pi#it{D}}   [GeV]", "d#sigma/dE^{2}  [nb / GeV^{-2}]");
+
+    plot_amp(pbc, bc, swave);
+    plot_amp(pbc, bc, dwave);
+    plot_amp(pbc, bc, sum);
 
     plot pac = plotter.new_plot();
     pac.set_curve_points(100);
-    pac.set_labels("#it{E}_{#pi#it{D}*}   [GeV]", "d#sigma [nb / GeV^{-2}]");
-    to_plot = swave;
-    pac.add_curve({ma + mc, W - mb}, dGamma_ac, to_plot->get_id());
-    to_plot = dwave;
-    pac.add_curve({ma + mc, W - mb}, dGamma_ac, to_plot->get_id());
-    to_plot = sum;
-    pac.add_curve({ma + mc, W - mb}, dGamma_ac, to_plot->get_id());
+    pac.set_labels("#it{E}_{#pi#it{D}*}   [GeV]", "d#sigma/dE^{2}  [nb / GeV^{-2}]");
+
+    plot_amp(pac, ac, swave);
+    plot_amp(pac, ac, dwave);
+    plot_amp(pac, ac, sum);
 
     plotter.combine({1,3}, {pab, pac, pbc}, "widths.pdf");
 };
