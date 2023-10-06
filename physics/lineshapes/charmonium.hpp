@@ -26,24 +26,25 @@ namespace hadMolee
             _fpsi  = decay_constant(pars[2]);
         };
 
-        complex propagator(double s)
+        inline complex propagator(double s)
         {
             complex D = sqrt(s) - _mass + I*_width/2.;
             return 1. / (2. * _mass * D);
         };
 
-        complex photon_coupling()
+        inline complex photon_coupling()
         {
             return E * _mass*_mass / _fpsi;
         };
 
-        double pole_mass(){ return _mass; };
+        inline double pole_mass(){ return _mass; };
 
         private:
 
-        virtual double decay_constant(double BR)
+        inline double decay_constant(double BR)
         {
-            return 1.;
+            double Gamma_ee = _width * BR;
+            return sqrt( 4.*PI*ALPHA* ALPHA * _mass / (3. * Gamma_ee));
         };
 
         double _fpsi  = 0., _mass = 0., _width = 0.;
