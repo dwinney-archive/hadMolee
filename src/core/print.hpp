@@ -23,6 +23,7 @@ namespace hadMolee
 
     // Default spacing between multiple columns
     const int PRINT_SPACING = 15;
+    const std::string UNIT_DIV = std::string(PRINT_SPACING, '-');
 
     // Default precisions when converting non-ints to strings
     const int STRING_PRECISION = 3;
@@ -46,6 +47,16 @@ namespace hadMolee
     inline void divider()
     {
         std::cout << "--------------------------------------------------------------" << std::endl;
+    };
+
+    inline void divider(int n)
+    {
+        std::string div;
+        for (int i = 0; i < n; i++)
+        {
+            div = div + UNIT_DIV;
+        }
+        std::cout << div << std::endl;
     };
 
     inline void dashed_divider()

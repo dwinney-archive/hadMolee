@@ -35,6 +35,7 @@ void xsections()
         std::array<double,2> bounds = {4.05, 4.40};
 
         print("Plotting: ", amp->get_id());
+        divider(2);
         auto xsection = [&] (double w)
         {
             double x = amp->integrated_xsection(w*w) * 1E3; // in pb

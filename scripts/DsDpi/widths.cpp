@@ -38,6 +38,7 @@ void widths()
         }
 
         print("Plotting: ", amp->get_id());
+        divider(2);
         auto xsection = [&] (double E)
         {
             double x = amp->differential_xsection(abc, W*W, E*E) * 1E3; // in pb
