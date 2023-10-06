@@ -36,6 +36,12 @@ namespace hadMolee
         std::cout << std::endl;
     };
 
+     // Output an empty line to the terminal
+    inline void line()
+    {
+        std::cout << std::endl;
+    };
+
     // Print out a horizontal line
     inline void divider()
     {
