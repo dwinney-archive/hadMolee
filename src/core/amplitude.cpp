@@ -21,12 +21,6 @@ namespace hadMolee
                     "Amplitudes " + a->get_id() + " and " + b->get_id() + " contain different stored kinematics instances (" + a->_kinematics->get_id() + " and " + b->_kinematics->get_id() + "). Returning null...");
             return false;
         } 
-        if (a->_V != b->_V) 
-        {
-            warning("amplitude", 
-                    "Amplitudes " + a->get_id() + " and " + b->get_id() + " contain different e+ e- line-shape instances (" + a->_V->get_id() + " and " + b->_V->get_id() + "). Skipping null...");
-            return false;
-        }
         
         return true;
     };
@@ -36,7 +30,7 @@ namespace hadMolee
     {
         if ( !are_compatible(a, b) ) return nullptr;
 
-        auto sum = std::make_shared<amplitude_base>(amplitude_key(), a->_kinematics, a->_V, a->get_id() + " + " + b->get_id());
+        auto sum = std::make_shared<amplitude_base>(amplitude_key(), a->_kinematics, nullptr, a->get_id() + " + " + b->get_id());
 
         // If the constituent amplitudes are already sums, add the vector of contituents
         // if theyre a 'bare' amplitude add the amplitude itself
@@ -71,12 +65,6 @@ namespace hadMolee
                     "New amplitude " + amp->get_id() + " does not contain the stored kinematics instance (" + _kinematics->get_id() + "). \n Skipping amplitude...");
             return false;
         } 
-        if (amp->_V != _V) 
-        {
-            warning("amplitude", 
-                    "New amplitude " + amp->get_id() + " does not contain the stored hadronic_molecule instance (" + _V->get_id() + "). \n Skipping amplitude...");
-            return false;
-        }
         
         return true;
     };
@@ -86,6 +74,13 @@ namespace hadMolee
 
     void amplitude_base::check_decay_cache()
     {
+        bool s_changed = (std::abs(_cached_s   - _s) > _cache_tolerance);
+        if (is_sum() || _V == nullptr) _cached_lineshape = 1.;
+        else if (s_changed)
+        {
+            _cached_lineshape = sqrt(_s) *  _V->photon_coupling() * _V->propagator(_s);
+        };
+
         bool need_recalculate;
         need_recalculate =     (std::abs(_cached_s   - _s   ) > _cache_tolerance) 
                             || (std::abs(_cached_sab - _sab ) > _cache_tolerance) 
@@ -101,7 +96,7 @@ namespace hadMolee
             {
                 for (auto j : C_INDICES)
                 {
-                    amp[i][j] = reduced_amplitude_checked(i, j);
+                    amp[i][j] = _cached_lineshape * reduced_amplitude_checked(i, j);
                 }
             };
 
@@ -126,6 +121,10 @@ namespace hadMolee
                     _cached_decay_tensor[i][j] = real(x);
                 }
             };
+
+            // Update the cached values
+            _cached_s   = _s;    _cached_cos = _cos;
+            _cached_sab = _sab;  _cached_sbc = _sbc;            
         };
     };
 
@@ -172,7 +171,7 @@ namespace hadMolee
         {
             // Have to make sure to feed energy values to component amplitudes
             amp->update(_s, _sab, _sbc, _cos);
-            sum += amp->reduced_amplitude_checked(i, j);
+            sum += amp->reduced_amplitude_with_lineshape(i, j);
         };
         return sum;
     };
@@ -205,12 +204,8 @@ namespace hadMolee
                 double k = sqrt(s)/2; // e+ momentum in CM frame
                 x  = E*E * 2*k*k * production_pol;
 
-                // --------------------------
-                // gamma -> V component
-
-                // ( proton propagator * Vgamma coupling * V propagator)
-                complex Gprime = (1/s) * sqrt(s) * _V->photon_coupling() * _V->propagator(s);
-                x *= norm( Gprime );
+                // Photon propagator
+                x /= s*s;
 
                 // --------------------------
                 // Decay component

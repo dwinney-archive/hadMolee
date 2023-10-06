@@ -119,9 +119,13 @@ namespace hadMolee
         // This version is used internally and just automatically provides the _update and recalcualte() check
         inline complex reduced_amplitude_checked(cartesian_index i, cartesian_index j)
         {
-            // IF our kinematics has been changed, recalculate relevant quantities
+            // Otherwise check cache and output the appropriate decay amplitude with lineshape
             if (updated()) recalculate();
             return reduced_amplitude(i, j);
+        };
+        inline complex reduced_amplitude_with_lineshape(cartesian_index i, cartesian_index j)
+        {
+            return _cached_lineshape * reduced_amplitude_checked(i, j);
         };
 
         // 2->3 distribution including a polar orientation angle to the beam
@@ -274,8 +278,11 @@ namespace hadMolee
         // Save all the components of the reduced amplitude at each step of sab and bc to avoid having to recalculate
         std::array<std::array<double,3>,3> _cached_decay_tensor;
         double _cache_tolerance = EPS;
-        double _cached_s, _cached_sab, _cached_sbc, _cached_cos;
+        double _cached_s = 0, _cached_sab = 0, _cached_sbc = 0, _cached_cos = 0;
         void check_decay_cache();
+
+        complex _cached_lineshape = 0.;
+        void check_lineshape_cache();
 
         // Short cuts for characteristic angular behavior
         inline double phat(cartesian_index i)

@@ -110,7 +110,7 @@ namespace hadMolee
     const double G2         = 2.*G_TILDE*M_DSTAR/F_PION;
 
     // Jpsi to charm
-    const double G_PSI      = sqrt(M_JPSI) / (2*M_D*F_PSI);
+    const double G_PSI      = sqrt(M_JPSI) / (2*M_D*F_JPSI);
 
     // ---------------------------------------------------------------------------
     // Function for easier comparison of doubles using the EPS value defined above
