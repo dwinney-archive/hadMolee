@@ -1,5 +1,5 @@
 #include "molecule.hpp"
-#include "Y(4260).hpp"
+#include "lineshapes/Y(4260).hpp"
 #include "breit_wigner.hpp"
 #include "plotter.hpp"
 

@@ -16,7 +16,7 @@
 
 namespace hadMolee
 {
-    // Forward declaration so we can rename ptr to kinematics as just kinematics
+    // Forward declaration so we can rename ptr to lineshape
     // WE do this because we basically never want to work with a raw instance, but pass around a pointer
     class charmoniumlike;
 
@@ -24,11 +24,19 @@ namespace hadMolee
     // i.e. a pointer to charmoniumlike object
     using lineshape = std::shared_ptr<hadMolee::charmoniumlike>;
 
-    // Shortcut function to quickly create a kinematics object using smart pointers
+    // Shortcut function to quickly create a  lineshape object using smart pointers
     template<class A>
     inline lineshape make_lineshape(std::string id = "lineshape")
     {
         auto model = std::make_shared<A>(id);
+        return std::static_pointer_cast<charmoniumlike>(model);
+    };
+
+    // Shortcut function to quickly create a kinematics object using smart pointers
+    template<class A>
+    inline lineshape make_lineshape(std::vector<double> args, std::string id = "lineshape")
+    {
+        auto model = std::make_shared<A>(args, id);
         return std::static_pointer_cast<charmoniumlike>(model);
     };
 
@@ -56,7 +64,8 @@ namespace hadMolee
         {};
 
         virtual complex propagator(double s){ return 1.; };
-        virtual complex photon_coupling(){    return 1.; };
+        virtual complex photon_coupling()   { return 1.; };
+        virtual double  pole_mass()         { return 1.; };
 
         // String identifier
         inline std::string get_id(){ return _id; };

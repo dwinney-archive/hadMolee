@@ -1,11 +1,11 @@
 #include "kinematics.hpp"
-#include "DsDpi.hpp"
-#include "Y(4260).hpp"
 #include "plotter.hpp"
+#include "DsDpi.hpp"
+#include "lineshapes/Y(4260).hpp"
 
 using namespace hadMolee;
 
-void DsDpi_widths()
+void widths()
 {
     // Masses
     double ma = M_DSTAR;
@@ -15,9 +15,9 @@ void DsDpi_widths()
     kinematics kDsDpi    = make_kinematics({ma, mb, mc});
     lineshape  Y         = make_lineshape<D1D_molecule>();
 
-    amplitude  swave     = make_amplitude<DsDpi_swave>(    kDsDpi, Y, "S-wave");
-    amplitude  tree      = make_amplitude<DsDpi_tree>(     kDsDpi, Y, "Tree");
-    amplitude  triangle  = make_amplitude<DsDpi_triangle>( kDsDpi, Y, "Triangle");
+    amplitude  swave     = make_amplitude<DsDpi::swave>(    kDsDpi, Y, "S-wave");
+    amplitude  tree      = make_amplitude<DsDpi::tree>(     kDsDpi, Y, "Tree");
+    amplitude  triangle  = make_amplitude<DsDpi::triangle>( kDsDpi, Y, "Triangle");
 
     amplitude  dwave     = tree + triangle;
     dwave->set_id("D-wave");
@@ -76,6 +76,5 @@ void DsDpi_widths()
     to_plot = sum;
     pac.add_curve({ma + mc, W - mb}, dGamma_ac, to_plot->get_id());
 
-
-    plotter.combine({1,3}, {pab, pac, pbc}, "Gammas.pdf");
+    plotter.combine({1,3}, {pab, pac, pbc}, "widths.pdf");
 };

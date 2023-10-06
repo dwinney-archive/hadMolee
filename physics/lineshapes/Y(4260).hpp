@@ -36,6 +36,8 @@ namespace hadMolee
             _reSigmaPole = std::real(self_energy(_bare_mass*_bare_mass));
         };
 
+        inline double pole_mass(){ return _pole_mass; };
+
         // The propagator gains contributions from the self-energy
         inline complex propagator(double s)
         {

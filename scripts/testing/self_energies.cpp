@@ -1,6 +1,6 @@
 #include "molecule.hpp"
-#include "Z(3900).hpp"
-#include "Y(4260).hpp"
+#include "lineshapes/Z(3900).hpp"
+#include "lineshapes/Y(4260).hpp"
 #include "breit_wigner.hpp"
 #include "plotter.hpp"
 

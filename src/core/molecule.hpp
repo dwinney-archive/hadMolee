@@ -106,9 +106,6 @@ namespace hadMolee
             return (DR + logs)/(16.*PI*PI);
         };
 
-        // Return the renormalized pole mass
-        inline double pole_mass(){ return _pole_mass; };
-
         // Return masses 
         inline std::array<double,2> constituent_masses(){ return {_m1, _m2}; };
 
