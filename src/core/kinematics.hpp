@@ -247,6 +247,21 @@ namespace hadMolee
         };
         
         // -----------------------------------------------------------------------
+        // Relative angles
+        
+        // Polar angles between b and c in CM frame
+        inline double cos_CM(double s, double sab, double sbc)
+        {
+            double pb = initial_momentum_ab(s, sab);
+            double pc = final_momentum_ab(s, sab);
+
+            double Eb = sqrt(pb*pb - _mb2);
+            double Ec = sqrt(pc*pc - _mc2);
+
+            return (2.*Eb*Ec + sbc - _mb2 - _mc2) / (2.*pb*pc);
+        };
+
+        // -----------------------------------------------------------------------
         
         protected:
 

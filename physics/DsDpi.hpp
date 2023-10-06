@@ -89,7 +89,7 @@ namespace hadMolee::DsDpi
         // The reduced amplitude is a D-wave amplitude
         inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
         {
-            return _AD *_ppi*_ppi*(3.*phat(i)*phat(j) - delta(i,j));
+            return _AD *_ppi*_ppi*(3.*p_c(i)*p_c(j) - delta(i,j));
         };
 
         // -----------------------------------------------------------------------
@@ -162,7 +162,7 @@ namespace hadMolee::DsDpi
         // however it receives contributions from the propagator of the Z meson
         inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
         {
-            return _AD * _ppi*_ppi*(3.*phat(i)*phat(j) - delta(i,j));
+            return _AD * _ppi*_ppi*(3.*p_c(i)*p_c(j) - delta(i,j));
         };
 
         // -----------------------------------------------------------------------

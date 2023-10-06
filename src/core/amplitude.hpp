@@ -234,8 +234,11 @@ namespace hadMolee
         // Total invairant energies
         double _W, _s;
 
-        // Orientation polar angle to the beam
-        double _cos;
+        // Orientation of polar angle to particle c in lab frame
+        double _cos, _sin;
+
+        // Relative orientations from particle c to a and b
+        double _cosCM, _sinCM;
 
         // Sub-channel energies
         double _sab, _sbc, _sac;
@@ -247,10 +250,17 @@ namespace hadMolee
         // Caching energy variables
         inline void update(double s, double sab, double sbc, double cos)
         {
-            _W   = sqrt(s); _s   = s; _cos = cos;
+            // Save all kinematic quantities
+            _W   = sqrt(s); _s   = s;
             _sab = sab;     _sbc = sbc;
             _sac = _ma2 + _mb2 + _mc2 + s - sab - sbc;
+            _cos = cos; _sin = sqrt(1. - cos*cos);
 
+            // Calculate relative angles of particles a and b to c
+            _cosCM = _kinematics->cos_CM(_s, _sab, _sbc);
+            _sinCM = sqrt(1. - _cosCM*_cosCM);
+
+            // Flip out updated flag so amplitudes know to recalculate
             _updated = true;
 
             // Check if we need to update our precalculated amplitudes 
@@ -285,13 +295,37 @@ namespace hadMolee
         void check_lineshape_cache();
 
         // Short cuts for characteristic angular behavior
-        inline double phat(cartesian_index i)
+        
+        // The external production angle is assumed to always define the orientation of particle c
+        inline double p_c(cartesian_index i)
         {
             switch (i)
             {
-                case x : return sqrt(1. - _cos*_cos);
+                case x : return _sin;
                 case y : return 0;
                 case z : return _cos;
+            };
+        };
+
+        // Given the orientation of p_c above, also rotate p_b
+        inline double p_b(cartesian_index i)
+        {
+            switch (i)
+            {
+                case x : return _cosCM * _sin + _cos * _sinCM;
+                case y : return 0;
+                case z : return _cos * _cosCM - _sin * _sinCM;
+            };
+        };
+
+        // Given the orientation of p_b and p_c calculate p_a by enforcing p_a + p_b + p_c = 0
+        inline double p_a(cartesian_index i)
+        {
+            switch (i)
+            {
+                case x : return - (1. + _cosCM)*_sin - _cos * _sinCM;
+                case y : return 0;
+                case z : return - (1. + _cosCM)*_cos + _sin * _sinCM;
             };
         };
 
