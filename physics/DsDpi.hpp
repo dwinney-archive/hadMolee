@@ -57,8 +57,7 @@ namespace hadMolee::DsDpi
         inline void recalculate()
         {
             // Multiply by the helicity frame energy to make sure amplitude respects Goldstone theorem.
-            double p_pi     = _kinematics->decay_momentum_c(_s, _sab);
-            double omega_pi = sqrt(M_PION*M_PION + p_pi*p_pi);
+            double omega_pi = sqrt(M_PION*M_PION + _mpc*_mpc);
 
             // sab is assumed to be DsD channel
             _AS  = _a*(_b + _sab)*_Zc->propagator(_sab)*omega_pi;
@@ -82,14 +81,14 @@ namespace hadMolee::DsDpi
           _Zc(make_molecule<DsD_molecule>()),
           _Y(get_molecular_component(_V))
         {
-            _T.set_internal_masses(_internal); 
+            _T.set_internal_masses({M_DSTAR, M_D1, M_D}); 
             _T.add_width(2, W_D1); 
         };
 
         // The reduced amplitude is a D-wave amplitude
         inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
         {
-            return _AD *_ppi*_ppi*(3.*p_c(i)*p_c(j) - delta(i,j));
+            return _AD * (3.*p_c(i)*p_c(j) - delta(i,j)*_mpc*_mpc);
         };
 
         // -----------------------------------------------------------------------
@@ -105,9 +104,6 @@ namespace hadMolee::DsDpi
             _T.set_external_masses({_W, sqrt(_sab), M_PION});
             _AD = _T.eval();
 
-            // Update the pion momentum 
-            _ppi = _kinematics->decay_momentum_c(_s, _sab);
-            
             // This gets multiplied by the propagator of the Z prop and triangle function
             double  z   = _Zc->molecular_coupling();
             double  M_Z = M_ZC3900;
@@ -124,12 +120,6 @@ namespace hadMolee::DsDpi
 
         // Energy dependent D wave strength
         complex _AD;  
-
-        // Couplings related to pion
-        double  _ppi;                     // Pion 3-momentum
-
-        // On-shell masses involved in the triangle
-        std::array<double,3> _internal = {M_DSTAR, M_D1, M_D};
 
         // Scalar triangle function
         hadMolee::triangle _T;
@@ -162,7 +152,7 @@ namespace hadMolee::DsDpi
         // however it receives contributions from the propagator of the Z meson
         inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
         {
-            return _AD * _ppi*_ppi*(3.*p_c(i)*p_c(j) - delta(i,j));
+            return _AD * (3.*p_c(i)*p_c(j) - delta(i,j)*_mpc*_mpc);
         };
 
         // -----------------------------------------------------------------------
@@ -177,9 +167,6 @@ namespace hadMolee::DsDpi
             // D1 propagator
             complex G_D1 = _D1.eval(sqrt(_sac));
 
-            // Update the pion momentum 
-            _ppi = _kinematics->decay_momentum_c(_s, _sab);
-
             // Only two verices
             _AD  = G_D1; 
             _AD *= y/sqrt(2.) * sqrt(M_Y*M_D1*M_D);  
@@ -188,9 +175,6 @@ namespace hadMolee::DsDpi
 
         // Couplings
         complex _AD;  // Energy dependent D wave strength
-
-        // Couplings related to pion
-        double  _ppi = 0.;                     // Pion 3-momentum
 
         // In addition we have the tree level transition
         breit_wigner _D1;
@@ -235,8 +219,7 @@ namespace hadMolee::DsDpi
         inline void recalculate()
         {
             // Multiply by the helicity frame energy to make sure amplitude respects Goldstone theorem.
-            double p_pi     = _kinematics->decay_momentum_c(_s, _sab);
-            double omega_pi = sqrt(M_PION*M_PION + p_pi*p_pi);
+            double omega_pi = sqrt(M_PION*M_PION + _mpc*_mpc);
 
             // Add the psi(4160) part by removing the Ylineshape
             _AS = _mod_psi * _Zc->propagator(_sab)*omega_pi;

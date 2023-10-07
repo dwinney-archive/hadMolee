@@ -242,6 +242,9 @@ namespace hadMolee
         // Sub-channel energies
         double _sab, _sbc, _sac;
 
+        // Moduli of decay frame 3-momenta
+        double _mpa, _mpb, _mpc;
+
         // Masses of the particles
         double _ma,  _mb,  _mc;
         double _ma2, _mb2, _mc2;
@@ -254,6 +257,11 @@ namespace hadMolee
             _sab = sab;     _sbc = sbc;
             _sac = _ma2 + _mb2 + _mc2 + s - sab - sbc;
             _cos_c = cos; _sin_c = sqrt(1. - cos*cos);
+
+            // Calculate decay frame momentum 
+            _mpa = _kinematics->decay_momentum_a(_s, _sbc);
+            _mpb = _kinematics->decay_momentum_b(_s, _sac);
+            _mpc = _kinematics->decay_momentum_c(_s, _sab);
 
             // Calculate relative angles of particles a and b to c
             _cos_b = _kinematics->cos_bc(_s, _sab, _sbc, _sac);
@@ -305,20 +313,21 @@ namespace hadMolee
         {
             switch (i)
             {
-                case x : return _sin_c;
+                case x : return _mpc*_sin_c;
                 case y : return 0;
-                case z : return _cos_c;
+                case z : return _mpc*_cos_c;
             };
         };
 
         // Given the orientation of p_c above, also rotate p_b
         inline double p_b(cartesian_index i)
         {
+            double mod = _kinematics->decay_momentum_b(_s, _sac);
             switch (i)
             {
-                case x : return _cos_b * _sin_c + _cos_c * _sin_b;
+                case x : return _mpb*(_cos_b * _sin_c + _cos_c * _sin_b);
                 case y : return 0;
-                case z : return _cos_c * _cos_b - _sin_c * _sin_b;
+                case z : return _mpb*(_cos_c * _cos_b - _sin_c * _sin_b);
             };
         };
 
@@ -327,9 +336,9 @@ namespace hadMolee
         {
             switch (i)
             {
-                case x : return - (1. + _cos_b)*_sin_c - _cos_c * _sin_b;
+                case x : return - _mpa*((1. + _cos_b)*_sin_c - _cos_c * _sin_b);
                 case y : return 0;
-                case z : return - (1. + _cos_b)*_cos_c + _sin_c * _sin_b;
+                case z : return - _mpa*((1. + _cos_b)*_cos_c + _sin_c * _sin_b);
             };
         };
 

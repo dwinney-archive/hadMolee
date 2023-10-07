@@ -74,7 +74,11 @@ namespace hadMolee
         // Setting function for the (on-shell) masses of external particles
         // Order of arguments starts at top, horizontal propagator and goes counter-clockwise
         inline void set_internal_masses(std::array<double,4> m)
-        { _integrand._m0  = m[0]*m[0]; _integrand._m1  = m[1]*m[1]; _integrand._m2  = m[2]*m[2]; _integrand._m3  = m[3]*m[3]; }
+        { 
+            _integrand._m0  = m[0]*m[0]; _integrand._m1  = m[1]*m[1]; _integrand._m2  = m[2]*m[2]; _integrand._m3  = m[3]*m[3];
+            // if internal masses change clear all the widths
+            _integrand._w0 = 0.; _integrand._w1 = 0.; _integrand._w2 = 0.; _integrand._w3 = 0.;   
+        }
 
         // Invariant masses of the 02 and 13 systems 
         // Equivalently particles AC and AB respectively
