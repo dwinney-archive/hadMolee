@@ -33,7 +33,10 @@ namespace hadMolee::Jpsipipi
             for (auto j : C_INDICES)
             {
                 // pi1 couples to the D1 vertex
-                result += (H1_D*(3.*p_c(i)*p_c(j) - delta(i,j)*_mpc*_mpc) + H1_S*delta(i,j)) * M(j, k);
+                result += (H1_D*(3.*p_c(i)*p_c(j) - delta(i,j)*_mpc*_mpc) + H1_S*delta(i,j)) * M_b(j, k);
+
+                // pi2 couples to the D1 vertex
+                result += (H1_D*(3.*p_b(i)*p_b(j) - delta(i,j)*_mpb*_mpb) + H1_S*delta(i,j)) * M_c(j, k);
             };
             return  result / sqrt(2.);
         };
@@ -50,12 +53,16 @@ namespace hadMolee::Jpsipipi
             _B.set_external_masses({_W, M_PION, M_JPSI, M_PION});
             _B.set_internal_masses({M_D1, M_D, M_DSTAR, M_DSTAR});
             _B.add_width(0, W_D1);
-            _B.set_invariant_masses( _sac, _sab );
 
+            _B.set_invariant_masses( _sac, _sab );
             _vB[0] = _B.eval_vector();
             
+            _B.set_invariant_masses( _sab, _sac );
+            _vB[1] = _B.eval_vector();
+        
             // Dot products of momenta and box vector
-            _q_dot_p[0] = q(x)*p_b(x) + q(y)*p_b(y) + q(z)*p_b(z);
+            _q_dot_p[0] =  q_b(x)*p_b(x) + q_b(y)*p_b(y) + q_b(z)*p_b(z);
+            _q_dot_p[1] =  q_c(x)*p_c(x) + q_c(y)*p_c(y) + q_c(z)*p_c(z);
 
             // go around the box accumulating the common couplings
             _C  = gy / sqrt(2.) * sqrt(M_Y*M_D1*M_D); 
@@ -66,16 +73,25 @@ namespace hadMolee::Jpsipipi
 
         // Assemble the vector containing all the box functions
         // p_a = jpsi,  p_b = pi_2,  p_c = pi_1
-        inline complex q(cartesian_index i)
+        inline complex q_b(cartesian_index i)
         {
             return 2.*(_vB[0][2]*p_c(i) - _vB[0][3]*p_b(i)) + _vB[0][0]*(p_c(i) - p_b(i));
         };
 
+        inline complex q_c(cartesian_index i)
+        {
+            return 2.*(_vB[1][2]*p_b(i) - _vB[1][3]*p_c(i)) + _vB[1][0]*(p_b(i) - p_c(i));
+        };
+
         // The box vector needs to be contracted with the jpsi vertex
         // also multiply by common factors
-        inline complex M(cartesian_index j, cartesian_index k)
+        inline complex M_b(cartesian_index j, cartesian_index k)
         {
-            return _C*(q(k)*p_b(j) - q(j)*p_b(k) - delta(j,k)*_q_dot_p[0]);
+            return _C*(q_b(k)*p_b(j) - q_b(j)*p_b(k) - delta(j,k)*_q_dot_p[0]);
+        };
+        inline complex M_c(cartesian_index j, cartesian_index k)
+        {
+            return _C*(q_c(k)*p_c(j) - q_c(j)*p_c(k) - delta(j,k)*_q_dot_p[1]);
         };
 
         // Scalar prefactors 

@@ -322,7 +322,6 @@ namespace hadMolee
         // Given the orientation of p_c above, also rotate p_b
         inline double p_b(cartesian_index i)
         {
-            double mod = _kinematics->decay_momentum_b(_s, _sac);
             switch (i)
             {
                 case x : return _mpb*(_cos_b * _sin_c + _cos_c * _sin_b);
