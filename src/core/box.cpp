@@ -37,10 +37,10 @@ namespace hadMolee
         double m3  = _integrand._m3;
 
         // And widths 
-        double w0  = _integrand._w0 + EPS;
-        double w1  = _integrand._w1 + EPS;
-        double w2  = _integrand._w2 + EPS;
-        double w3  = _integrand._w3 + EPS;
+        double w0  = _integrand._w0 + 100.*EPS;
+        double w1  = _integrand._w1 + 100.*EPS;
+        double w2  = _integrand._w2 + 100.*EPS;
+        double w3  = _integrand._w3 + 100.*EPS;
 
         ltini();
         std::array<int,4> dd = {dd0, dd1, dd2, dd3};

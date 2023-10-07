@@ -133,6 +133,7 @@ namespace hadMolee
         virtual double decay_distribution(double s, double sab, double sbc);
 
         // Doubly differential partial-width
+        double differential_xsection(double s, double sab, double sbc, double cos);
         double differential_xsection(double s, double sab, double sbc);
 
         // Integrated widths into given subsystem
@@ -234,11 +235,9 @@ namespace hadMolee
         // Total invairant energies
         double _W, _s;
 
-        // Orientation of polar angle to particle c in lab frame
-        double _cos, _sin;
-
-        // Relative orientations from particle c to a and b
-        double _cosCM, _sinCM;
+        // Orientation of polar angle to particle b and c in lab frame
+        double _cos_c, _sin_c;
+        double _cos_b, _sin_b;
 
         // Sub-channel energies
         double _sab, _sbc, _sac;
@@ -254,11 +253,11 @@ namespace hadMolee
             _W   = sqrt(s); _s   = s;
             _sab = sab;     _sbc = sbc;
             _sac = _ma2 + _mb2 + _mc2 + s - sab - sbc;
-            _cos = cos; _sin = sqrt(1. - cos*cos);
+            _cos_c = cos; _sin_c = sqrt(1. - cos*cos);
 
             // Calculate relative angles of particles a and b to c
-            _cosCM = _kinematics->cos_CM(_s, _sab, _sbc);
-            _sinCM = sqrt(1. - _cosCM*_cosCM);
+            _cos_b = _kinematics->cos_bc(_s, _sab, _sbc, _sac);
+            _sin_b = sqrt(1. - _cos_b*_cos_b);
 
             // Flip out updated flag so amplitudes know to recalculate
             _updated = true;
@@ -275,9 +274,11 @@ namespace hadMolee
         {
             if (_updated)
             {
-                _updated = false;
+                _updated      = false;
                 return true;
             }
+            
+             _error_thrown = false; 
             return false;
         }; 
 
@@ -294,6 +295,9 @@ namespace hadMolee
         complex _cached_lineshape = 0.;
         void check_lineshape_cache();
 
+        // Whether error is already thrown
+        bool _error_thrown = false;
+
         // Short cuts for characteristic angular behavior
         
         // The external production angle is assumed to always define the orientation of particle c
@@ -301,9 +305,9 @@ namespace hadMolee
         {
             switch (i)
             {
-                case x : return _sin;
+                case x : return _sin_c;
                 case y : return 0;
-                case z : return _cos;
+                case z : return _cos_c;
             };
         };
 
@@ -312,9 +316,9 @@ namespace hadMolee
         {
             switch (i)
             {
-                case x : return _cosCM * _sin + _cos * _sinCM;
+                case x : return _cos_b * _sin_c + _cos_c * _sin_b;
                 case y : return 0;
-                case z : return _cos * _cosCM - _sin * _sinCM;
+                case z : return _cos_c * _cos_b - _sin_c * _sin_b;
             };
         };
 
@@ -323,9 +327,9 @@ namespace hadMolee
         {
             switch (i)
             {
-                case x : return - (1. + _cosCM)*_sin - _cos * _sinCM;
+                case x : return - (1. + _cos_b)*_sin_c - _cos_c * _sin_b;
                 case y : return 0;
-                case z : return - (1. + _cosCM)*_cos + _sin * _sinCM;
+                case z : return - (1. + _cos_b)*_cos_c + _sin_c * _sin_b;
             };
         };
 

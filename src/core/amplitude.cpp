@@ -82,10 +82,10 @@ namespace hadMolee
         };
 
         bool need_recalculate;
-        need_recalculate =     (std::abs(_cached_s   - _s   ) > _cache_tolerance) 
-                            || (std::abs(_cached_sab - _sab ) > _cache_tolerance) 
-                            || (std::abs(_cached_sbc - _sbc ) > _cache_tolerance)
-                            || (std::abs(_cached_cos - _cos ) > _cache_tolerance);
+        need_recalculate =     (std::abs(_cached_s   - _s   )   > _cache_tolerance) 
+                            || (std::abs(_cached_sab - _sab )   > _cache_tolerance) 
+                            || (std::abs(_cached_sbc - _sbc )   > _cache_tolerance)
+                            || (std::abs(_cached_cos - _cos_c ) > _cache_tolerance);
         if (need_recalculate)
         {
             // We neeed to calcualte the amplitude squared summed over the final state polarizations
@@ -114,16 +114,17 @@ namespace hadMolee
                         x += amp[i][k] * conj(amp[j][k]);
                     };
 
-                    if (!is_zero( imag(x) ))
+                    if (!is_zero( imag(x) ) && !_error_thrown)
                     {
                         warning("check_decay_cache", "Reduced amplitude squared is imaginary!");
+                        _error_thrown = true;
                     };
                     _cached_decay_tensor[i][j] = real(x);
                 }
             };
 
             // Update the cached values
-            _cached_s   = _s;    _cached_cos = _cos;
+            _cached_s   = _s;    _cached_cos = _cos_c;
             _cached_sab = _sab;  _cached_sbc = _sbc;            
         };
     };
@@ -170,7 +171,7 @@ namespace hadMolee
         for (auto amp : _sub_amps)
         {
             // Have to make sure to feed energy values to component amplitudes
-            amp->update(_s, _sab, _sbc, _cos);
+            amp->update(_s, _sab, _sbc, _cos_c);
             sum += amp->reduced_amplitude_with_lineshape(i, j);
         };
         return sum;
@@ -238,6 +239,23 @@ namespace hadMolee
 
     // ---------------------------------------------------------------------------
     // Doubly differential partial-width
+
+    double amplitude_base::differential_xsection(double s, double sab, double sbc, double cos)
+    {
+        if ( !_kinematics->in_physical_region(s, sab, sbc) ) 
+        {
+            return 0.;
+        };
+
+        // General prefactors for 2->3 cross section
+        double flux_factor = 2.*s; // Massless electrons
+        double prefactors  = 32.* s * pow(2.*PI, 3.) * flux_factor;
+
+        if (_normalize) prefactors /= _normalization;
+
+        // Return in nanobarn
+        return decay_distribution(s, sab, sbc, cos) / prefactors / 2.56819E-6;
+    };
 
     double amplitude_base::differential_xsection(double s, double sab, double sbc)
     {
