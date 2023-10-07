@@ -287,7 +287,7 @@ namespace hadMolee
         virtual void recalculate(){ return; };
 
         // Save all the components of the reduced amplitude at each step of sab and bc to avoid having to recalculate
-        std::array<std::array<double,3>,3> _cached_decay_tensor;
+        std::array<std::array<complex,3>,3> _cached_decay_tensor;
         double _cache_tolerance = EPS;
         double _cached_s = 0, _cached_sab = 0, _cached_sbc = 0, _cached_cos = 0;
         void check_decay_cache();

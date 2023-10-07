@@ -114,12 +114,7 @@ namespace hadMolee
                         x += amp[i][k] * conj(amp[j][k]);
                     };
 
-                    if (!is_zero( imag(x) ) && !_error_thrown)
-                    {
-                        warning("check_decay_cache", "Reduced amplitude squared is imaginary!");
-                        _error_thrown = true;
-                    };
-                    _cached_decay_tensor[i][j] = real(x);
+                    _cached_decay_tensor[i][j] = x;
                 }
             };
 

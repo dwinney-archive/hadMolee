@@ -148,15 +148,14 @@ namespace hadMolee
         inline double Kibble(double s, double sab, double sbc)
         {
             double sac = _ma2 + _mb2 + _mc2 + s - sab - sbc;
-
+            warning("Kibble was weird last time I checked use with caution");
             return sab*sbc*sac - sab*(s - _ma2)*(_mc2 - _mb2) - sbc*(s - _mb2)*(_ma2 - _mc2) 
                                             - (s*_mc2 - _mb2*_ma2)*(s -_mb2 + _ma2 - _mc2);
         };
 
         inline bool in_physical_region(double s, double sab, double sbc)
         {
-            double phi = Kibble(s, sab, sbc);
-            return (phi >= 0);
+            return (sbc >= sbc_from_sab(s, sab, -1.)) && (sbc <= sbc_from_sab(s, sab, +1.));
         };
         inline bool in_physical_region(double s, double sig, subchannel x)
         {
@@ -255,8 +254,8 @@ namespace hadMolee
             double pb = decay_momentum_b(s, sac);
             double pc = decay_momentum_c(s, sab);
 
-            double Eb = sqrt(pb*pb - _mb2);
-            double Ec = sqrt(pc*pc - _mc2);
+            double Eb = sqrt(pb*pb + _mb2);
+            double Ec = sqrt(pc*pc + _mc2);
 
             return (2.*Eb*Ec - sbc + _mb2 + _mc2) / (2.*pb*pc);
         };
