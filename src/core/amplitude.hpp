@@ -307,6 +307,17 @@ namespace hadMolee
         bool _error_thrown = false;
 
         // Short cuts for characteristic angular behavior
+
+        inline double p(particle abc, cartesian_index i)
+        {
+            switch (abc)
+            {
+                case a: return p_a(i);
+                case b: return p_b(i);
+                case c: return p_c(i);
+                default: return nan("");
+            }
+        };
         
         // The external production angle is assumed to always define the orientation of particle c
         inline double p_c(cartesian_index i)
