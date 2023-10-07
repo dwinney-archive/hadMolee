@@ -115,7 +115,7 @@ namespace hadMolee::DsDpi
 
             // Couplings at the vertices of the triangle
             _AD *= y/sqrt(2.) * sqrt(M_Y*M_D1*M_D);  
-            _AD *= H1         * sqrt(M_D1*M_DSTAR); // D-wave momenta are factored out
+            _AD *= H1_D       * sqrt(M_D1*M_DSTAR); // D-wave momenta are factored out
             _AD *= z          * sqrt(M_D*M_DSTAR*M_Z); 
 
             // Z decay vertex
@@ -183,7 +183,7 @@ namespace hadMolee::DsDpi
             // Only two verices
             _AD  = G_D1; 
             _AD *= y/sqrt(2.) * sqrt(M_Y*M_D1*M_D);  
-            _AD *= H1         * sqrt(M_D1*M_DSTAR); // D-wave momenta are factored out
+            _AD *= H1_D       * sqrt(M_D1*M_DSTAR); // D-wave momenta are factored out
         };
 
         // Couplings

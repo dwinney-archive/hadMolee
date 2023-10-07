@@ -14,6 +14,7 @@
 #include <array>
 #include <vector>
 #include <iostream>
+#include <functional>
 
 #include "complex.hpp"
 #include "print.hpp"
@@ -100,14 +101,15 @@ namespace hadMolee
 
     // D1 -> D* pi
     const double H_PRIME    = 1.197;
-    const double H1         = sqrt(2./3.)*H_PRIME/F_PION;
+    const double H1_D       = sqrt(2./3.)*H_PRIME/F_PION;
+    const double H1_S       = 0.;
 
     // D* -> D pi
     const double G_TILDE    = 0.57;
-    const double G1         = 2.*G_TILDE*sqrt(M_DSTAR*M_D)/F_PION;
+    const double G1_PION    = 2.*G_TILDE*sqrt(M_DSTAR*M_D)/F_PION;
 
     // D* -> D* pi
-    const double G2         = 2.*G_TILDE*M_DSTAR/F_PION;
+    const double G2_PION    = 2.*G_TILDE*M_DSTAR/F_PION;
 
     // Jpsi to charm
     const double G_PSI      = sqrt(M_JPSI) / (2*M_D*F_JPSI);
