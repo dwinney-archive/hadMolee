@@ -54,12 +54,9 @@ namespace hadMolee::Jpsipipi
             _mpb = _kinematics->decay_momentum_b(_s, _sac);
 
             // Update floating masses in the box and evaluate
-            // _B.set_external_masses({_W, M_PION, M_JPSI, M_PION});
-            // _B.set_invariant_masses( _sac, _sab );
-            // _vBc = _B.eval_vector();
-            _vBc = {1., 1., 1., 1.};
-            
-            print(_mpc, _mpb);
+            _B.set_external_masses({_W, M_PION, M_JPSI, M_PION});
+            _B.set_invariant_masses( _sac, _sab );
+            _vBc = _B.eval_vector();
             
             // Dot products of momenta and box vector
             _q_dot_pb = q(x)*p_b(x) + q(y)*p_b(y) + q(z)*p_b(z);

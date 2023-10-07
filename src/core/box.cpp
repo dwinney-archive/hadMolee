@@ -43,6 +43,7 @@ namespace hadMolee
         double w3  = _integrand._w3 + 100.*EPS;
 
         ltini();
+        setwarndigits(60);
         std::array<int,4> dd = {dd0, dd1, dd2, dd3};
         std::array<complex,4> vector;
         for (int i = 0; i < 4; i++)
