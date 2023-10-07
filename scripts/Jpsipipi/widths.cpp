@@ -16,6 +16,7 @@ void widths()
     lineshape  Y          = make_lineshape<D1D_molecule>();
 
     amplitude  box_I      = make_amplitude<Jpsipipi::Box_I>(kJpsipipi, Y, "Box I");
+    // amplitude box_I = make_amplitude<phase_space>(kJpsipipi, Y, "");
 
     double W = 4.23;
     auto plot_amp = [W, ma, mb, mc] (plot &p, subchannel abc, amplitude amp)
@@ -30,35 +31,33 @@ void widths()
 
         print("Plotting: ", amp->get_id());
         divider(2);
+        int i = 0;
         auto xsection = [&] (double E)
         {
             double x = amp->differential_xsection(abc, W*W, E*E) * 1E3; // in pb
-            // print(E, x);
+            print(i, E, x);
+            i++;
             return x;
         };
         p.add_curve(bounds, xsection, amp->get_id());
         line();
     };
-    
-    double E = 0.4;
-    double x = box_I->differential_xsection(bc, W*W, E*E) * 1E3; // in pb
-    print(x);
 
     plotter plotter;
 
-    // plot pab = plotter.new_plot();
-    // pab.set_curve_points(100);
-    // pab.set_labels("#it{E}_{#it{J}/#psi#pi}   [GeV]", "d#sigma/dE^{2} [nb / GeV^{-2}]");
-    // plot_amp(pab, ab, box_I);
+    plot pab = plotter.new_plot();
+    pab.set_curve_points(50);
+    pab.set_labels("#it{E}_{#it{J}/#psi#pi}   [GeV]", "d#sigma/dE^{2} [nb / GeV^{-2}]");
+    plot_amp(pab, ab, box_I);
+    pab.save("widths.pdf");
 
     // plot pbc = plotter.new_plot();
-    // pbc.set_curve_points(100);
+    // pbc.set_curve_points(10);
     // pbc.set_labels("#it{E}_{#pi#pi}   [GeV]", "d#sigma/dE^{2}  [nb / GeV^{-2}]");
     // plot_amp(pbc, bc, box_I);
-    // pbc.save("widths.pdf");
 
     // plot pac = plotter.new_plot();
-    // pac.set_curve_points(100);
+    // pac.set_curve_points(10);
     // pac.set_labels("#it{E}_{#it{J}/#psi#pi}  [GeV]", "d#sigma/dE^{2}  [nb / GeV^{-2}]");
     // plot_amp(pac, ac, box_I);
 
