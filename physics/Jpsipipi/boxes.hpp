@@ -35,16 +35,21 @@ namespace hadMolee::Jpsipipi
             complex result = 0.;
             for (auto j : C_INDICES)
             {
-                // pi1 couples to the D1 vertex
-                result += (H1_D*(3.*p(c, i)*p(c, j) - delta(i,j)*_mpc*_mpc) + H1_S*delta(i,j)) * M(b, j, k);
+                // particle c couples to the D1 vertex
+                _pi1 = c;
+                result += (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*_mpc*_mpc) + H1_S*delta(i,j)) * M(j, k);
 
-                // pi2 couples to the D1 vertex
-                result += (H1_D*(3.*p(b, i)*p(b, j) - delta(i,j)*_mpb*_mpb) + H1_S*delta(i,j)) * M(c, j, k);
+                // particle b couples to the D1 vertex
+                _pi1 = b;
+                result += (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*_mpb*_mpb) + H1_S*delta(i,j)) * M(j, k);
             };
             return  _C * result / sqrt(2.);
         };
 
         protected:
+
+        // Save which particle is considered pi1, by default this is particle c
+        particle _pi1 = c;
 
         inline void recalculate()
         {
@@ -57,16 +62,17 @@ namespace hadMolee::Jpsipipi
             _B.set_internal_masses({M_D1, _internal_masses[0], _internal_masses[1], _internal_masses[2]});
             _B.add_width(0, W_D1);
 
+            // Box vector related things depend on which particle is particle 1
+            _pi1 = c;
             _B.set_invariant_masses(translate(_schan), translate(_tchan));
             _vB[0] = _B.eval_vector();
+            _q_dot_p[0] =  q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
             
+            _pi1 = b;
             _B.set_invariant_masses(permute(_schan),   permute(_tchan));
             _vB[1] = _B.eval_vector();
+            _q_dot_p[1] =  q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
         
-            // Dot products of momenta and box vector
-            _q_dot_p[0] =  q(b, x)*p_b(x) + q(b, y)*p_b(y) + q(b, z)*p_b(z);
-            _q_dot_p[1] =  q(c, x)*p_c(x) + q(c, y)*p_c(y) + q(c, z)*p_c(z);
-
             // go around the box accumulating the common couplings
             _C  = gy / sqrt(2.) * sqrt(M_Y*M_D1*M_D); 
             // Skip the D1 -> D* pi coupling which we include above
@@ -74,8 +80,10 @@ namespace hadMolee::Jpsipipi
             _C *= G1_PION       * sqrt(M_DSTAR * M_D);
         };
 
-        //;
+        // Methods related to handling invariant masses for the box
+        // translate gives the specified subchannel invariant mass
         subchannel _schan, _tchan;
+        
         inline double translate(subchannel sig)
         {
             switch (sig)
@@ -85,6 +93,8 @@ namespace hadMolee::Jpsipipi
                 case ac: return _sac;
             };
         };
+        // Permute takes the given subchannel swaps paritlces b <-> c 
+        // and returns the invariant mass of the new subchannel
         inline double permute(subchannel sig)
         {
             switch (sig)
@@ -95,29 +105,33 @@ namespace hadMolee::Jpsipipi
             };
         };
 
-        inline particle other_pion(particle pi1)
+        // Aliases for the pion momenta specifying which is pi1 and pi2
+        inline complex p1(cartesian_index i)
         {
-            return (pi1==b) ? c : b;
+            return p(_pi1, i);
+        };
+        inline complex p2(cartesian_index i)
+        {
+            return (_pi1== c) ? p(b, i) : p(c, i);
         };
 
-        inline std::array<complex,4> vB(particle pi2)
+        // Vector decomposition of the Box
+        inline std::array<complex,4> vB()
         {
-            int n = (pi2 == b) ? 0 : 1;
-            return _vB[n];
-        };
-
-        inline complex qdotp(particle pi2)
-        {
-            return (pi2 == b) ? _q_dot_p[0] : _q_dot_p[1];
+            return (_pi1 == c) ? _vB[0] : _vB[1];
         };
 
         // Assemble the vector containing all the box functions
         // p_a = jpsi,  p_b = pi_2,  p_c = pi_1
-        virtual inline complex q(particle pi2, cartesian_index i) = 0;
+        virtual inline complex q(cartesian_index i) = 0;
+        inline complex qdotp2()
+        {
+            return (_pi1 == c) ? _q_dot_p[0] : _q_dot_p[1];
+        };
 
         // The box vector needs to be contracted with the jpsi vertex
         // also multiply by common factors
-        virtual inline complex M(particle pi2, cartesian_index j, cartesian_index k) = 0;
+        virtual inline complex M(cartesian_index j, cartesian_index k) = 0;
 
         // Scalar prefactors 
         double _C     = 0.;
@@ -140,7 +154,8 @@ namespace hadMolee::Jpsipipi
 
     // ---------------------------------------------------------------------------
     // Specific boxes follows notation in Leon's note
-    
+
+    // Box with J/psi D* D* coupling
     class Box_I : public generic_box
     {
         public: 
@@ -159,22 +174,22 @@ namespace hadMolee::Jpsipipi
         protected:
 
         // Things that specify the box
-        inline complex q(particle pi2, cartesian_index i)
+        inline complex q(cartesian_index i)
         {
-            auto vecB = vB(pi2);
+            auto vecB = vB();
             complex pi1_piece =  2.*vecB[2] + vecB[0];
             complex pi2_piece = -2.*vecB[3] - vecB[0];
 
-            return pi1_piece * p(other_pion(pi2), i) + pi2_piece * p(pi2, i);
+            return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
 
-        inline complex M(particle pi2, cartesian_index j, cartesian_index k)
+        inline complex M(cartesian_index j, cartesian_index k)
         {
-            return q(pi2, k)*p(pi2, j) - q(pi2, j)*p(pi2, k) - delta(j,k)*qdotp(pi2);
+            return q(k)*p2(j) - q(j)*p2(k) - delta(j,k)*qdotp2();
         };
     };
 
-
+    // Box with J/psi D D* coupling
     class Box_II : public generic_box
     {
         public: 
@@ -193,21 +208,22 @@ namespace hadMolee::Jpsipipi
         protected:
 
         // Things that specify the box
-        inline complex q(particle pi2, cartesian_index i)
+        inline complex q(cartesian_index i)
         {
-            auto vecB = vB(pi2);
+            auto vecB = vB();
             complex pi1_piece =  2.*(vecB[3] + vecB[2] + vecB[0]);
             complex pi2_piece =  2.* vecB[3] + vecB[0];
 
-            return pi1_piece * p(other_pion(pi2), i) + pi2_piece * p(pi2, i);
+            return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
 
-        inline complex M(particle pi2, cartesian_index j, cartesian_index k)
+        inline complex M(cartesian_index j, cartesian_index k)
         {
-            return q(pi2, j)*p(pi2, k) - delta(j,k)*qdotp(pi2);
+            return q(j)*p2(k) - delta(j,k)*qdotp2();
         };
     };
 
+    // Box with J/psi D D coupling
     class Box_III : public generic_box
     {
         public: 
@@ -220,24 +236,24 @@ namespace hadMolee::Jpsipipi
             _decay_masses    = {M_JPSI, M_PION,  M_PION};
             _internal_masses = {M_D,    M_D,     M_DSTAR};
 
-            _gjpsi = G_PSI * sqrt(M_JPSI*M_DSTAR*M_D); 
+            _gjpsi = G_PSI * sqrt(M_JPSI*M_D*M_D); 
         };
 
         protected:
 
         // Things that specify the box
-        inline complex q(particle pi2, cartesian_index i)
+        inline complex q(cartesian_index i)
         {
-            auto vecB = vB(pi2);
+            auto vecB = vB();
             complex pi1_piece =  2.*(vecB[3] + vecB[2] + vecB[0]);
             complex pi2_piece =  2.* vecB[3] + vecB[0];
 
-            return pi1_piece * p(other_pion(pi2), i) + pi2_piece * p(pi2, i);
+            return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
 
-        inline complex M(particle pi2, cartesian_index j, cartesian_index k)
+        inline complex M(cartesian_index j, cartesian_index k)
         {
-            return q(pi2, k)*p(pi2, j);
+            return q(k)*p2(j);
         };
     };
 };
