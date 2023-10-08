@@ -249,13 +249,14 @@ namespace hadMolee
         // Relative angles
         
         // Polar angle between b and c in the lab frame
-        inline double cos_bc(double s, double sab, double sbc, double sac)
+        inline double cos_bc(double s, double sab, double sbc)
         {
-            double pb = decay_momentum_b(s, sac);
-            double pc = decay_momentum_c(s, sab);
+            double sac = _ma2 + _mb2 + _mc2 + s - sab - sbc;
+            double pb  = decay_momentum_b(s, sac);
+            double pc  = decay_momentum_c(s, sab);
 
-            double Eb = sqrt(pb*pb + _mb2);
-            double Ec = sqrt(pc*pc + _mc2);
+            double Eb  = sqrt(pb*pb + _mb2);
+            double Ec  = sqrt(pc*pc + _mc2);
 
             return (2.*Eb*Ec - sbc + _mb2 + _mc2) / (2.*pb*pc);
         };

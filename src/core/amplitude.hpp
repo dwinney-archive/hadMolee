@@ -233,21 +233,21 @@ namespace hadMolee
         // Related to caching 
 
         // Total invairant energies
-        double _W, _s;
+        double _W = 0, _s = 0;
 
         // Orientation of polar angle to particle b and c in lab frame
-        double _cos_c, _sin_c;
-        double _cos_b, _sin_b;
+        double _cos_c = 0, _sin_c = 0;
+        double _cos_b = 0, _sin_b = 0;
 
         // Sub-channel energies
-        double _sab, _sbc, _sac;
+        double _sab = 0, _sbc = 0, _sac = 0;
 
         // Moduli of decay frame 3-momenta
-        double _mpa, _mpb, _mpc;
+        double _mpa = 0, _mpb = 0, _mpc = 0;
 
         // Masses of the particles
-        double _ma,  _mb,  _mc;
-        double _ma2, _mb2, _mc2;
+        double _ma = 0,  _mb = 0,  _mc = 0;
+        double _ma2 = 0, _mb2 = 0, _mc2 = 0;
 
         // Caching energy variables
         inline void update(double s, double sab, double sbc, double cos)
@@ -262,9 +262,9 @@ namespace hadMolee
             _mpa = _kinematics->decay_momentum_a(_s, _sbc);
             _mpb = _kinematics->decay_momentum_b(_s, _sac);
             _mpc = _kinematics->decay_momentum_c(_s, _sab);
-
+            
             // Calculate relative angles of particles a and b to c
-            _cos_b = _kinematics->cos_bc(_s, _sab, _sbc, _sac);
+            _cos_b = _kinematics->cos_bc(_s, _sab, _sbc);
             _sin_b = sqrt(1. - _cos_b*_cos_b);
 
             // Flip out updated flag so amplitudes know to recalculate
@@ -325,7 +325,7 @@ namespace hadMolee
             switch (i)
             {
                 case x : return _mpc*_sin_c;
-                case y : return 0;
+                case y : return 0.;
                 case z : return _mpc*_cos_c;
             };
         };
@@ -335,22 +335,14 @@ namespace hadMolee
         {
             switch (i)
             {
-                case x : return _mpb*(_cos_b * _sin_c + _cos_c * _sin_b);
-                case y : return 0;
-                case z : return _mpb*(_cos_c * _cos_b - _sin_c * _sin_b);
+                case x : return _mpb*(_cos_b*_sin_c + _cos_c*_sin_b);
+                case y : return 0.;
+                case z : return _mpb*(_cos_c*_cos_b - _sin_c*_sin_b);
             };
         };
 
-        // Given the orientation of p_b and p_c calculate p_a by enforcing p_a + p_b + p_c = 0
-        inline double p_a(cartesian_index i)
-        {
-            switch (i)
-            {
-                case x : return - _mpa*((1. + _cos_b)*_sin_c - _cos_c * _sin_b);
-                case y : return 0;
-                case z : return - _mpa*((1. + _cos_b)*_cos_c + _sin_c * _sin_b);
-            };
-        };
+        // Given the orientation of p_b and p_c calculate p_a by enforcing p_a + p_b + p_c = 0 in decay frame
+        inline double p_a(cartesian_index i){ return - (p_b(i) + p_c(i)); }
 
         // Differential widths in terms of specific channels
         double dGamma_ab(double s, double sab);
@@ -378,6 +370,7 @@ namespace hadMolee
         // The averaging factor for the Y meson is handled in the width definition
         inline double decay_distribution(double s, double sab, double sbc, double cos)
         {
+            update(s, sab, sbc, cos);
             return 1;
         }
     };
