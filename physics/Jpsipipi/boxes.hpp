@@ -1,4 +1,4 @@
-// Specific implementations of amplitudes relevant for the Jpsi pi pi final state
+// Specific implementations of box amplitudes relevant for the Jpsi pi pi final state
 
 // Author:       Daniel Winney (2023)
 // Email:        dwinney@scnu.edu.cn
@@ -37,11 +37,11 @@ namespace hadMolee::Jpsipipi
             {
                 // particle c couples to the D1 vertex
                 _pi1 = c;
-                result += (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*_mpc*_mpc) + H1_S*delta(i,j)) * M(j, k);
+                result += sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*_mpc*_mpc) + H1_S*delta(i,j)) * M(j, k);
 
                 // particle b couples to the D1 vertex
                 _pi1 = b;
-                result += (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*_mpb*_mpb) + H1_S*delta(i,j)) * M(j, k);
+                result += sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*_mpb*_mpb) + H1_S*delta(i,j)) * M(j, k);
             };
             return  _C * result / sqrt(2.);
         };
@@ -58,8 +58,8 @@ namespace hadMolee::Jpsipipi
             double M_Y = sqrt(_s);
 
             // Update floating masses in the box and evaluate
-            _B.set_external_masses({_W,   _decay_masses[0],    _decay_masses[1],    _decay_masses[2]});
-            _B.set_internal_masses({M_D1, _internal_masses[0], _internal_masses[1], _internal_masses[2]});
+            _B.set_external_masses({_W,   _decay_masses[0], _decay_masses[1], _decay_masses[2]});
+            _B.set_internal_masses({M_D1, _loop_masses[0],  _loop_masses[1],  _loop_masses[2] });
             _B.add_width(0, W_D1);
 
             // Box vector related things depend on which particle is particle 1
@@ -106,28 +106,16 @@ namespace hadMolee::Jpsipipi
         };
 
         // Aliases for the pion momenta specifying which is pi1 and pi2
-        inline complex p1(cartesian_index i)
-        {
-            return p(_pi1, i);
-        };
-        inline complex p2(cartesian_index i)
-        {
-            return (_pi1== c) ? p(b, i) : p(c, i);
-        };
+        inline complex p1(cartesian_index i){ return p(_pi1, i); };
+        inline complex p2(cartesian_index i){ return (_pi1== c) ? p(b, i) : p(c, i); };
 
         // Vector decomposition of the Box
-        inline std::array<complex,4> vB()
-        {
-            return (_pi1 == c) ? _vB[0] : _vB[1];
-        };
+        inline std::array<complex,4> vB(){ return (_pi1 == c) ? _vB[0] : _vB[1]; };
 
         // Assemble the vector containing all the box functions
         // p_a = jpsi,  p_b = pi_2,  p_c = pi_1
         virtual inline complex q(cartesian_index i) = 0;
-        inline complex qdotp2()
-        {
-            return (_pi1 == c) ? _q_dot_p[0] : _q_dot_p[1];
-        };
+        inline complex qdotp2(){ return (_pi1 == c) ? _q_dot_p[0] : _q_dot_p[1]; };
 
         // The box vector needs to be contracted with the jpsi vertex
         // also multiply by common factors
@@ -138,7 +126,7 @@ namespace hadMolee::Jpsipipi
         double _gjpsi = 0.; 
 
         std::array<double,3> _decay_masses;
-        std::array<double,3> _internal_masses;
+        std::array<double,3> _loop_masses;
 
         // Box functions
         // Fixed masses for all the particles in the box
@@ -153,20 +141,20 @@ namespace hadMolee::Jpsipipi
     };
 
     // ---------------------------------------------------------------------------
-    // Specific boxes follows notation in Leon's note
+    // Specific boxes follow notation in Leon's note
 
     // Box with J/psi D* D* coupling
-    class Box_I : public generic_box
+    class box_I : public generic_box
     {
         public: 
 
-        Box_I(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "Box I")
+        box_I(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "Box I")
         : generic_box(key, xkinem, Y, id)
         {
             _schan = ac, _tchan = ab;
 
-            _decay_masses    = {M_PION, M_JPSI,  M_PION};
-            _internal_masses = {M_D,    M_DSTAR, M_DSTAR};
+            _decay_masses = {M_PION, M_JPSI,  M_PION};
+            _loop_masses  = {M_D,    M_DSTAR, M_DSTAR};
 
             _gjpsi = G_PSI * sqrt(M_JPSI*M_DSTAR*M_DSTAR); 
         };
@@ -190,17 +178,17 @@ namespace hadMolee::Jpsipipi
     };
 
     // Box with J/psi D D* coupling
-    class Box_II : public generic_box
+    class box_II : public generic_box
     {
         public: 
 
-        Box_II(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "Box II")
+        box_II(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "Box II")
         : generic_box(key, xkinem, Y, id)
         {
             _schan = bc, _tchan = ab;
 
-            _decay_masses    = {M_JPSI, M_PION,  M_PION};
-            _internal_masses = {M_D,    M_DSTAR, M_DSTAR};
+            _decay_masses = {M_JPSI, M_PION,  M_PION};
+            _loop_masses  = {M_D,    M_DSTAR, M_DSTAR};
 
             _gjpsi = G_PSI * sqrt(M_JPSI*M_DSTAR*M_D); 
         };
@@ -224,17 +212,17 @@ namespace hadMolee::Jpsipipi
     };
 
     // Box with J/psi D D coupling
-    class Box_III : public generic_box
+    class box_III : public generic_box
     {
         public: 
 
-        Box_III(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "Box III")
+        box_III(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "Box III")
         : generic_box(key, xkinem, Y, id)
         {
             _schan = bc, _tchan = ab;
 
-            _decay_masses    = {M_JPSI, M_PION,  M_PION};
-            _internal_masses = {M_D,    M_D,     M_DSTAR};
+            _decay_masses = {M_JPSI, M_PION,  M_PION};
+            _loop_masses  = {M_D,    M_D,     M_DSTAR};
 
             _gjpsi = G_PSI * sqrt(M_JPSI*M_D*M_D); 
         };
