@@ -14,8 +14,65 @@ namespace hadMolee
         {
             case (kRelativistic):    return relativistic_eval();
             case (kNonrelativistic): return nonrelativistic_eval();
+            case (kLoopTools):       return looptools_eval();
             default: return std::nan("");
         };
+    };
+    
+    complex triangle::looptools_eval()
+    {
+        // Grab all the masses
+        double p1 = _integrand._ema2;
+        double p2 = _integrand._emb2;
+        double p3 = _integrand._emc2;
+
+        double m1  = _integrand._ima2;
+        double m2  = _integrand._imb2;
+        double m3  = _integrand._imc2;
+
+        // And widths 
+        double w1  = _integrand._wa + 1.E-6;
+        double w2  = _integrand._wb + 1.E-6;
+        double w3  = _integrand._wc + 1.E-6;
+
+        ltini();
+        setwarndigits(60);
+        complex integral = C0C(p1, p2, p3, m2 - I*csqrt(m2)*w2, m3 - I*csqrt(m3)*w3, m1 - I*csqrt(m1)*w1);
+        ltexi();
+        
+        return - integral / pow(4.*PI, 2.);
+    };
+
+    std::array<complex,3> triangle::eval_vector()
+    {
+        if (_mode != kLoopTools) return {nan(""), nan(""), nan("")};
+
+        // Grab all the masses
+        double p1 = _integrand._ema2;
+        double p2 = _integrand._emb2;
+        double p3 = _integrand._emc2;
+
+        double m1  = _integrand._ima2;
+        double m2  = _integrand._imb2;
+        double m3  = _integrand._imc2;
+
+        // And widths 
+        double w1  = _integrand._wa + 1.E-6;
+        double w2  = _integrand._wb + 1.E-6;
+        double w3  = _integrand._wc + 1.E-6;
+
+        ltini();
+        setwarndigits(60);
+        std::array<int,3> cc = {cc0, cc1, cc2};
+        std::array<complex,3> vector;
+        for (int i = 0; i < 3; i++)
+        {
+            vector[i] = - C0iC(cc[i], p1, p2, p3, m2 - I*csqrt(m2)*w2, m3 - I*csqrt(m3)*w3, m1 - I*csqrt(m1)*w1) / pow(4.*PI, 2.);
+
+        }
+        ltexi();
+        
+        return vector;
     };
 
     complex triangle::relativistic_eval()

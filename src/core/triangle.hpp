@@ -9,6 +9,7 @@
 
 #include "cubature.h"
 #include "constants.hpp"
+#include "clooptools.h"
 
 #include <memory>
 
@@ -37,6 +38,11 @@ namespace hadMolee
 
         // Evaluate as a function of the initial state invariant mass
         complex eval();
+
+        // Evaluate the vector decomposition
+        std::array<complex,3> eval_vector();
+
+        // Return the function squared
         inline double squared(double s){ return norm(eval()); };
 
         // Setting functions for the masses
@@ -44,6 +50,9 @@ namespace hadMolee
         { 
             _integrand._ima  = m[0];      _integrand._imb  = m[1];      _integrand._imc  = m[2]; 
             _integrand._ima2 = m[0]*m[0]; _integrand._imb2 = m[1]*m[1]; _integrand._imc2 = m[2]*m[2];
+
+            // If internal masses change, reset all the widths
+            _integrand._wa = 0.; _integrand._wb = 0.; _integrand._wc = 0.; 
         }
         inline void set_external_masses(std::array<double,3> m)
         {
@@ -110,6 +119,7 @@ namespace hadMolee
         // The evaluation depends on what mode is selected and filters through these
         complex nonrelativistic_eval();
         complex relativistic_eval();
+        complex looptools_eval();
         
         // Integrand object which will be used to evaluate the integral with the cubature library
         // Wrapper for the integrand, callable function of feynman parameters

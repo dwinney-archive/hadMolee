@@ -37,10 +37,10 @@ namespace hadMolee
         double m3  = _integrand._m3;
 
         // And widths 
-        double w0  = _integrand._w0 + 100.*EPS;
-        double w1  = _integrand._w1 + 100.*EPS;
-        double w2  = _integrand._w2 + 100.*EPS;
-        double w3  = _integrand._w3 + 100.*EPS;
+        double w0  = _integrand._w0 + 1E-6;
+        double w1  = _integrand._w1 + 1E-6;
+        double w2  = _integrand._w2 + 1E-6;
+        double w3  = _integrand._w3 + 1E-6;
 
         ltini();
         setwarndigits(60);
@@ -78,6 +78,7 @@ namespace hadMolee
         bool use_complex_masses = is_zero(w0 + w1 + w2 + w3);
 
         ltini();
+        setwarndigits(60);
         complex integral;
         if ( use_complex_masses ) {integral = D0i (dd0, p01, p03, p23, p12, p13, p02, m1, m0, m3, m2);}
         else                      {integral = D0iC(dd0, p01, p03, p23, p12, p13, p02, m1 - I*csqrt(m1)*w1, m0 - I*csqrt(m0)*w0, m3 - I*csqrt(m3)*w3, m2 - I*csqrt(m2)*w2);}
