@@ -138,6 +138,9 @@ namespace hadMolee::Jpsipipi
         molecule _Y;
     };
 
+    // ---------------------------------------------------------------------------
+    // Specific boxes follows notation in Leon's note
+    
     class Box_I : public generic_box
     {
         public: 
@@ -147,8 +150,8 @@ namespace hadMolee::Jpsipipi
         {
             _schan = ac, _tchan = ab;
 
-            _decay_masses    = {M_PION, M_JPSI, M_PION};
-            _internal_masses = {M_D, M_DSTAR, M_DSTAR};
+            _decay_masses    = {M_PION, M_JPSI,  M_PION};
+            _internal_masses = {M_D,    M_DSTAR, M_DSTAR};
 
             _gjpsi = G_PSI * sqrt(M_JPSI*M_DSTAR*M_DSTAR); 
         };
@@ -171,6 +174,7 @@ namespace hadMolee::Jpsipipi
         };
     };
 
+
     class Box_II : public generic_box
     {
         public: 
@@ -180,8 +184,8 @@ namespace hadMolee::Jpsipipi
         {
             _schan = bc, _tchan = ab;
 
-            _decay_masses    = {M_JPSI, M_PION, M_PION};
-            _internal_masses = {M_D, M_DSTAR, M_DSTAR};
+            _decay_masses    = {M_JPSI, M_PION,  M_PION};
+            _internal_masses = {M_D,    M_DSTAR, M_DSTAR};
 
             _gjpsi = G_PSI * sqrt(M_JPSI*M_DSTAR*M_D); 
         };
@@ -200,7 +204,40 @@ namespace hadMolee::Jpsipipi
 
         inline complex M(particle pi2, cartesian_index j, cartesian_index k)
         {
-            return q(pi2, k)*p(pi2, j) - delta(j,k)*qdotp(pi2);
+            return q(pi2, j)*p(pi2, k) - delta(j,k)*qdotp(pi2);
+        };
+    };
+
+    class Box_III : public generic_box
+    {
+        public: 
+
+        Box_III(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "Box III")
+        : generic_box(key, xkinem, Y, id)
+        {
+            _schan = bc, _tchan = ab;
+
+            _decay_masses    = {M_JPSI, M_PION,  M_PION};
+            _internal_masses = {M_D,    M_D,     M_DSTAR};
+
+            _gjpsi = G_PSI * sqrt(M_JPSI*M_DSTAR*M_D); 
+        };
+
+        protected:
+
+        // Things that specify the box
+        inline complex q(particle pi2, cartesian_index i)
+        {
+            auto vecB = vB(pi2);
+            complex pi1_piece =  2.*(vecB[3] + vecB[2] + vecB[0]);
+            complex pi2_piece =  2.* vecB[3] + vecB[0];
+
+            return pi1_piece * p(other_pion(pi2), i) + pi2_piece * p(pi2, i);
+        };
+
+        inline complex M(particle pi2, cartesian_index j, cartesian_index k)
+        {
+            return q(pi2, k)*p(pi2, j);
         };
     };
 };
