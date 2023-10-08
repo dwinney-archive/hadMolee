@@ -38,11 +38,11 @@ namespace hadMolee::Jpsipipi
             {
                 // particle c couples to the D1 vertex
                 _pi1 = c;
-                result += sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*_mpc*_mpc) + H1_S*delta(i,j)) * M(j, k);
+                result += d_wave(i, j) * M(j, k);
 
                 // particle b couples to the D1 vertex
                 _pi1 = b;
-                result += sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*_mpb*_mpb) + H1_S*delta(i,j)) * M(j, k);
+                result += d_wave(i, j) * M(j, k);
             };
             return  _C * result / sqrt(2.);
         };
@@ -52,12 +52,19 @@ namespace hadMolee::Jpsipipi
         // Save which particle is considered pi1, by default this is particle c
         particle _pi1 = c;
 
+        // D1 -> D* pi coupling
+        inline complex d_wave(cartesian_index i, cartesian_index j)
+        {
+            double mp = (_pi1 == c) ? _mpc : _mpb;
+            return sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*mp*mp) + H1_S*delta(i,j));
+        };
+
         inline void recalculate()
         {
             // Y mass and couplings
-            double gy   = _Y->molecular_coupling();
+            double gy  = _Y->molecular_coupling();
             double M_Y = sqrt(_s);
-            double gz   = _Zc->molecular_coupling();
+            double gz  = _Zc->molecular_coupling();
             double M_Z = M_ZC3900;
 
             // Update floating masses in triangle 1 and evaluate
@@ -96,10 +103,10 @@ namespace hadMolee::Jpsipipi
 
         // Aliases for the pion momenta specifying which is pi1 and pi2
         inline complex p1(cartesian_index i){ return p(_pi1, i); };
-        inline complex p2(cartesian_index i){ return (_pi1== c) ? p(b, i) : p(c, i); };
+        inline complex p2(cartesian_index i){ return (_pi1 == c) ? p(b, i) : p(c, i); };
 
         // Returns T1 for current permutation of pions
-        inline complex T1(){ return (_pi1 == c) ? _T1[0] : _T1[1]; ;}
+        inline complex T1(){ return (_pi1 == c) ? _T1[0] : _T1[1]; };
 
         // Returns vector decomposition of T2 for current permutation of pions
         inline std::array<complex,3> vT2(){ return (_pi1 == c) ? _vT2[0] : _vT2[1]; };

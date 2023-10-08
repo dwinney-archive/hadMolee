@@ -37,11 +37,11 @@ namespace hadMolee::Jpsipipi
             {
                 // particle c couples to the D1 vertex
                 _pi1 = c;
-                result += sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*_mpc*_mpc) + H1_S*delta(i,j)) * M(j, k);
+                result += d_wave(i, j) * M(j, k);
 
                 // particle b couples to the D1 vertex
                 _pi1 = b;
-                result += sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*_mpb*_mpb) + H1_S*delta(i,j)) * M(j, k);
+                result += d_wave(i, j) * M(j, k);
             };
             return  _C * result / sqrt(2.);
         };
@@ -50,6 +50,13 @@ namespace hadMolee::Jpsipipi
 
         // Save which particle is considered pi1, by default this is particle c
         particle _pi1 = c;
+
+        // D1 -> D* pi coupling
+        inline complex d_wave(cartesian_index i, cartesian_index j)
+        {
+            double mp = (_pi1 == c) ? _mpc : _mpb;
+            return sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*mp*mp) + H1_S*delta(i,j));
+        };
 
         inline void recalculate()
         {
