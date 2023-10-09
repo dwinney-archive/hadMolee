@@ -37,12 +37,12 @@ namespace hadMolee::Jpsipipi
             for (auto j : C_INDICES)
             {
                 // particle c couples to the D1 vertex
-                _pi1 = c;
+                _pi1 = particle::c;
                 result += d_wave(i, j) * M(j, k);
 
                 // particle b couples to the D1 vertex
-                _pi1 = b;
-                result += d_wave(i, j) * M(j, k);
+                _pi1 = particle::b;
+                result -= d_wave(i, j) * M(j, k);
             };
             return  _C * result / sqrt(2.);
         };
@@ -50,13 +50,12 @@ namespace hadMolee::Jpsipipi
         protected:
 
         // Save which particle is considered pi1, by default this is particle c
-        particle _pi1 = c;
+        particle _pi1 = particle::c;
 
         // D1 -> D* pi coupling
         inline complex d_wave(cartesian_index i, cartesian_index j)
         {
-            double mp = (_pi1 == c) ? _mpc : _mpb;
-            return sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*mp*mp) + H1_S*delta(i,j));
+            return sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*modp()*modp()) + H1_S*delta(i,j));
         };
 
         inline void recalculate()
@@ -82,41 +81,51 @@ namespace hadMolee::Jpsipipi
             // Skip the D1 -> D* pi coupling which we include above
             _C *= gz          * sqrt(M_D*M_DSTAR*M_Z); // D* D -> Z 
 
-            // // Set up triangle 2
-            // // This will depend on the running masses in specific triangle diagram
-            // _pi1 = c;
-            // _T.set_external_masses({_sab, M_JPSI, M_PION});
-            // _T.set_internal_masses({_loop_masses[0], _loop_masses[1], _loop_masses[2]});
-            // _vT2[0]     = _T.eval_vector();
-            // _q_dot_p[0] = q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
+            // Set up triangle 2
+            // This will depend on the running masses in specific triangle diagram
+            _pi1 = particle::c;
+            _T.set_external_masses({_sab, M_JPSI, M_PION});
+            _T.set_internal_masses({_loop_masses[0], _loop_masses[1], _loop_masses[2]});
+            _vT2[0]     = _T.eval_vector();
+            _q_dot_p[0] = q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
 
-            // // Swap pions 
-            // _T.set_external_masses({_sac, M_JPSI, M_PION});
-            // _vT2[1]     = _T.eval_vector();
-            // _q_dot_p[1] = q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
+            // Swap pions 
+            _pi1 = particle::b;
+            _T.set_external_masses({_sac, M_JPSI, M_PION});
+            _vT2[1]     = _T.eval_vector();
+            _q_dot_p[1] = q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
 
-            // // Gather couplings from the vertices of the second triangle
-            // _C *= gz     * sqrt(M_D*M_DSTAR*M_Z); // Z decay vertex
-            // _C *= _gpi;                           // Coupling at pion vertex
-            // _C *= _gjpsi;                         // Coupling at psi vertex 
+            // Gather couplings from the vertices of the second triangle
+            _C *= gz     * sqrt(M_D*M_DSTAR*M_Z); // Z decay vertex
+            _C *= _gpi;                           // Coupling at pion vertex
+            _C *= _gjpsi;                         // Coupling at psi vertex 
         };
 
         // Aliases for the pion momenta specifying which is pi1 and pi2
-        inline complex p1(cartesian_index i){ return p(_pi1, i); };
-        inline complex p2(cartesian_index i){ return (_pi1 == c) ? p(b, i) : p(c, i); };
+        inline double modp(){ return (_pi1 == c) ? _mpc : _mpb; };
+        inline complex p1(cartesian_index i){ return modp() * phat_1(i); };
+        inline complex p2(cartesian_index i){ return modp() * phat_2(i); };
 
         // Returns T1 for current permutation of pions
-        inline complex T1(){ return (_pi1 == c) ? _T1[0] : _T1[1]; };
+        inline complex T1(){ return (_pi1 == particle::c) ? _T1[0] : _T1[1]; };
 
         // Returns vector decomposition of T2 for current permutation of pions
-        inline std::array<complex,3> vT2(){ return (_pi1 == c) ? _vT2[0] : _vT2[1]; };
+        inline std::array<complex,3> vT2(){ return (_pi1 == particle::c) ? _vT2[0] : _vT2[1]; };
 
         // Assemble the vector containing all the box functions
-        inline complex qdotp2(){ return (_pi1 == c) ? _q_dot_p[0] : _q_dot_p[1]; };
-
+        inline complex qdotp2(){ return (_pi1 == particle::c) ? _q_dot_p[0] : _q_dot_p[1]; };
+        
+        // Unlike the boxes, the triangle doesnt involve reordering the external masses so 
+        // we have a common q
+        inline complex q(cartesian_index i)
+        {
+            auto vecT2 = vT2();
+            complex pi1_piece =  2.*(vecT2[1] + vecT2[2]) + vecT2[0];
+            complex pi2_piece =  2.* vecT2[2] + vecT2[0];
+            return pi1_piece * p1(i) + pi2_piece * p2(i);
+        };
         // The box vector needs to be contracted with the jpsi vertex
         // also multiply by common factors
-        virtual inline complex q(cartesian_index i) = 0;
         virtual inline complex M(cartesian_index j, cartesian_index k) = 0;
 
         // Scalar prefactors 
@@ -143,7 +152,7 @@ namespace hadMolee::Jpsipipi
     // ---------------------------------------------------------------------------
     // Specific triangles follow notation in Leon's note
 
-    // Triangle with Jpsi D* D* logo
+    // Triangle with Jpsi D D* vertex
     class triangle_I : public generic_triangle
     {
         public:
@@ -152,17 +161,58 @@ namespace hadMolee::Jpsipipi
         : generic_triangle(key, xkinem, Y, id)
         {
             _loop_masses = {M_D, M_DSTAR, M_DSTAR};
-            _gjpsi       = 1.;
-            _gpi         = 1.;
+            _gjpsi       = G_PSI   * sqrt(M_JPSI  * M_DSTAR * M_D); 
+            _gpi         = G2_PION * sqrt(M_DSTAR * M_DSTAR);
         };
 
         protected:
-        inline complex q(cartesian_index i){ return 0.; };
+
         inline complex M(cartesian_index j, cartesian_index k)
         {
-            return T1() * delta(j, k);
+            return T1() * (p2(k)*q(j) - delta(j, k)*qdotp2());
+        };
+    };  
+
+    // Triangle with Jpsi D D vertex
+    class triangle_II : public generic_triangle
+    {
+        public:
+
+        triangle_II(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "Triangle II")
+        : generic_triangle(key, xkinem, Y, id)
+        {
+            _loop_masses = {M_D, M_DSTAR, M_D};
+            _gjpsi       = G_PSI   * sqrt(M_JPSI  * M_D * M_D); 
+            _gpi         = G1_PION * sqrt(M_DSTAR * M_D);
         };
 
+        protected:
+
+        inline complex M(cartesian_index j, cartesian_index k)
+        {
+            return T1() * p2(j)*q(k);
+        };
+    };  
+
+    // Triangle with Jpsi D* D* vertex
+    class triangle_III : public generic_triangle
+    {
+        public:
+
+        triangle_III(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "Triangle III")
+        : generic_triangle(key, xkinem, Y, id)
+        {
+            _loop_masses = {M_DSTAR, M_D, M_DSTAR};
+            _gjpsi       = G_PSI   * sqrt(M_JPSI  * M_DSTAR * M_DSTAR); 
+            _gpi         = G1_PION * sqrt(M_DSTAR * M_D);
+        };
+
+        protected:
+
+        inline complex M(cartesian_index j, cartesian_index k)
+        {
+            return T1() * (p2(j)*q(k) - p2(k)*q(j) - delta(j,k)*qdotp2() );
+        };
     };    
 };
 
