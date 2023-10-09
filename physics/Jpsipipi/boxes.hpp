@@ -36,11 +36,11 @@ namespace hadMolee::Jpsipipi
             for (auto j : C_INDICES)
             {
                 // particle c couples to the D1 vertex
-                _pi1 = c;
+                _pi1 = particle::c;
                 result += d_wave(i, j) * M(j, k);
 
                 // particle b couples to the D1 vertex
-                _pi1 = b;
+                _pi1 = particle::b;
                 result += d_wave(i, j) * M(j, k);
             };
             return  _C * result / sqrt(2.);
@@ -49,13 +49,12 @@ namespace hadMolee::Jpsipipi
         protected:
 
         // Save which particle is considered pi1, by default this is particle c
-        particle _pi1 = c;
+        particle _pi1 = particle::c;
 
         // D1 -> D* pi coupling
         inline complex d_wave(cartesian_index i, cartesian_index j)
         {
-            double mp = (_pi1 == c) ? _mpc : _mpb;
-            return sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*mp*mp) + H1_S*delta(i,j));
+            return sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*modp()*modp()) + H1_S*delta(i,j));
         };
 
         inline void recalculate()
@@ -70,12 +69,12 @@ namespace hadMolee::Jpsipipi
             _B.add_width(0, W_D1);
 
             // Box vector related things depend on which particle is particle 1
-            _pi1 = c;
+            _pi1 = particle::c;
             _B.set_invariant_masses(translate(_schan), translate(_tchan));
             _vB[0] = _B.eval_vector();
             _q_dot_p[0] =  q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
             
-            _pi1 = b;
+            _pi1 = particle::b;
             _B.set_invariant_masses(permute(_schan),   permute(_tchan));
             _vB[1] = _B.eval_vector();
             _q_dot_p[1] =  q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
@@ -113,16 +112,17 @@ namespace hadMolee::Jpsipipi
         };
 
         // Aliases for the pion momenta specifying which is pi1 and pi2
-        inline complex p1(cartesian_index i){ return p(_pi1, i); };
-        inline complex p2(cartesian_index i){ return (_pi1== c) ? p(b, i) : p(c, i); };
+        inline double modp(){ return (_pi1 == c) ? _mpc : _mpb; };
+        inline complex p1(cartesian_index i){ return modp() * phat_1(i); };
+        inline complex p2(cartesian_index i){ return modp() * phat_2(i); };
 
         // Vector decomposition of the Box
-        inline std::array<complex,4> vB(){ return (_pi1 == c) ? _vB[0] : _vB[1]; };
+        inline std::array<complex,4> vB(){ return (_pi1 == particle::c) ? _vB[0] : _vB[1]; };
 
         // Assemble the vector containing all the box functions
         // p_a = jpsi,  p_b = pi_2,  p_c = pi_1
         virtual inline complex q(cartesian_index i) = 0;
-        inline complex qdotp2(){ return (_pi1 == c) ? _q_dot_p[0] : _q_dot_p[1]; };
+        inline complex qdotp2(){ return (_pi1 == particle::c) ? _q_dot_p[0] : _q_dot_p[1]; };
 
         // The box vector needs to be contracted with the jpsi vertex
         // also multiply by common factors

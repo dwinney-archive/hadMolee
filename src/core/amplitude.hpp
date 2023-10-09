@@ -305,44 +305,28 @@ namespace hadMolee
 
         // Whether error is already thrown
         bool _error_thrown = false;
-
-        // Short cuts for characteristic angular behavior
-
-        inline double p(particle abc, cartesian_index i)
-        {
-            switch (abc)
-            {
-                case a: return p_a(i);
-                case b: return p_b(i);
-                case c: return p_c(i);
-                default: return nan("");
-            }
-        };
         
         // The external production angle is assumed to always define the orientation of particle c
-        inline double p_c(cartesian_index i)
+        inline double phat_1(cartesian_index i)
         {
             switch (i)
             {
-                case x : return _mpc*_sin_c;
+                case x : return _sin_c;
                 case y : return 0.;
-                case z : return _mpc*_cos_c;
+                case z : return _cos_c;
             };
         };
 
         // Given the orientation of p_c above, also rotate p_b
-        inline double p_b(cartesian_index i)
+        inline double phat_2(cartesian_index i)
         {
             switch (i)
             {
-                case x : return _mpb*(_cos_b*_sin_c + _cos_c*_sin_b);
+                case x : return (_cos_b*_sin_c + _cos_c*_sin_b);
                 case y : return 0.;
-                case z : return _mpb*(_cos_c*_cos_b - _sin_c*_sin_b);
+                case z : return (_cos_c*_cos_b - _sin_c*_sin_b);
             };
         };
-
-        // Given the orientation of p_b and p_c calculate p_a by enforcing p_a + p_b + p_c = 0 in decay frame
-        inline double p_a(cartesian_index i){ return - (p_b(i) + p_c(i)); }
 
         // Differential widths in terms of specific channels
         double dGamma_ab(double s, double sab);
