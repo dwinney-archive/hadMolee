@@ -28,8 +28,7 @@ namespace hadMolee
 
         inline complex propagator(double s)
         {
-            complex D = sqrt(s) - _mass + I*_width/2.;
-            return 1. / (2. * _mass * D);
+            return 1./(s - _mass*_mass + I*_mass*_width);
         };
 
         inline complex photon_coupling()

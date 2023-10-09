@@ -66,9 +66,9 @@ namespace hadMolee
     // const double M_D1        = 2.4221;
 
     // Use Qians numbers
-    const double M_D     = 1.867;
-    const double M_DSTAR = 2.008;
-    const double M_D1    = 2.4234;
+    const double M_D     = 1.86483;
+    const double M_DSTAR = 2.00685;
+    const double M_D1    = 2.4208;
     
     // Neutral charmed
     const double M_D0        = 1.86484;
@@ -88,7 +88,7 @@ namespace hadMolee
     // ---------------------------------------------------------------------------
     // 2022 PDG widths in GeV
 
-    const double W_D1       = 31.3E-3; // Charged (narrow) D1
+    const double W_D1       = 31.7E-3; // Charged (narrow) D1
     const double W_D10      = 314.E-3; // Neutral (wide) D1
     const double W_Y4260    = 49.E-3;  
     const double W_ZC3900   = 28.4E-3;
@@ -96,13 +96,14 @@ namespace hadMolee
     // ---------------------------------------------------------------------------
     // Couplings associated with HQSS
     
-    const double F_PION     = sqrt(2.) * 91E-3;  // Pion decay constant in GeV
+    const double F_PION     = sqrt(2.)*91E-3;  // Pion decay constant in GeV
     const double F_JPSI     = 0.416;
 
     // D1 -> D* pi
-    const double H_PRIME    = 1.197;
-    const double H1_D       = sqrt(2./3.)*H_PRIME/F_PION;
-    const double H1_S       = 0.;
+    const double HD_PRIME   = 1.;
+    const double H1_D       = sqrt(2./3.)*HD_PRIME/F_PION;
+    const double HS_PRIME   = 0.572;
+    const double H1_S       = HS_PRIME/sqrt(3.)/F_PION;
 
     // D* -> D pi
     const double G_TILDE    = 0.57;

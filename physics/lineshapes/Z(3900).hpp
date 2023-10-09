@@ -24,9 +24,9 @@ namespace hadMolee
         : molecular(M_DSTAR, M_D)
         {
             // Given a pole mass calculate the bare mass
-            _pole_mass           = 3.87;
-            _z                   = 2.891;
-            _total_width         = 100.E-3;
+            _pole_mass           = 3.9;
+            _z                   = 4.66 / sqrt(M_DSTAR * M_D * _pole_mass);
+            _total_width         = 50.E-3;
             _molecular_coupling  = _z;
 
             // IF WE TAKE THE INPUT MASS AS THE BARE MASS

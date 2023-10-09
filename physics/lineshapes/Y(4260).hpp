@@ -24,10 +24,10 @@ namespace hadMolee
         D1D_molecule(std::string id = "Y(4260)")
         : charmoniumlike(4, id), molecular(M_D1, M_D)
         {
-            _pole_mass           = 4.23;
-            _y                   = 42.8E-3;
-            _total_width         = 46E-3;
-            _fY                  = 2.194;
+            _pole_mass           = 4.2281;
+            _y                   = 0.1145 / sqrt(_pole_mass * M_D1 * M_DSTAR);
+            _total_width         = 42.6E-3;
+            _fY                  = 0.672;
             _molecular_coupling  = _y;
 
             _bare_mass           = _pole_mass;

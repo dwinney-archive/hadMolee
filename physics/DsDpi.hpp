@@ -45,7 +45,7 @@ namespace hadMolee::DsDpi
 
         // Parameterize with two real polynomial coefficients
         // Values from Leon's note
-        double _a = 2.501, _b = -15.12;
+        double _a = 1.110, _b = -15.5;
 
         // S-wave coupling strength
         complex _AS; 
@@ -218,7 +218,7 @@ namespace hadMolee::DsDpi
         // -----------------------------------------------------------------------
         private:
 
-        double _mod_psi  = 1.9;
+        double _a_psi  = 0.7, _b_psi = -14.96;
 
         // S-wave coupling strength
         complex _AS; 
@@ -229,11 +229,15 @@ namespace hadMolee::DsDpi
         // S-wave amplitude is easy, because its only the Z propagator that needs to be calcualted
         inline void recalculate()
         {
+            double  z   = _Zc->molecular_coupling();
+            double  M_Z = M_ZC3900;
+
             // Multiply by the helicity frame energy to make sure amplitude respects Goldstone theorem.
             double omega_pi = sqrt(M_PION*M_PION + _mpc*_mpc);
 
             // Add the psi(4160) part by removing the Ylineshape
-            _AS = _mod_psi * _Zc->propagator(_sab)*omega_pi;
+            _AS  = _a_psi*(_b_psi + _sab)*_Zc->propagator(_sab)*omega_pi / _V->photon_coupling();
+            _AS *= z * sqrt(M_D*M_DSTAR*M_Z);
         };
     };
 };
