@@ -88,11 +88,17 @@ namespace hadMolee::DsDpi
         // The reduced amplitude is a D-wave amplitude
         inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
         {
-            return _AD * (3.*p_c(i)*p_c(j) - delta(i,j)*_mpc*_mpc);
+            return _AD * D1_coupling(i, j);
         };
 
         // -----------------------------------------------------------------------
         private:
+
+        // D1 -> D* pi coupling
+        inline complex D1_coupling(cartesian_index i, cartesian_index j)
+        {
+            return sqrt(M_D1*M_DSTAR)*_mpc*_mpc*(H1_D*(3.*phat_1(i)*phat_1(j) - delta(i,j)) + H1_S*delta(i,j));
+        };
         
         inline void recalculate()
         {
@@ -111,7 +117,7 @@ namespace hadMolee::DsDpi
 
             // Couplings at the vertices of the triangle
             _AD *= y/sqrt(2.) * sqrt(M_Y*M_D1*M_D);  
-            _AD *= H1_D       * sqrt(M_D1*M_DSTAR); // D-wave momenta are factored out
+            // Skip D-wave D1 -> D* pi which we factor out
             _AD *= z          * sqrt(M_D*M_DSTAR*M_Z); 
 
             // Z decay vertex
@@ -152,11 +158,16 @@ namespace hadMolee::DsDpi
         // however it receives contributions from the propagator of the Z meson
         inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
         {
-            return _AD * (3.*p_c(i)*p_c(j) - delta(i,j)*_mpc*_mpc);
+            return _AD * D1_coupling(i, j);
         };
 
         // -----------------------------------------------------------------------
         private:
+
+        inline complex D1_coupling(cartesian_index i, cartesian_index j)
+        {
+            return sqrt(M_D1*M_DSTAR)*_mpc*_mpc*(H1_D*(3.*phat_1(i)*phat_1(j) - delta(i,j)) + H1_S*delta(i,j));
+        };
         
         inline void recalculate()
         {            
@@ -170,7 +181,7 @@ namespace hadMolee::DsDpi
             // Only two verices
             _AD  = G_D1; 
             _AD *= y/sqrt(2.) * sqrt(M_Y*M_D1*M_D);  
-            _AD *= H1_D       * sqrt(M_D1*M_DSTAR); // D-wave momenta are factored out
+            // Skip D-wave D1 -> D* pi which we factor out
         };
 
         // Couplings
