@@ -55,7 +55,7 @@ namespace hadMolee::Jpsipipi
         // D1 -> D* pi coupling
         inline complex d_wave(cartesian_index i, cartesian_index j)
         {
-            return sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*modp()*modp()) + H1_S*delta(i,j));
+            return sqrt(M_D1*M_DSTAR)*(H1_D*(3.*p1(i)*p1(j) - delta(i,j)*modp()*modp()) + H1_S*delta(i,j));
         };
 
         inline void recalculate()
@@ -84,14 +84,13 @@ namespace hadMolee::Jpsipipi
             // Set up triangle 2
             // This will depend on the running masses in specific triangle diagram
             _pi1 = particle::c;
-            _T.set_external_masses({_sab, M_JPSI, M_PION});
+            _T.set_external_masses({sqrt(_sab), M_JPSI, M_PION});
             _T.set_internal_masses({_loop_masses[0], _loop_masses[1], _loop_masses[2]});
             _vT2[0]     = _T.eval_vector();
             _q_dot_p[0] = q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
-
             // Swap pions 
             _pi1 = particle::b;
-            _T.set_external_masses({_sac, M_JPSI, M_PION});
+            _T.set_external_masses({sqrt(_sac), M_JPSI, M_PION});
             _vT2[1]     = _T.eval_vector();
             _q_dot_p[1] = q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
 
@@ -120,8 +119,8 @@ namespace hadMolee::Jpsipipi
         inline complex q(cartesian_index i)
         {
             auto vecT2 = vT2();
-            complex pi1_piece =  2.*(vecT2[1] + vecT2[2]) + vecT2[0];
-            complex pi2_piece =  2.* vecT2[2] + vecT2[0];
+            complex pi1_piece =  /* 2.*(vecT2[1] + vecT2[2]) */ + vecT2[0];
+            complex pi2_piece =  /* 2.* vecT2[2]  */            - vecT2[0];
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
         // The box vector needs to be contracted with the jpsi vertex
@@ -211,7 +210,7 @@ namespace hadMolee::Jpsipipi
 
         inline complex M(cartesian_index j, cartesian_index k)
         {
-            return T1() * (p2(j)*q(k) - p2(k)*q(j) - delta(j,k)*qdotp2() );
+            return T1() * (p2(j)*q(k) - p2(k)*q(j) - delta(j,k)*qdotp2());
         };
     };    
 };

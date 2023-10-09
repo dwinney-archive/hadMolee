@@ -37,11 +37,11 @@ namespace hadMolee::Jpsipipi
             {
                 // particle c couples to the D1 vertex
                 _pi1 = particle::c;
-                result += d_wave(i, j) * M(j, k);
+                result += D1_coupling(i, j) * M(j, k);
 
                 // particle b couples to the D1 vertex
                 _pi1 = particle::b;
-                result += d_wave(i, j) * M(j, k);
+                result += D1_coupling(i, j) * M(j, k);
             };
             return  _C * result / sqrt(2.);
         };
@@ -52,7 +52,7 @@ namespace hadMolee::Jpsipipi
         particle _pi1 = particle::c;
 
         // D1 -> D* pi coupling
-        inline complex d_wave(cartesian_index i, cartesian_index j)
+        inline complex D1_coupling(cartesian_index i, cartesian_index j)
         {
             return sqrt(M_D1*M_DSTAR) * (H1_D*(3.*p1(i)*p1(j) - delta(i,j)*modp()*modp()) + H1_S*delta(i,j));
         };
@@ -206,8 +206,8 @@ namespace hadMolee::Jpsipipi
         inline complex q(cartesian_index i)
         {
             auto vecB = vB();
-            complex pi1_piece =  2.*(vecB[3] + vecB[2] + vecB[0]);
-            complex pi2_piece =  2.* vecB[3] + vecB[0];
+            complex pi1_piece =  2.*(vecB[3] + vecB[2]) + vecB[0];
+            complex pi2_piece =  2.* vecB[3]            + vecB[0];
 
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
@@ -240,8 +240,8 @@ namespace hadMolee::Jpsipipi
         inline complex q(cartesian_index i)
         {
             auto vecB = vB();
-            complex pi1_piece =  2.*(vecB[3] + vecB[2] + vecB[0]);
-            complex pi2_piece =  2.* vecB[3] + vecB[0];
+            complex pi1_piece =  2.*(vecB[3] + vecB[2]) + vecB[0];
+            complex pi2_piece =  2.* vecB[3]            + vecB[0];
 
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
