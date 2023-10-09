@@ -169,11 +169,16 @@ namespace hadMolee::Jpsipipi
         protected:
 
         // Things that specify the box
+        // p1 == pi_1, p2 == pi_2, p3 == jpsi
         inline complex q(cartesian_index i)
         {
             auto vecB = vB();
-            complex pi1_piece =  2.*vecB[2] + vecB[0];
-            complex pi2_piece = -2.*vecB[3] - vecB[0];
+
+            // 2 l + (p2 - p1)
+            // = 2 (D2 p1 + D3 (p1 + p3)) + D0 (p1 - p2)
+            // with p3 = - (p1 + p2)
+            complex pi1_piece =  2.*vecB[2] - vecB[0];
+            complex pi2_piece = -2.*vecB[3] + vecB[0];
 
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
@@ -203,11 +208,15 @@ namespace hadMolee::Jpsipipi
         protected:
 
         // Things that specify the box
+        // p1 == pi_1, p2 == pi_2, p3 == jpsi
         inline complex q(cartesian_index i)
         {
             auto vecB = vB();
-            complex pi1_piece =  2.*(vecB[3] + vecB[2]) + vecB[0];
-            complex pi2_piece =  2.* vecB[3]            + vecB[0];
+
+            // 2 l - (p2 + p1)
+            // = 2 (D2 p1 + D3 (p1 + p2)) - D0 (p1 + p2)
+            complex pi1_piece =  2.*(vecB[3] + vecB[2]) - vecB[0];
+            complex pi2_piece =  2.* vecB[3]            - vecB[0];
 
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
@@ -237,11 +246,15 @@ namespace hadMolee::Jpsipipi
         protected:
 
         // Things that specify the box
+        // p1 == pi_1, p2 == pi_2, p3 == jpsi
         inline complex q(cartesian_index i)
         {
             auto vecB = vB();
-            complex pi1_piece =  2.*(vecB[3] + vecB[2]) + vecB[0];
-            complex pi2_piece =  2.* vecB[3]            + vecB[0];
+
+            // 2 l - (p2 + p1)
+            // = 2 (D2 p1 + D3 (p1 + p2)) + D0 (p1 + p2)
+            complex pi1_piece =  2.*(vecB[3] + vecB[2]) - vecB[0];
+            complex pi2_piece =  2.* vecB[3]            - vecB[0];
 
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
