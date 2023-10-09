@@ -38,11 +38,11 @@ namespace hadMolee::Jpsipipi
             {
                 // particle c couples to the D1 vertex
                 _pi1 = particle::c;
-                result += d_wave(i, j) * M(j, k);
+                result += D1_coupling(i, j) * M(j, k);
 
                 // particle b couples to the D1 vertex
                 _pi1 = particle::b;
-                result -= d_wave(i, j) * M(j, k);
+                result -= D1_coupling(i, j) * M(j, k);
             };
             return  _C * result / sqrt(2.);
         };
@@ -53,7 +53,7 @@ namespace hadMolee::Jpsipipi
         particle _pi1 = particle::c;
 
         // D1 -> D* pi coupling
-        inline complex d_wave(cartesian_index i, cartesian_index j)
+        inline complex D1_coupling(cartesian_index i, cartesian_index j)
         {
             return sqrt(M_D1*M_DSTAR)*(H1_D*(3.*p1(i)*p1(j) - delta(i,j)*modp()*modp()) + H1_S*delta(i,j));
         };
@@ -116,14 +116,19 @@ namespace hadMolee::Jpsipipi
         
         // Unlike the boxes, the triangle doesnt involve reordering the external masses so 
         // we have a common q
+        // p1 == pi_1, p2 == pi_2, p3 == jpsi
         inline complex q(cartesian_index i)
         {
             auto vecT2 = vT2();
-            complex pi1_piece =  /* 2.*(vecT2[1] + vecT2[2]) */ + vecT2[0];
-            complex pi2_piece =  /* 2.* vecT2[2]  */            - vecT2[0];
+
+            // 2 l - (p2 + p1)
+            // -> 2 (C1 p2 + C2 (p2 + p3)) - C0 (p1 + p2)
+            // =  2 (C1 p2 - C2 p1) - C0 (p1 + p2)
+            complex pi1_piece = - 2.* vecT2[1] + vecT2[0];
+            complex pi2_piece = + 2.* vecT2[2] - vecT2[0];
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
-        // The box vector needs to be contracted with the jpsi vertex
+        // The box vector needs to be contracted witlsh the jpsi vertex
         // also multiply by common factors
         virtual inline complex M(cartesian_index j, cartesian_index k) = 0;
 
@@ -131,7 +136,7 @@ namespace hadMolee::Jpsipipi
         double _C     = 0.;
 
         // Couplings to be specified by the specific implementation
-        double _gjpsi = 0., _gpi; 
+        double _gjpsi = 0., _gpi = 0.; 
 
         std::array<double,3> _loop_masses;
 

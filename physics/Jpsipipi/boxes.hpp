@@ -83,7 +83,7 @@ namespace hadMolee::Jpsipipi
             _C  = gy / sqrt(2.) * sqrt(M_Y*M_D1*M_D); 
             // Skip the D1 -> D* pi coupling which we include above
             _C *= _gjpsi;
-            _C *= G1_PION       * sqrt(M_DSTAR * M_D);
+            _C *= _gpi;
         };
 
         // Methods related to handling invariant masses for the box
@@ -130,7 +130,7 @@ namespace hadMolee::Jpsipipi
 
         // Scalar prefactors 
         double _C     = 0.;
-        double _gjpsi = 0.; 
+        double _gjpsi = 0., _gpi = 0.; 
 
         std::array<double,3> _decay_masses;
         std::array<double,3> _loop_masses;
@@ -163,7 +163,8 @@ namespace hadMolee::Jpsipipi
             _decay_masses = {M_PION, M_JPSI,  M_PION};
             _loop_masses  = {M_D,    M_DSTAR, M_DSTAR};
 
-            _gjpsi = G_PSI * sqrt(M_JPSI*M_DSTAR*M_DSTAR); 
+            _gjpsi = G_PSI   * sqrt(M_JPSI*M_DSTAR*M_DSTAR);
+            _gpi   = G1_PION * sqrt(M_DSTAR * M_D); 
         };
 
         protected:
@@ -202,7 +203,8 @@ namespace hadMolee::Jpsipipi
             _decay_masses = {M_JPSI, M_PION,  M_PION};
             _loop_masses  = {M_D,    M_DSTAR, M_DSTAR};
 
-            _gjpsi = G_PSI * sqrt(M_JPSI*M_DSTAR*M_D); 
+            _gjpsi = G_PSI   * sqrt(M_JPSI*M_DSTAR*M_D); 
+            _gpi   = G2_PION * sqrt(M_DSTAR * M_DSTAR); 
         };
 
         protected:
@@ -240,7 +242,8 @@ namespace hadMolee::Jpsipipi
             _decay_masses = {M_JPSI, M_PION,  M_PION};
             _loop_masses  = {M_D,    M_D,     M_DSTAR};
 
-            _gjpsi = G_PSI * sqrt(M_JPSI*M_D*M_D); 
+            _gjpsi = G_PSI   * sqrt(M_JPSI*M_D*M_D); 
+            _gpi   = G1_PION * sqrt(M_DSTAR * M_D); 
         };
 
         protected:
