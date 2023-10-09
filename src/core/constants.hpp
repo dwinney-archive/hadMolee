@@ -114,6 +114,8 @@ namespace hadMolee
     // Jpsi to charm
     const double G_PSI      = sqrt(M_JPSI) / (2*M_D*F_JPSI);
 
+    const double CT_TRI     = 0.;
+
     // ---------------------------------------------------------------------------
     // Function for easier comparison of doubles using the EPS value defined above
     // be careful when using this in general purposes since its a fixed-tolerance comparision and not always appropriate
