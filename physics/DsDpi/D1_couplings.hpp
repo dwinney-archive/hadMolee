@@ -4,8 +4,8 @@
 // Email:        dwinney@scnu.edu.cn
 // ---------------------------------------------------------------------------
 
-#ifndef DSDPI_HPP
-#define DSDPI_HPP
+#ifndef DSDPI_D1_HPP
+#define DSDPI_D1_HPP
 
 #include <memory>
 
@@ -19,51 +19,6 @@
 
 namespace hadMolee::DsDpi
 {
-    // ---------------------------------------------------------------------------
-    // Contact-like interaction in S-wave
-    // This contains the exotic Zc channel, we multiply by a linear polynomial and fit the coefficients
-    class swave : public amplitude_base
-    {
-        // -----------------------------------------------------------------------
-        public:
-        
-        swave(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "DsDpi_swave")
-        : amplitude_base(key, xkinem, Y, 2, "DsDpi_swave", id),
-          _Zc(make_molecule<DsD_molecule>())
-        {};
-
-        // The reduced amplitude corresponds to the S-wave contact-like interaction
-        // however it receives contributions from the propagator of the Z meson
-        inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
-        {
-            // Being S-wave the s-wave strength gets multiplied by a delta-function
-            return _AS * delta(i,j);
-        };
-
-        // -----------------------------------------------------------------------
-        private:
-
-        // Parameterize with two real polynomial coefficients
-        // Values from Leon's note
-        double _a = 1.110, _b = -15.5;
-
-        // S-wave coupling strength
-        complex _AS; 
-
-        // This channel recieves contribution from the Z(3900)
-        molecule _Zc;
-
-        // S-wave amplitude is easy, because its only the Z propagator that needs to be calcualted
-        inline void recalculate()
-        {
-            // Multiply by the helicity frame energy to make sure amplitude respects Goldstone theorem.
-            double omega_pi = sqrt(M_PION*M_PION + _mpc*_mpc);
-
-            // sab is assumed to be DsD channel
-            _AS  = _a*(_b + _sab)*_Zc->propagator(_sab)*omega_pi;
-        };
-    };
-
     // ---------------------------------------------------------------------------
     // Transition involving D1DsD triangle with the Z as well as 
     // No free parameters since this assume to be known background
@@ -94,35 +49,46 @@ namespace hadMolee::DsDpi
         // -----------------------------------------------------------------------
         private:
 
-        // D1 -> D* pi coupling
         inline complex D1_coupling(cartesian_index i, cartesian_index j)
         {
-            return sqrt(M_D1*M_DSTAR)*_mpc*_mpc*(H1_D*(3.*phat_1(i)*phat_1(j) - delta(i,j)) + H1_S*delta(i,j));
+            double gs = (_debug == 1) ? 0. : H1_S;
+            double gd = (_debug == 2) ? 0. : H1_D;
+
+            double swave = gs*_omega_pi*delta(i,j);
+            double dwave = gd*_mpc*_mpc*(3.*phat_1(i)*phat_1(j) - delta(i,j));
+
+            return sqrt(M_D1*M_DSTAR)*(swave + dwave);
         };
-        
+
         inline void recalculate()
         {
             // Y mass and couplings
-            double y   = _Y->molecular_coupling();
-            double M_Y = _V->pole_mass();
+            double gy   = _Y->molecular_coupling();
+            double M_Y  = _V->pole_mass();
 
             // Update arguments with floating Y and Z meson masses for the triangle
             _T.set_external_masses({_W, sqrt(_sab), M_PION});
             _AD = _T.eval();
 
+            // Pion energy for S-wave
+            _omega_pi = sqrt(_mpc*_mpc + _mc2);
+
             // This gets multiplied by the propagator of the Z prop and triangle function
-            double  z   = _Zc->molecular_coupling();
+            double  gz   = _Zc->molecular_coupling();
             double  M_Z = M_ZC3900;
             complex G_Z = _Zc->propagator(_sab);
 
             // Couplings at the vertices of the triangle
-            _AD *= y/sqrt(2.) * sqrt(M_Y*M_D1*M_D);  
+            _AD *= gy/sqrt(2.) * sqrt(M_Y*M_D1*M_D);  
             // Skip D-wave D1 -> D* pi which we factor out
-            _AD *= z          * sqrt(M_D*M_DSTAR*M_Z); 
+            _AD *= gz          * sqrt(M_D*M_DSTAR*M_Z); 
 
             // Z decay vertex
-            _AD *= z * G_Z    * sqrt(M_D*M_DSTAR*M_Z);
+            _AD *= gz * G_Z    * sqrt(M_D*M_DSTAR*M_Z);
         };
+
+        // Pion energy
+        double _omega_pi;
 
         // Energy dependent D wave strength
         complex _AD;  
@@ -166,9 +132,15 @@ namespace hadMolee::DsDpi
 
         inline complex D1_coupling(cartesian_index i, cartesian_index j)
         {
-            return sqrt(M_D1*M_DSTAR)*_mpc*_mpc*(H1_D*(3.*phat_1(i)*phat_1(j) - delta(i,j)) + H1_S*delta(i,j));
+            double gs = (_debug == 1) ? 0. : H1_S;
+            double gd = (_debug == 2) ? 0. : H1_D;
+
+            double swave = gs*_omega_pi*delta(i,j);
+            double dwave = gd*_mpc*_mpc*(3.*phat_1(i)*phat_1(j) - delta(i,j));
+
+            return sqrt(M_D1*M_DSTAR)*(swave + dwave);
         };
-        
+
         inline void recalculate()
         {            
             // Y mass and couplings
@@ -177,6 +149,9 @@ namespace hadMolee::DsDpi
 
             // D1 propagator
             complex G_D1 = _D1.eval(sqrt(_sac));
+            
+            // Pion energy for S-wave
+            _omega_pi = sqrt(_mpc*_mpc + _mc2);
 
             // Only two verices
             _AD  = G_D1; 
@@ -187,58 +162,14 @@ namespace hadMolee::DsDpi
         // Couplings
         complex _AD;  // Energy dependent D wave strength
 
+        // Pion energy
+        double _omega_pi;
+
         // In addition we have the tree level transition
         breit_wigner _D1;
 
         // It also explciity depends on D1D molecular nature of the Y state
         molecule _Y;
-    };
-
-    // ---------------------------------------------------------------------------
-    // Contact-like interaction involving the Psi(4160)
-    // This contains the exotic Zc channel, we multiply by a linear polynomial and fit the coefficients
-    class psi_contact : public amplitude_base
-    {
-        // -----------------------------------------------------------------------
-        public:
-        
-        psi_contact(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "DsDpi_psi")
-        : amplitude_base(key, xkinem, Y, 0, "DsDpi_psi", id),
-          _Zc(make_molecule<DsD_molecule>())
-        {};
-
-        // The reduced amplitude corresponds to the S-wave contact-like interaction
-        // however it receives contributions from the propagator of the Z meson
-        inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
-        {
-            // Being S-wave the s-wave strength gets multiplied by a delta-function
-            return _AS * delta(i,j);
-        };
-
-        // -----------------------------------------------------------------------
-        private:
-
-        double _a_psi  = 0.7, _b_psi = -14.96;
-
-        // S-wave coupling strength
-        complex _AS; 
-
-        // This channel recieves contribution from the Z(3900)
-        molecule _Zc;
-
-        // S-wave amplitude is easy, because its only the Z propagator that needs to be calcualted
-        inline void recalculate()
-        {
-            double  z   = _Zc->molecular_coupling();
-            double  M_Z = M_ZC3900;
-
-            // Multiply by the helicity frame energy to make sure amplitude respects Goldstone theorem.
-            double omega_pi = sqrt(M_PION*M_PION + _mpc*_mpc);
-
-            // Add the psi(4160) part by removing the Ylineshape
-            _AS  = _a_psi*(_b_psi + _sab)*_Zc->propagator(_sab)*omega_pi / _V->photon_coupling();
-            _AS *= z * sqrt(M_D*M_DSTAR*M_Z);
-        };
     };
 };
 
