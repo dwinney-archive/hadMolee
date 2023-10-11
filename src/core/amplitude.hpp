@@ -103,7 +103,8 @@ namespace hadMolee
         };
 
         // Debugging variable 
-        inline void set_debug(int x){ _debug = x; };
+        inline void set_debug(int x){  _debug = x;};
+        inline void set_option(int x){_option = x;};
 
         // Allocate an aggragated vector of parameters to individual amplitudes
         virtual void set_parameters(std::vector<double> x);
@@ -199,7 +200,7 @@ namespace hadMolee
         // Setters and debugging 
 
         // Variable for setting cases for debugging messages
-        int _debug; 
+        int _debug = 0, _option = 0; 
 
         // Quantites related to paramaters accepted
         int _nparams = 0;       // Number of parameters to expect

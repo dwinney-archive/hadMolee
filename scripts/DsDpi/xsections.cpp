@@ -1,48 +1,60 @@
 #include "kinematics.hpp"
 #include "plotter.hpp"
-#include "DsDpi.hpp"
-#include "lineshapes/Y(4260).hpp"
-#include "lineshapes/charmonium.hpp"
+#include "DsDpi/D1_couplings.hpp"
+#include "DsDpi/contact.hpp"
+#include "Y(4260).hpp"
 
 using namespace hadMolee;
 
 void xsections()
 {
+    //--------------------------------------------------------------------------------------
+    // Set up our kinematics
 
-    // Masses
-    double ma = M_DSTAR;
-    double mb = M_D;
-    double mc = M_PION;
+    kinematics kDsDpi      = make_kinematics({M_DSTAR, M_D, M_PION});
 
-    kinematics kDsDpi    = make_kinematics({ma, mb, mc});
-    lineshape  Y         = make_lineshape<D1D_molecule>();
+    //--------------------------------------------------------------------------------------
+    // Set up our two linehsape models for the Y and psi(4160)
 
-    amplitude  swave     = make_amplitude<DsDpi::swave>(    kDsDpi, Y, "S-wave");
-    amplitude  tree      = make_amplitude<DsDpi::tree>(     kDsDpi, Y, "Tree");
-    amplitude  triangle  = make_amplitude<DsDpi::triangle>( kDsDpi, Y, "Triangle");
+    lineshape  Y   = make_lineshape<Y_meson>();
+    Y->set_parameters({4.2281, 42.6E-3, 0.1145/sqrt(4.2281*M_D1*M_DSTAR), 0.672});
 
-    lineshape  psi4160   = make_lineshape<charmonium>({4.191, 70.E-3, 6.9E-6}, "#psi");
-    amplitude  psi       = make_amplitude<DsDpi::psi_contact>(kDsDpi, psi4160, "#psi(4160)");
+    lineshape  psi = make_lineshape<charmonium>();
+    psi->set_parameters({4.191, 70.E-3, 6.9E-6});
 
-    amplitude  dwave     = tree + triangle;
-    dwave->set_id("D-wave");
+    //--------------------------------------------------------------------------------------
+    // Contact interactions
 
-    amplitude  sum       = swave + dwave;
-    sum->set_id("Sum");
+    amplitude  y_contact   = make_amplitude<DsDpi::contact>(kDsDpi, Y,   "Y contact");
+    y_contact->set_parameters({1.110, -15.5});
 
-    auto plot_amp = [] (plot &p, amplitude amp)
+    amplitude  psi_contact = make_amplitude<DsDpi::contact>(kDsDpi, psi, "#psi contact");
+    psi_contact->set_parameters({0.7/psi->photon_coupling(), -14.96});
+
+    //--------------------------------------------------------------------------------------
+    // Interactions involving intermediate D1's
+
+    amplitude  tree        = make_amplitude<DsDpi::tree>       (kDsDpi, Y,   "D1 Tree");
+    amplitude  triangle    = make_amplitude<DsDpi::triangle>   (kDsDpi, Y,   "D1 Triangle");
+
+    //--------------------------------------------------------------------------------------
+    // Plot results
+
+    auto plot_amp = [] (plot &p, amplitude amp, int option = hadMolee::kDefault, std::string id = "")
     {
         std::array<double,2> bounds = {4.05, 4.40};
+        std::string label = (id == "") ? amp->get_id() : id;
 
-        print("Plotting: ", amp->get_id());
+        print("Plotting: ", label);
         divider(2);
+        amp->set_option(option);
         auto xsection = [&] (double w)
         {
             double x = amp->integrated_xsection(w*w) * 1E3; // in pb
             print(w, x);
             return x;
         };
-        p.add_curve(bounds, xsection, amp->get_id());
+        p.add_curve(bounds, xsection, label);
         line();
     };
 
@@ -50,12 +62,17 @@ void xsections()
     plotter plotter;
     plot sig = plotter.new_plot();
     sig.set_curve_points(50);
+    sig.set_legend(0.15, 0.6);
     sig.set_labels("#sqrt{#it{s}}  [GeV]", "#sigma [pb]");
 
-    // plot_amp(sig, swave);
-    plot_amp(sig, psi);
-    // plot_amp(sig, dwave);
-    // plot_amp(sig, sum);
+    // plot_amp(sig, y_contact);
+    plot_amp(sig, psi_contact);
 
+    plot_amp(sig, tree, DsDpi::tree::kSwaveOnly, "D1 s tree");
+    plot_amp(sig, tree, DsDpi::tree::kDwaveOnly, "D1 d tree");
+    plot_amp(sig, triangle, DsDpi::triangle::kSwaveOnly, "D1 s tri");
+    plot_amp(sig, triangle, DsDpi::triangle::kDwaveOnly, "D1 d tri");
+
+    // Save to file
     sig.save("xsections.pdf");
 };

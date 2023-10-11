@@ -18,26 +18,26 @@ namespace hadMolee
 {
     // Forward declaration so we can rename ptr to lineshape
     // WE do this because we basically never want to work with a raw instance, but pass around a pointer
-    class charmoniumlike;
+    class charmonium;
 
-    // A line-shape is a model for something that is charmonioumlike that can be passed around
-    // i.e. a pointer to charmoniumlike object
-    using lineshape = std::shared_ptr<hadMolee::charmoniumlike>;
+    // A line-shape is a model for something that is charmoniumthat can be passed around
+    // i.e. a pointer to charmoniumobject
+    using lineshape = std::shared_ptr<hadMolee::charmonium>;
 
     // Shortcut function to quickly create a  lineshape object using smart pointers
     template<class A>
-    inline lineshape make_lineshape(std::string id = "lineshape")
+    inline lineshape make_lineshape()
     {
-        auto model = std::make_shared<A>(id);
-        return std::static_pointer_cast<charmoniumlike>(model);
+        auto model = std::make_shared<A>();
+        return std::static_pointer_cast<charmonium>(model);
     };
 
     // Shortcut function to quickly create a kinematics object using smart pointers
-    template<class A>
-    inline lineshape make_lineshape(std::vector<double> args, std::string id = "lineshape")
+    template<class A, class B>
+    inline lineshape make_lineshape(B args)
     {
-        auto model = std::make_shared<A>(args, id);
-        return std::static_pointer_cast<charmoniumlike>(model);
+        auto model = std::make_shared<A>(args);
+        return std::static_pointer_cast<charmonium>(model);
     };
 
     // -----------------------------------------------------------------------
@@ -48,32 +48,45 @@ namespace hadMolee
     // describe the Y-mesons. However this may also be used to describe conventional
     // charmonia by setting hadronic_molecule::_molecular_coupling = 0
 
-    class charmoniumlike
+    class charmonium
     {
         // -----------------------------------------------------------------------
         public:
 
         // Constructor with only a string id 
-        charmoniumlike(std::string id = "e+e-")
-        : _npars(0), _id(id)
+        charmonium()
+        : _npars(3)
         {};
+
+        charmonium(std::vector<double> pars)
+        : _npars(3)
+        {
+            set_parameters(pars);
+        };
 
         // Constructor that also sets nonzero number of free parameters
-        charmoniumlike( int npars, std::string id = "e+e-")
-        : _npars(npars), _id(id)
+        charmonium(int npars)
+        : _npars(npars)
         {};
 
-        virtual complex propagator(double s){ return 1.; };
-        virtual complex photon_coupling()   { return 1.; };
-        virtual double  pole_mass()         { return 1.; };
+        // Defaults to a relativistic Breit-Wigner but can be overridden by a lineshape model
+        virtual complex propagator(double s){ return 1./(s - _mass*_mass + I*_mass*_width); };
+
+        // Photon coupling always takes the VMD form in terms of the decay constant
+        inline double photon_coupling(){ return E * _mass*_mass / _fV; };
+        inline double mass()           { return _mass; };
 
         // String identifier
-        inline std::string get_id(){ return _id; };
+        inline void        set_id(std::string x ){ _id = x;    };
+        inline std::string get_id()              { return _id; };
 
         // Set pole mass ,coupling, and non-mol width in a single call
         virtual inline void set_parameters(std::vector<double> pars)
         {
             check_size(pars);
+            _mass  = pars[0];
+            _width = pars[1];
+            _fV    = decay_constant(pars[2]);
             return;
         };  
 
@@ -82,16 +95,22 @@ namespace hadMolee
 
         // -----------------------------------------------------------------------
         protected:
+
+        // Calculate the decay constant from to  V -> e+ e- branching fraction
+        inline double decay_constant(double BR){ return sqrt( 4.*PI*ALPHA* ALPHA * _mass / (3.*_width*BR)); };
         
         // Name identifier
         std::string _id;
+
+        // Saved properties include mass, width and decay constant
+        double _mass = 0., _width = 0., _fV = 0.;
 
         int _npars = 0;
         void check_size(std::vector<double> pars)
         {
             if (pars.size() != _npars)
             {
-                warning("lineshape", "Wrong number of parameters given! Expected 3 but recieved " + std::to_string(pars.size()) + ". Results may vary...");
+                warning("lineshape", "Wrong number of parameters given! Expected " + std::to_string(_npars) + " but recieved " + std::to_string(pars.size()) + ". Results may vary...");
             };
         }
     };

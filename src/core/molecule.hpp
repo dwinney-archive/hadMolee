@@ -27,10 +27,9 @@ namespace hadMolee
     // Shortcut functions to quickly create a kinematics object using smart pointers
 
     // In case the constructor requires constituent particle masses
-    template<class A>
     inline molecule make_molecule(double a, double b)
     {
-        molecule model = std::make_shared<A>(a, b);
+        molecule model = std::make_shared<molecular>(a, b);
         return model;
     };
 
@@ -79,12 +78,25 @@ namespace hadMolee
         : _m1(m[0]), _m2(m[1])
         {};
 
+        virtual void set_parameters(std::array<double,3> pars)
+        {
+            _mass     = pars[0];
+            _nm_width = pars[1];
+            _coupling = pars[2];
+
+            _reSigmaPole = std::real(self_energy(_mass*_mass));
+        };
+
         // Evaluate the propagator
         // For standardization the input argument is always asssumed to be s, take the square root internally if we need E
-        virtual complex propagator(double s){ return 1.; };
+        virtual complex propagator(double s)
+        { 
+            return 1./(sqrt(s)-_mass-_coupling*_coupling*(self_energy(s)-_reSigmaPole)+I*_nm_width/2.)/(2*_mass);
+        };
 
         // Output the saved coupling to the constituent channel
-        virtual inline double molecular_coupling(){ return _molecular_coupling; };
+        virtual inline double coupling(){ return _coupling; }; 
+        virtual inline double mass()    { return _mass;     };  
 
         // Self-energy loop function from DR
         // Always a function of s (GeV^2)
@@ -113,19 +125,14 @@ namespace hadMolee
         protected:
 
         // Masses of the molecule
-        double _pole_mass;
-        double _bare_mass;
-
-        // Self-energy evaluated at the pole mass
-        complex _sigma_pole;
+        double _mass;
 
         // Width coming from decays other than m1 m2 final state
-        double _nonmol_width;
-        double _total_width;
+        double _nm_width = 0, _reSigmaPole = 0;
 
         // Constituents masses 
-        double _m1, _m2;
-        double _molecular_coupling = 0.;
+        double _m1 = 0, _m2 = 0;
+        double _coupling = 0.;
 
         inline double reduced_mass(){ return _m1 * _m2 / (_m1 + _m2); };
         inline double mass_difference(double E){ return E - _m1 - _m2; };

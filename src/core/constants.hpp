@@ -52,6 +52,9 @@ namespace hadMolee
     // put cartesian_index::x all the time
     inline bool delta(cartesian_index i, cartesian_index j){ return (i == j); };
 
+    // Default option for all amplitudes
+    const int kDefault = 0;
+
     // ---------------------------------------------------------------------------
     // 2022 PDG masses in GeV
 

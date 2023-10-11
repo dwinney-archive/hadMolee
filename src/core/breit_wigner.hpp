@@ -51,9 +51,9 @@ namespace hadMolee
         // Whether we are using the relativistic BW or not
         int _mode;
 
-        complex nonrel_eval(double E)
+        complex nonrel_eval(double s)
         {
-            complex D =  (E - _mass) + I * _width/2. + IEPS;
+            complex D =  (sqrt(s) - _mass) + I * _width/2. + IEPS;
             return 1. / (2. * _mass * D);
         };  
 
