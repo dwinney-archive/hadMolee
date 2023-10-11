@@ -78,7 +78,7 @@ namespace hadMolee
         if (is_sum() || _V == nullptr) _cached_lineshape = 1.;
         else if (s_changed)
         {
-            _cached_lineshape = _V->pole_mass() *  _V->photon_coupling() * _V->propagator(_s);
+            _cached_lineshape = sqrt(_V->pole_mass()) *  _V->photon_coupling() * _V->propagator(_s);
         };
 
         bool need_recalculate;
