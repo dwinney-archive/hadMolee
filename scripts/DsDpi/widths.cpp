@@ -1,7 +1,7 @@
 #include "kinematics.hpp"
 #include "lineshape.hpp"
 #include "plotter.hpp"
-#include "DsDpi/D1_couplings.hpp"
+#include "DsDpi/D1.hpp"
 #include "DsDpi/contact.hpp"
 #include "Y(4260).hpp"
 
@@ -73,14 +73,35 @@ void widths()
     pab.set_curve_points(100);
     pab.set_legend(0.8, 0.7);
     pab.set_labels("#it{E}_{#it{D}#it{D}*}   [GeV]", "d#sigma/dE^{2} [nb / GeV^{-2}]");
-
-    plot_amp(pab,ab, y_contact);
+    // plot_amp(pab, ab, y_contact);
     plot_amp(pab, ab, psi_contact);
-    plot_amp(pab, ab, tree, DsDpi::tree::kSwaveOnly, "D1 s tree");
-    plot_amp(pab, ab, tree, DsDpi::tree::kDwaveOnly, "D1 d tree");
-    plot_amp(pab, ab, triangle, DsDpi::triangle::kSwaveOnly, "D1 s tri");
-    plot_amp(pab, ab, triangle, DsDpi::triangle::kDwaveOnly, "D1 d tri");
+    plot_amp(pab, ab, tree,     DsDpi::D1::kSwaveOnly, "S-wave Tree");
+    plot_amp(pab, ab, tree,     DsDpi::D1::kDwaveOnly, "D-wave Tree");
+    plot_amp(pab, ab, triangle, DsDpi::D1::kSwaveOnly, "S-wave Triangle");
+    plot_amp(pab, ab, triangle, DsDpi::D1::kDwaveOnly, "D-Wave Triangle");
+
+    plot pbc = plotter.new_plot();
+    pbc.set_curve_points(100);
+    pbc.set_legend(0.8, 0.7);
+    pbc.set_labels("#it{E}_{#it{D}#pi}   [GeV]", "d#sigma/dE^{2} [nb / GeV^{-2}]");
+    // plot_amp(pbc, bc, y_contact);
+    plot_amp(pbc, bc, psi_contact);
+    plot_amp(pbc, bc, tree,     DsDpi::D1::kSwaveOnly, "S-wave Tree");
+    plot_amp(pbc, bc, tree,     DsDpi::D1::kDwaveOnly, "D-wave Tree");
+    plot_amp(pbc, bc, triangle, DsDpi::D1::kSwaveOnly, "S-wave Triangle");
+    plot_amp(pbc, bc, triangle, DsDpi::D1::kDwaveOnly, "D-Wave Triangle");
+
+    plot pac = plotter.new_plot();
+    pac.set_curve_points(100);
+    pac.set_legend(0.8, 0.7);
+    pac.set_labels("#it{E}_{#it{D}*#pi}   [GeV]", "d#sigma/dE^{2} [nb / GeV^{-2}]");
+    // plot_amp(pac, ac, y_contact);
+    plot_amp(pac, ac, psi_contact);
+    plot_amp(pac, ac, tree,     DsDpi::D1::kSwaveOnly, "S-wave Tree");
+    plot_amp(pac, ac, tree,     DsDpi::D1::kDwaveOnly, "D-wave Tree");
+    plot_amp(pac, ac, triangle, DsDpi::D1::kSwaveOnly, "S-wave Triangle");
+    plot_amp(pac, ac, triangle, DsDpi::D1::kDwaveOnly, "D-Wave Triangle");
 
     // Save to file
-    pab.save("widths.pdf");
+    plotter.combine({1,3}, {pab, pbc, pac}, "widths.pdf");
 };

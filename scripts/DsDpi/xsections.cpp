@@ -1,6 +1,6 @@
 #include "kinematics.hpp"
 #include "plotter.hpp"
-#include "DsDpi/D1_couplings.hpp"
+#include "DsDpi/D1.hpp"
 #include "DsDpi/contact.hpp"
 #include "Y(4260).hpp"
 
@@ -63,15 +63,16 @@ void xsections()
     plot sig = plotter.new_plot();
     sig.set_curve_points(50);
     sig.set_legend(0.15, 0.6);
+    sig.set_ranges({4.0, 4.4}, {0, 800});
     sig.set_labels("#sqrt{#it{s}}  [GeV]", "#sigma [pb]");
 
     // plot_amp(sig, y_contact);
     plot_amp(sig, psi_contact);
 
-    plot_amp(sig, tree, DsDpi::tree::kSwaveOnly, "D1 s tree");
-    plot_amp(sig, tree, DsDpi::tree::kDwaveOnly, "D1 d tree");
-    plot_amp(sig, triangle, DsDpi::triangle::kSwaveOnly, "D1 s tri");
-    plot_amp(sig, triangle, DsDpi::triangle::kDwaveOnly, "D1 d tri");
+    plot_amp(sig, tree,     DsDpi::D1::kSwaveOnly, "S-wave Tree");
+    plot_amp(sig, tree,     DsDpi::D1::kDwaveOnly, "D-wave Tree");
+    plot_amp(sig, triangle, DsDpi::D1::kSwaveOnly, "S-wave Triangle");
+    plot_amp(sig, triangle, DsDpi::D1::kDwaveOnly, "D-wave Triangle");
 
     // Save to file
     sig.save("xsections.pdf");
