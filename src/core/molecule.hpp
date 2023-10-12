@@ -105,7 +105,7 @@ namespace hadMolee
             double mu   = 1.;  // renormalization at rho mass
             double amu  = 0.;  // DR renomalization coefficient
 
-            complex rho = 2.*csqrt(Kallen(s, _m1*_m1, _m2*_m2))/s;
+            complex rho = csqrt(Kallen(s, _m1*_m1, _m2*_m2))/s;
             complex xi  = 1. - (_m1+_m2)*(_m1+_m2)/s;
 
             // Imaginary part comes from this piece
