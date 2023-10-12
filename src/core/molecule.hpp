@@ -78,6 +78,11 @@ namespace hadMolee
         : _m1(m[0]), _m2(m[1])
         {};
 
+        // Or given as an array
+        molecular(std::array<double,2> m, std::array<double,2> w)
+        : _m1(m[0]), _m2(m[1]), _w1(w[0]), _w2(w[1])
+        {};
+
         virtual void set_parameters(std::array<double,3> pars)
         {
             _mass     = pars[0];
@@ -102,18 +107,21 @@ namespace hadMolee
         // Always a function of s (GeV^2)
         virtual inline complex self_energy(double s)
         {
-            double mu   = 1.;  // renormalization at rho mass
+            double mu   = .770;  // renormalization at rho mass
             double amu  = 0.;  // DR renomalization coefficient
 
-            complex rho = csqrt(Kallen(s, _m1*_m1, _m2*_m2))/s;
-            complex xi  = 1. - (_m1+_m2)*(_m1+_m2)/s;
+            complex m1  = _m1 + I*_w1/2.;
+            complex m2  = _m2 + I*_w2/2.;
+
+            complex rho = csqrt(Kallen(s+I*0, m1*m1, m2*m2))/s;
+            complex xi  = 1. - (m1+m2)*(m1+m2)/s;
 
             // Imaginary part comes from this piece
-            complex logs = rho*log((xi + rho)/(xi - rho)) - xi*(_m2-_m1)/(_m2+_m1)*log(_m2/_m1);
+            complex logs = rho*log((xi + rho)/(xi - rho)) - xi*(m2-m1)/(m2+m1)*log(m2/m1);
             
             // To match the energy dependence of the dimensionally regularization formula,
             // we add this piece
-            complex  DR = amu + log(_m1*_m1/mu*mu) + (s-_m1*_m1+_m2*_m2)/s*log(_m2/_m1);
+            complex  DR = amu + log(m1*m1/mu*mu) + (s-m1*m1+m2*m2)/s*log(m2/m1);
 
             return (DR + logs)/(16.*PI*PI);
         };
@@ -121,6 +129,7 @@ namespace hadMolee
         // Return masses 
         inline std::array<double,2> constituent_masses(){ return {_m1, _m2}; };
 
+        double _reSigmaPole = 0;
         // -----------------------------------------------------------------------
         protected:
 
@@ -128,10 +137,11 @@ namespace hadMolee
         double _mass;
 
         // Width coming from decays other than m1 m2 final state
-        double _nm_width = 0, _reSigmaPole = 0;
+        double _nm_width = 0;
 
         // Constituents masses 
         double _m1 = 0, _m2 = 0;
+        double _w1 = 0, _w2 = 0;
         double _coupling = 0.;
 
         inline double reduced_mass(){ return _m1 * _m2 / (_m1 + _m2); };

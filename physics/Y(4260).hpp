@@ -22,7 +22,7 @@ namespace hadMolee
         public:
 
         Y_meson()
-        : charmonium(4), molecular(M_D1, M_D)
+        : charmonium(4), molecular({M_D1, M_D}, {W_D1, 0.})
         {};
 
         // Setting parameters involves both allocating lineshape and molecule pars
