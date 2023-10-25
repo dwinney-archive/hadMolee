@@ -224,39 +224,30 @@ namespace hadMolee
         omega[2] = csqrt(_m2 + I*(_w2 + _eps)/2. + r*r + _mom03*_mom03 + _mom23*_mom23 + 2.*(p03_dot_p23 - r_dot_p03 - r_dot_p23));
         omega[3] = csqrt(_m3 + I*(_w3 + _eps)/2. + r*r + _mom03*_mom03 - 2.*r_dot_p03);
 
-        std::array<complex,3> G;
+        // Propagators first index is time ordering second index is cut
+        std::array< std::array<complex,3>, 2> G;
 
-        // First time ordening
-        G[0] = E - omega[0] - omega[1];
-        G[1] = E - _E03     - omega[3] - omega[1];
-        G[2] = E - _E03     - omega[3] - omega[2] - _E12;
+        // First time ordering
+        G[0][0] = E - omega[0] - omega[1];
+        G[0][1] = E - _E03     - omega[3] - omega[1];
+        G[0][2] = E - _E03     - omega[3] - omega[2] - _E12;
 
-        if (is_zero(abs(G[0]))) print("G0 is zero!");
-        if (is_zero(abs(G[1]))) print("G1 is zero!");
-        if (is_zero(abs(G[2]))) print("G2 is zero!");
-
-        return 1./(16.*omega[0]*omega[1]*omega[2]*omega[3]*G[0]*G[1]*G[2]);
-
-
-        // // Propagators first index is time ordering second index is cut
-        // std::array< std::array<complex,3>, 2> G;
-
-        // // Second time ordering
-        // G[1][0] = E - omega[0] - omega[1];
-        // G[1][1] = E - omega[0] - omega[2] - _E12;
-        // G[1][2] = E - _E03     - omega[3] - omega[2] - _E12;
+        // Second time ordering
+        G[1][0] = E - omega[0] - omega[1];
+        G[1][1] = E - omega[0] - omega[2] - _E12;
+        G[1][2] = E - _E03     - omega[3] - omega[2] - _E12;
         
-        // complex sum_of_orderings = 0.;
-        // for (auto time_ordering : G)
-        // {
-        //     complex product_of_Gs = 1.;
-        //     for (auto propagator : time_ordering)
-        //     {
-        //         product_of_Gs *= propagator;
-        //     }
-        //     sum_of_orderings += 1./product_of_Gs;
-        // };
+        complex sum_of_orderings = 0.;
+        for (auto time_ordering : G)
+        {
+            complex product_of_Gs = 1.;
+            for (auto propagator : time_ordering)
+            {
+                product_of_Gs *= propagator;
+            }
+            sum_of_orderings += 1./product_of_Gs;
+        };
 
-        // return sum_of_orderings / (16.*omega[0]*omega[1]*omega[2]*omega[3]);
+        return  - sum_of_orderings / (16.*omega[0]*omega[1]*omega[2]*omega[3]);
     };
 };

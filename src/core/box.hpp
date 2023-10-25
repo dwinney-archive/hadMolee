@@ -157,9 +157,9 @@ namespace hadMolee
 
                 // Each other particle's three momentum
                 // Remmeber _m and _p's are already squared
-                _mom12 = csqrt(Kallen(_m0, _p02, _p12)) / (2.*sqrt(_m0));
-                _mom03 = csqrt(Kallen(_m0, _p13, _p03)) / (2.*sqrt(_m0));
-                _mom23 = csqrt(Kallen(_m0, _p01 + _p12 + _p23 + _p03 - _p01 - _p13, _p23)) / (2.*sqrt(_m0));
+                _mom12 = csqrt(Kallen(_p01, _p02, _p12)) / (2.*sqrt(_p01));
+                _mom03 = csqrt(Kallen(_p01, _p13, _p03)) / (2.*sqrt(_p01));
+                _mom23 = csqrt(Kallen(_p01, _p01 + _p12 + _p23 + _p03 - _p02 - _p13, _p23)) / (2.*sqrt(_p01));
 
                 // Energies of externals
                 _E12 = csqrt( _mom12*_mom12 + _p12);
@@ -169,17 +169,15 @@ namespace hadMolee
                 // Relative angle between 03 and 23
                 _cos02 = (2.*_E03*_E23 - _p02 + _p03 + _p23) / (2.*_mom03*_mom23);
 
-                line();
-                print("Recalculating...");
-                print("mom12", _mom12);
-                print("mom03", _mom03);
-                print("mom23", _mom23);
-
-                print("E12", _E12);
-                print("E03", _E03);
-                print("E23", _E23);
-
-                print("cos", _cos02);
+                // line();
+                // print("Recalculating...");
+                // print("mom12", _mom12);
+                // print("mom03", _mom03);
+                // print("mom23", _mom23);
+                // print("E12", _E12);
+                // print("E03", _E03);
+                // print("E23", _E23);
+                // print("cos", _cos02);
             };
 
             complex  _E12, _E23, _E03;       // Energies 

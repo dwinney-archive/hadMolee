@@ -3,6 +3,7 @@
 #include "plotter.hpp"
 #include "constants.hpp"
 #include "box.hpp"
+#include <memory>
 
 void box_scan()
 {
@@ -14,49 +15,57 @@ void box_scan()
     std::array<double, 4> internal = {M_D1, M_D, M_DSTAR, M_DSTAR}; 
     std::array<double, 4> external = {M_Y, M_PION, M_JPSI, M_PION};
     
-    // Use the brute-force box first
-    box Box(box::kLoopTools);
-    Box.set_external_masses(external);
-    Box.set_internal_masses(internal);
+    box TOPT(box::kTOPT);
+    TOPT.set_external_masses(external);
+    TOPT.set_internal_masses(internal);
+    TOPT.set_max_calls(1E9);
+    TOPT.add_width(0, W_D1);
 
-    plotter plotter;
-    plot p = plotter.new_plot();
-    p.set_curve_points(200);
+    box LT(box::kLoopTools);
+    LT.set_external_masses(external);
+    LT.set_internal_masses(internal);
+    LT.add_width(0, W_D1);
 
     // Fix pipi mass and scan the jpsi pi mass
     double s_pipi = pow(0.6, 2);
-
-    auto B = [&](double sqrts_psipi)
+    std::array<double, 2> dalitz_bounds = {M_JPSI + M_PION + EPS,  M_Y - M_PION - EPS};
+    auto reB = [&](box& implementation)
     {
-        double s_psipi = sqrts_psipi * sqrts_psipi;
-        double t = 2.*M_PION*M_PION + M_JPSI*M_JPSI + M_Y*M_Y - s_psipi - s_pipi;
-        Box.set_invariant_masses(s_psipi, t);
-        return 100. * Box.eval();
+        auto re = [&](double sqrts_psipi)
+        {
+            double s_psipi = sqrts_psipi * sqrts_psipi;
+            double t = 2.*M_PION*M_PION + M_JPSI*M_JPSI + M_Y*M_Y - s_psipi - s_pipi;
+            implementation.set_invariant_masses(s_psipi, t);
+            return 100. * real(implementation.eval());
+        };
+        return re;
     };
-    
-    auto reB = [&](double w){ return std::real(B(w)); };
-    auto imB = [&](double w){ return std::imag(B(w)); };
-    
-    print("Thresholds");
-    print("D1 D* = ", M_D1 + M_DSTAR);
-    print("D* D  = ", M_DSTAR + M_D);
-    print("D* D* = ", 2*M_DSTAR);
-    print("D1 D  = ", M_D1 + M_D);
-    print("Jpsi Pi pi =", M_JPSI + 2*M_PION);
+    auto imB = [&](box& implementation)
+    {
+        return  [&](double sqrts_psipi)
+        {
+            double s_psipi = sqrts_psipi * sqrts_psipi;
+            double t = 2.*M_PION*M_PION + M_JPSI*M_JPSI + M_Y*M_Y - s_psipi - s_pipi;
+            implementation.set_invariant_masses(s_psipi, t);
+            return 100. * imag(implementation.eval());
+        };
+    };
 
-    p.set_ranges({3, 5}, {0., 0.6});
+    plotter plotter;
+    plot p = plotter.new_plot();
+    p.set_curve_points(100);
+
+    // p.set_ranges({3, 5}, {0., 0.6});
     p.set_legend(0.7, 0.7);
     p.add_header("#sqrt{#sigma_{#pi#pi}} = 0.6 GeV");
     p.set_labels("#sqrt{#sigma_{J/#psi#pi}}  [GeV]", "100 #times B_{D_{1}D*D*D}");
     p.add_vertical(M_JPSI + M_PION);
     p.add_vertical(M_Y - M_PION);
-    p.add_curve({3., 5.}, reB, "Real");
-    Box.add_width(0, W_D1);
-    p.add_dashed({3., 5.}, reB);
-    Box.add_width(0, 0.);
-    p.add_curve({3,  5.}, imB, "Imag");
-    Box.add_width(0, W_D1);
-    p.add_dashed({3., 5.}, imB);
+
+    p.add_curve( dalitz_bounds, reB(TOPT), "Real");
+    p.add_dashed(dalitz_bounds, reB(LT));
+    p.add_curve( dalitz_bounds, imB(TOPT), "Imaginary");
+    p.add_dashed(dalitz_bounds, imB(LT));
 
     p.save("box.pdf");
 };
