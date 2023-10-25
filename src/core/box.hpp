@@ -31,7 +31,7 @@ namespace hadMolee
         box(int mode)
         : _mode(mode)
         {
-            if (mode != kRelativistic && mode != kLoopTools)
+            if (mode != kRelativistic && mode != kLoopTools && mode != kTOPT)
             {
                 warning("box", "Initialized with unavailable option, numerical output may be NaN...");
             }
@@ -69,7 +69,10 @@ namespace hadMolee
         // Setting function for the masses of the internal masses in the loop
         // Order of arguments starts at top left leg and goes counter-clockwise
         inline void set_external_masses(std::array<double,4> m)
-        {  _integrand._p01 = m[0]*m[0]; _integrand._p12 = m[1]*m[1]; _integrand._p23 = m[2]*m[2]; _integrand._p03 = m[3]*m[3]; }
+        {  
+            _integrand._p01 = m[0]*m[0]; _integrand._p12 = m[1]*m[1]; _integrand._p23 = m[2]*m[2]; _integrand._p03 = m[3]*m[3]; 
+            if (_mode == kTOPT) _integrand.update_TOPT();
+        }
 
         // Setting function for the (on-shell) masses of external particles
         // Order of arguments starts at top, horizontal propagator and goes counter-clockwise
@@ -85,6 +88,7 @@ namespace hadMolee
         inline void set_invariant_masses(double s, double t)
         {  
             _integrand._p02    = s;  _integrand._p13    = t; 
+            if (_mode == kTOPT) _integrand.update_TOPT();
         };
         
         // Add a constant width to an internal propagator
@@ -109,6 +113,7 @@ namespace hadMolee
         // Different options for evaluation
         static const int kRelativistic    = 0;
         static const int kLoopTools       = 1;
+        static const int kTOPT            = 2;
 
         // ---------------------------------------------------------------------------
 
@@ -138,28 +143,48 @@ namespace hadMolee
             double _eps = EPS;
 
             // Evaluate the integrand at fixed values of the feynman parameters
-            inline complex eval(double x0, double x1, double x2, double x3)
+            complex eval(double x0, double x1, double x2, double x3);
+
+            // Evaluate using the TOPT expression
+            complex eval_TOPT(double r, double theta, double phi);
+
+            // 3 momenta of each external particle
+            inline void update_TOPT()
             {
-                complex Y01, Y02, Y03, Y12, Y13, Y23;
+                // Assume partilce 01 rest-frame defines "lab frame"
+                // In the particle labeling of hadMolee::particle this is V
+                // we also thus have _m0 = s is the total invariant energy
 
-                complex M0 = _m0 - I*csqrt(_m0)*_w0 + IEPS;
-                complex M1 = _m1 - I*csqrt(_m1)*_w1 + IEPS;
-                complex M2 = _m2 - I*csqrt(_m2)*_w2 + IEPS;
-                complex M3 = _m3 - I*csqrt(_m3)*_w3 + IEPS;
+                // Each other particle's three momentum
+                // Remmeber _m and _p's are already squared
+                _mom12 = csqrt(Kallen(_m0, _p02, _p12)) / (2.*sqrt(_m0));
+                _mom03 = csqrt(Kallen(_m0, _p13, _p03)) / (2.*sqrt(_m0));
+                _mom23 = csqrt(Kallen(_m0, _p01 + _p12 + _p23 + _p03 - _p01 - _p13, _p23)) / (2.*sqrt(_m0));
 
-                Y01 = M0 + M1 - _p01;
-                Y02 = M0 + M2 - _p02;
-                Y03 = M0 + M3 - _p03;
-                Y12 = M1 + M2 - _p12;
-                Y13 = M1 + M3 - _p13;
-                Y23 = M2 + M3 - _p23;        
+                // Energies of externals
+                _E12 = csqrt( _mom12*_mom12 + _p12);
+                _E03 = csqrt( _mom03*_mom03 + _p03);
+                _E23 = csqrt( _mom23*_mom23 + _p23);
 
-                complex D = x0*x0*M0 + x1*x1*M1   + x2*x2*M2  + x3*x3*M3
-                                     + x0*x1*Y01  + x0*x2*Y02 + x0*x3*Y03
-                                                  + x1*x2*Y12 + x1*x3*Y13 
-                                                              + x2*x3*Y23;
-                return pow(D - I*_eps, -2.);
+                // Relative angle between 03 and 23
+                _cos02 = (2.*_E03*_E23 - _p02 + _p03 + _p23) / (2.*_mom03*_mom23);
+
+                line();
+                print("Recalculating...");
+                print("mom12", _mom12);
+                print("mom03", _mom03);
+                print("mom23", _mom23);
+
+                print("E12", _E12);
+                print("E03", _E03);
+                print("E23", _E23);
+
+                print("cos", _cos02);
             };
+
+            complex  _E12, _E23, _E03;       // Energies 
+            complex  _mom12, _mom23, _mom03; // Momenta
+            complex  _cos02;                  // Relative angle between 03 and 23
         };
 
         // Integrand object which will be used to evaluate the integral with the cubature library
@@ -174,6 +199,12 @@ namespace hadMolee
         // ----------------------------------------------------------------------
         // Methods for evaluating using LoopTools
         complex looptools_eval();
+
+        // ----------------------------------------------------------------------
+        // Methods for evaluating using TOPT expression
+        complex TOPT_eval();
+
+        static int wrapped_integrand_TOPT(unsigned ndim, const double *in, void *fdata, unsigned fdim, double *fval);
     };
 };
 
