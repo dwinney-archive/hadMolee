@@ -37,6 +37,8 @@ namespace hadMolee::DsDpi
         // however it receives contributions from the propagator of the Z meson
         inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
         {
+            complex decay_amplitude =  _AS * sqrt(M_PION*M_PION + _mpc*_mpc);
+            
             // Being S-wave the s-wave strength gets multiplied by a delta-function
             return _AS * sqrt(M_PION*M_PION + _mpc*_mpc) * delta(i,j);
         };
@@ -63,8 +65,7 @@ namespace hadMolee::DsDpi
         // S-wave amplitude is easy, because its only the Z propagator that needs to be calcualted
         inline void recalculate()
         {
-            _AS  = _a*(_b + _sab);
-            _AS *= _Zc->coupling() * sqrt(M_D*M_DSTAR*_Zc->mass()) *_Zc->propagator(_sab);
+            _AS  = _a*(_b + _sab) * _Zc->propagator(_sab);
         };
     };
 };

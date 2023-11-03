@@ -96,7 +96,13 @@ namespace hadMolee
         // For standardization the input argument is always asssumed to be s, take the square root internally if we need E
         virtual complex propagator(double s)
         { 
-            return 1./(sqrt(s)-_mass-_coupling*_coupling*(self_energy(s)-_reSigmaPole)+I*_nm_width/2.)/(2*_mass);
+            return 1./(sqrt(s)-_mass-_coupling*_coupling*(self_energy(s)-_reSigmaPole)+I*_nm_width/2.)/(2.*_mass);
+        };
+
+        virtual complex propagator(double s, double sab, double M3)
+        { 
+            complex omega = csqrt(_mass*_mass + Kallen(s, sab, M3*M3)/(4.*s));
+            return 1./(sqrt(sab)-_mass-_coupling*_coupling*(self_energy(sab)-_reSigmaPole)+I*_nm_width/2.)/(2*omega);
         };
 
         // Output the saved coupling to the constituent channel

@@ -86,7 +86,7 @@ namespace hadMolee
             check_size(pars);
             _mass  = pars[0];
             _width = pars[1];
-            _fV    = decay_constant(pars[2]);
+            _fV    = pars[2];
             return;
         };  
 
