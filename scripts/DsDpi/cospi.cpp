@@ -6,7 +6,7 @@
 
 using namespace hadMolee;
 
-void xsections()
+void cospi()
 {
     //--------------------------------------------------------------------------------------
     // Set up our kinematics
@@ -37,44 +37,40 @@ void xsections()
     amplitude  tree        = make_amplitude<DsDpi::tree>       (kDsDpi, Y,   "D1 Tree");
     amplitude  triangle    = make_amplitude<DsDpi::triangle>   (kDsDpi, Y,   "D1 Triangle");
 
+    //--------------------------------------------------------------------------------------
+    // Add everything together
     amplitude full = y_contact + psi_contact + tree + triangle;
 
-    // --------------------------------------------------------------------------------------
-    // Plot results
+    //--------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------
 
     auto plot_amp = [] (plot &p, amplitude amp, int option = hadMolee::kDefault, std::string id = "")
     {
-        std::array<double,2> bounds = {4.05, 4.40};
+        std::array<double,2> bounds = {-1., 1.};
         std::string label = (id == "") ? amp->get_id() : id;
 
         print("Plotting: ", label);
         divider(2);
         amp->set_option(option);
-        auto xsection = [&] (double w)
+        double w = 4.23;
+        auto xsection = [&] (double cos)
         {
-            double x = amp->integrated_xsection(w*w) * 1E3; // in pb
-            print(w, x);
+            double x = amp->integrated_xsection(w*w, cos) * 1E3; // in pb
+            print(cos, x);
             return x;
         };
         p.add_curve(bounds, xsection, label);
         line();
     };
-
-    // print(y_contact->integrated_xsection(4.23*4.23)* 1E3);
+    
     plotter plotter;
     plot sig = plotter.new_plot();
     sig.set_curve_points(50);
     sig.set_legend(0.15, 0.6);
-    sig.set_labels("#sqrt{#it{s}}  [GeV]", "#sigma [pb]");
+    sig.set_labels("cos#theta_{#pi}", "#sigma [pb]");
 
-    plot_amp(sig, y_contact);
-    plot_amp(sig, psi_contact);
-
-    plot_amp(sig, tree,     DsDpi::D1::kSwaveOnly, "S-wave Tree");
-    plot_amp(sig, tree,     DsDpi::D1::kDwaveOnly, "D-wave Tree");
-    plot_amp(sig, triangle, DsDpi::D1::kSwaveOnly, "S-wave Triangle");
-    plot_amp(sig, triangle, DsDpi::D1::kDwaveOnly, "D-wave Triangle");
+    plot_amp(sig, full, 0, "Full Sum");
 
     // Save to file
-    sig.save("xsections.pdf");
+    sig.save("cospi.pdf");
 };
