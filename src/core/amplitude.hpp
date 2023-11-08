@@ -141,7 +141,9 @@ namespace hadMolee
         double differential_xsection(subchannel chan, double s, double sigma);
 
         // Integrated production cross-section
-        double integrated_xsection(double S);
+        double integrated_xsection(double s);
+        // Integrated at fixed jackson angle
+        double integrated_xsection(double s, double cos);
 
         // Multiply decay widths with an arbitrary constant
         inline void normalize(double N)

@@ -200,7 +200,7 @@ namespace hadMolee
                 double k = sqrt(s)/2; // e+ momentum in CM frame
                 x  = E*E * 2*k*k * production_pol;
 
-                // Photon propagator
+                // Photon propagator (squared)
                 x /= s*s;
 
                 // --------------------------
@@ -237,14 +237,10 @@ namespace hadMolee
 
     double amplitude_base::differential_xsection(double s, double sab, double sbc, double cos)
     {
-        if ( !_kinematics->in_physical_region(s, sab, sbc) ) 
-        {
-            return 0.;
-        };
+        if ( !_kinematics->in_physical_region(s, sab, sbc) )  return 0.;
 
         // General prefactors for 2->3 cross section
-        double flux_factor = 2.*s; // Massless electrons
-        double prefactors  = 32.* s * pow(2.*PI, 3.) * flux_factor;
+        double prefactors  = 32.* s*s * pow(2.*PI, 3.);
 
         if (_normalize) prefactors /= _normalization;
 
@@ -254,19 +250,15 @@ namespace hadMolee
 
     double amplitude_base::differential_xsection(double s, double sab, double sbc)
     {
-        if ( !_kinematics->in_physical_region(s, sab, sbc) ) 
-        {
-            return 0.;
-        };
+        if ( !_kinematics->in_physical_region(s, sab, sbc) ) return 0.;
 
         // General prefactors for 2->3 cross section
-        double flux_factor = 2.*s; // Massless electrons
-        double prefactors  = 32.* s * pow(2.*PI, 3.) * flux_factor;
+        double prefactors  = 32.* s*s * pow(2.*PI, 3.);
 
         if (_normalize) prefactors /= _normalization;
 
         // Return in nanobarn
-        return decay_distribution(s, sab, sbc) / prefactors / 2.56819E-6;
+        return decay_distribution(s, sab, sbc)  / prefactors / 2.56819E-6;
     };
 
     // ---------------------------------------------------------------------------
@@ -361,6 +353,36 @@ namespace hadMolee
 
         ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
         ROOT::Math::Functor1D wF(F);
+        ig.SetFunction(wF);
+
+        double sab_min = (_ma + _mb)*(_ma + _mb);
+        double sab_max = ( sqrt(s) - _mc)*( sqrt(s) - _mc);
+
+        return ig.Integral(sab_min, sab_max);
+    }
+
+    double amplitude_base::integrated_xsection(double s, double cos)
+    {
+        auto dsig_ab = [&](double sab)
+        {
+            auto G = [&](double sbc)
+            {
+                return differential_xsection(s, sab, sbc, cos);
+            };
+
+            ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
+            ROOT::Math::Functor1D wG(G);
+            ig.SetFunction(wG);
+
+            double sbc_min = _kinematics->sbc_from_sab(s, sab, -1.);
+            double sbc_max = _kinematics->sbc_from_sab(s, sab, +1.);
+
+            if ( is_equal(sbc_min, sbc_max) ) return 0.;
+            return ig.Integral(sbc_min, sbc_max);
+        };
+
+        ROOT::Math::GSLIntegrator ig(ROOT::Math::IntegrationOneDim::kADAPTIVE, ROOT::Math::Integration::kGAUSS15);
+        ROOT::Math::Functor1D wF(dsig_ab);
         ig.SetFunction(wF);
 
         double sab_min = (_ma + _mb)*(_ma + _mb);
