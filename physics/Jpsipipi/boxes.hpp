@@ -8,13 +8,11 @@
 #define JPSIPIPI_BOXES_HPP
 
 #include <memory>
-
 #include "constants.hpp"
 #include "kinematics.hpp"
 #include "amplitude.hpp"
 #include "box.hpp"
-#include "lineshapes/Y(4260).hpp"
-
+#include "Y(4260).hpp"
 
 namespace hadMolee::Jpsipipi
 {
@@ -33,12 +31,12 @@ namespace hadMolee::Jpsipipi
         inline complex reduced_amplitude(cartesian_index i, cartesian_index k)
         {
             complex result = 0.;
+
             for (auto j : C_INDICES)
             {
                 // particle c couples to the D1 vertex
                 _pi1 = particle::c;
                 result += D1_coupling(i, j) * M(j, k);
-
                 // particle b couples to the D1 vertex
                 _pi1 = particle::b;
                 result += D1_coupling(i, j) * M(j, k);
@@ -60,7 +58,7 @@ namespace hadMolee::Jpsipipi
         inline void recalculate()
         {
             // Y mass and couplings
-            double gy   = _Y->molecular_coupling();
+            double gy   = _Y->coupling();
             double M_Y = sqrt(_s);
 
             // Update floating masses in the box and evaluate

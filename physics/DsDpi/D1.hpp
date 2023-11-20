@@ -127,7 +127,7 @@ namespace hadMolee::DsDpi
 
         inline void recalculate()
         {            
-            _A  = _Y->coupling() / sqrt(2.) * sqrt(_V->mass()*M_D1*M_D);  
+            _A  = _Y->coupling() / sqrt(2.) * sqrt(_Y->mass()*M_D1*M_D);  
             _A *= _D1.eval(_sac); // D1 propagator
             // Skip D1 -> D* pi which we factor out and put above
         };

@@ -13,8 +13,7 @@
 #include "kinematics.hpp"
 #include "amplitude.hpp"
 #include "triangle.hpp"
-#include "lineshapes/Y(4260).hpp"
-#include "lineshapes/Z(3900).hpp"
+#include "Y(4260).hpp"
 
 namespace hadMolee::Jpsipipi
 {
@@ -26,9 +25,12 @@ namespace hadMolee::Jpsipipi
         
         generic_triangle(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "generic_box")
         : amplitude_base(key, xkinem, Y, 0, "generic_triangle", id), 
-        _Y(get_molecular_component(Y)), _Zc(make_molecule<DsD_molecule>()),
+        _Y(get_molecular_component(Y)), _Zc(make_molecule(M_DSTAR, M_D)),
         _T(triangle::kLoopTools)
-        {};
+        {
+            // Set up Zc propagator
+            _Zc->set_parameters({3.9, 50.E-3, 4.66/sqrt(M_DSTAR*M_D*3.9)});
+        };
 
         // The reduced amplitude is a D-wave amplitude
         inline complex reduced_amplitude(cartesian_index i, cartesian_index k)
@@ -42,7 +44,7 @@ namespace hadMolee::Jpsipipi
 
                 // particle b couples to the D1 vertex
                 _pi1 = particle::b;
-                result -= D1_coupling(i, j) * M(j, k);
+                result += D1_coupling(i, j) * M(j, k);
             };
             return  _C * result / sqrt(2.);
         };
@@ -61,9 +63,9 @@ namespace hadMolee::Jpsipipi
         inline void recalculate()
         {
             // Y mass and couplings
-            double gy  = _Y->molecular_coupling();
+            double gy  = _Y->coupling();
             double M_Y = sqrt(_s);
-            double gz  = _Zc->molecular_coupling();
+            double gz  = _Zc->coupling();
             double M_Z = M_ZC3900;
 
             // Update floating masses in triangle 1 and evaluate
