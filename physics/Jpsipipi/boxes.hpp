@@ -161,8 +161,8 @@ namespace hadMolee::Jpsipipi
             _decay_masses = {M_PION, M_JPSI,  M_PION};
             _loop_masses  = {M_D,    M_DSTAR, M_DSTAR};
 
-            _gjpsi = G_PSI   * sqrt(M_JPSI*M_DSTAR*M_DSTAR);
-            _gpi   = G1_PION * sqrt(M_DSTAR * M_D); 
+            _gjpsi =  G_PSI   * sqrt(M_JPSI*M_DSTAR*M_DSTAR);
+            _gpi   =  G1_PION * sqrt(M_DSTAR * M_D); 
         };
 
         protected:
@@ -176,8 +176,8 @@ namespace hadMolee::Jpsipipi
             // 2 l + (p2 - p1)
             // = 2 (D2 p1 + D3 (p1 + p3)) + D0 (p1 - p2)
             // with p3 = - (p1 + p2)
-            complex pi1_piece = - (vecB[0] + 2.*vecB[3]);
-            complex pi2_piece = - (3.*vecB[0] + 2.*vecB[2]+4.*vecB[3]);
+            complex pi1_piece = - (vecB[0] + 2.*vecB[2]);
+            complex pi2_piece = + (vecB[0] + 2.*vecB[3]);
 
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
@@ -201,7 +201,7 @@ namespace hadMolee::Jpsipipi
             _decay_masses = {M_JPSI, M_PION,  M_PION};
             _loop_masses  = {M_D,    M_DSTAR, M_DSTAR};
 
-            _gjpsi = G_PSI   * sqrt(M_JPSI*M_DSTAR*M_D); 
+            _gjpsi = - G_PSI   * sqrt(M_JPSI*M_DSTAR*M_D); 
             _gpi   = G2_PION * sqrt(M_DSTAR * M_DSTAR); 
         };
 
