@@ -44,7 +44,7 @@ namespace hadMolee::Jpsipipi
 
                 // particle b couples to the D1 vertex
                 _pi1 = particle::b;
-                result += D1_coupling(i, j) * M(j, k);
+                result -= D1_coupling(i, j) * M(j, k);
             };
             return  _C * result / sqrt(2.);
         };
@@ -123,11 +123,9 @@ namespace hadMolee::Jpsipipi
         {
             auto vecT2 = vT2();
 
-            // 2 l - (p2 + p1)
-            // -> 2 (C1 p2 + C2 (p2 + p3)) - C0 (p1 + p2)
-            // =  2 (C1 p2 - C2 p1) - C0 (p1 + p2)
-            complex pi1_piece = - 2.* vecT2[1] + vecT2[0];
-            complex pi2_piece = + 2.* vecT2[2] - vecT2[0];
+            // 2 l + (p2 + p1)
+            complex pi1_piece = - (2.* vecT2[1] + 2.*vecT2[2] + vecT2[0]);
+            complex pi2_piece = - (2.* vecT2[2] + vecT2[0]);
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
         // The box vector needs to be contracted witlsh the jpsi vertex

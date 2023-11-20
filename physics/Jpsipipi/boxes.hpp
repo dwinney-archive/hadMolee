@@ -156,7 +156,7 @@ namespace hadMolee::Jpsipipi
         box_I(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "Box I")
         : generic_box(key, xkinem, Y, id)
         {
-            _schan = ac, _tchan = ab;
+            _schan = ab, _tchan = ac;
 
             _decay_masses = {M_PION, M_JPSI,  M_PION};
             _loop_masses  = {M_D,    M_DSTAR, M_DSTAR};
@@ -176,8 +176,8 @@ namespace hadMolee::Jpsipipi
             // 2 l + (p2 - p1)
             // = 2 (D2 p1 + D3 (p1 + p3)) + D0 (p1 - p2)
             // with p3 = - (p1 + p2)
-            complex pi1_piece =  2.*vecB[2] - vecB[0];
-            complex pi2_piece = -2.*vecB[3] + vecB[0];
+            complex pi1_piece = - (vecB[0] + 2.*vecB[3]);
+            complex pi2_piece = - (3.*vecB[0] + 2.*vecB[2]+4.*vecB[3]);
 
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
@@ -214,9 +214,8 @@ namespace hadMolee::Jpsipipi
             auto vecB = vB();
 
             // 2 l - (p2 + p1)
-            // = 2 (D2 p1 + D3 (p1 + p2)) - D0 (p1 + p2)
-            complex pi1_piece =  2.*(vecB[3] + vecB[2]) - vecB[0];
-            complex pi2_piece =  2.* vecB[3]            - vecB[0];
+            complex pi1_piece = - (2.*vecB[3] + 2.*vecB[2] + vecB[0]);
+            complex pi2_piece = - (2.*vecB[3]              + vecB[0]);
 
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
@@ -253,9 +252,8 @@ namespace hadMolee::Jpsipipi
             auto vecB = vB();
 
             // 2 l - (p2 + p1)
-            // = 2 (D2 p1 + D3 (p1 + p2)) + D0 (p1 + p2)
-            complex pi1_piece =  2.*(vecB[3] + vecB[2]) - vecB[0];
-            complex pi2_piece =  2.* vecB[3]            - vecB[0];
+            complex pi1_piece = - (2.*vecB[3] + 2.*vecB[2] + vecB[0]);
+            complex pi2_piece = - (2.*vecB[3]              + vecB[0]);
 
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
