@@ -196,7 +196,7 @@ namespace hadMolee
                 int production_pol = delta(i, j) - delta(i,z)*delta(j,z);
                 if (production_pol == 0) continue;
 
-                // ( e^2 * 2k^2 * polarization)
+                 // ( e^2 * 2k^2 * polarization)
                 double k = sqrt(s)/2; // e+ momentum in CM frame
                 x  = E*E * 2*k*k * production_pol;
 
@@ -209,7 +209,7 @@ namespace hadMolee
                 // V -> abc 
                 x *= _cached_decay_tensor[i][j];
 
-                if (!is_zero( imag(x) )) warning("probability_distribution", "Amplitude squared is imaginary!");
+                if (!is_zero( imag(x) )) fatal("probability_distribution", "Amplitude squared is imaginary!");
                 sum += real(x);
             };
         };
@@ -237,20 +237,20 @@ namespace hadMolee
 
     double amplitude_base::differential_xsection(double s, double sab, double sbc, double cos)
     {
-        if ( !_kinematics->in_physical_region(s, sab, sbc) )  return 0.;
+        if ( !_kinematics->in_physical_region(s, sab, sbc) ) return std::nan("");
 
         // General prefactors for 2->3 cross section
         double prefactors  = 32.* s*s * pow(2.*PI, 3.);
 
         if (_normalize) prefactors /= _normalization;
-
+        
         // Return in nanobarn
         return decay_distribution(s, sab, sbc, cos) / prefactors / 2.56819E-6;
     };
 
     double amplitude_base::differential_xsection(double s, double sab, double sbc)
     {
-        if ( !_kinematics->in_physical_region(s, sab, sbc) ) return 0.;
+        if ( !_kinematics->in_physical_region(s, sab, sbc) ) return std::nan("");
 
         // General prefactors for 2->3 cross section
         double prefactors  = 32.* s*s * pow(2.*PI, 3.);
@@ -258,7 +258,7 @@ namespace hadMolee
         if (_normalize) prefactors /= _normalization;
 
         // Return in nanobarn
-        return decay_distribution(s, sab, sbc)  / prefactors / 2.56819E-6;
+        return decay_distribution(s, sab, sbc) / prefactors  / 2.56819E-6;
     };
 
     // ---------------------------------------------------------------------------

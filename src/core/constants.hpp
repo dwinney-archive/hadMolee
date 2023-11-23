@@ -59,19 +59,14 @@ namespace hadMolee
     // 2022 PDG masses in GeV
 
     // Light unflavored
-    const double M_PION      = 0.13957039;
+    const double M_PION      = 0.13957018;
     const double M_PION0     = 0.1349768;
     const double M_RHO       = 0.77526;
 
     // Charged charmed
-    // const double M_D         = 1.86966;
-    // const double M_DSTAR     = 2.01026;
-    // const double M_D1        = 2.4221;
-
-    // Use Qians numbers
-    const double M_D     = 1.86483;
-    const double M_DSTAR = 2.00685;
-    const double M_D1    = 2.4208;
+    const double M_D         = 1.86483;
+    const double M_DSTAR     = 2.01026;
+    const double M_D1        = 2.4208;
     
     // Neutral charmed
     const double M_D0        = 1.86484;

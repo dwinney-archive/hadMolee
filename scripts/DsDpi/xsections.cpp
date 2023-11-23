@@ -29,7 +29,7 @@ void xsections()
     y_contact->set_parameters({21.733, -15.695});
 
     amplitude  psi_contact = make_amplitude<DsDpi::contact>(kDsDpi, psi, "#psi contact");
-    psi_contact->set_parameters({0.627*4.66, -15.085});
+    psi_contact->set_parameters({2.92182, -15.085});
 
     //--------------------------------------------------------------------------------------
     // Interactions involving intermediate D1's
@@ -60,10 +60,9 @@ void xsections()
         line();
     };
 
-    // print(y_contact->integrated_xsection(4.23*4.23)* 1E3);
     plotter plotter;
     plot sig = plotter.new_plot();
-    sig.set_curve_points(50);
+    sig.set_curve_points(60);
     sig.set_legend(0.15, 0.6);
     sig.set_labels("#sqrt{#it{s}}  [GeV]", "#sigma [pb]");
 

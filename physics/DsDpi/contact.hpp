@@ -30,15 +30,13 @@ namespace hadMolee::DsDpi
         : amplitude_base(key, xkinem, Y, 2, "DsDpi_psi", id),
           _Zc(make_molecule(M_D, M_DSTAR))
         {
-            _Zc->set_parameters({3.9, 50.E-3, 4.66/sqrt(M_DSTAR*M_D*3.9)});
+            _Zc->set_parameters({3.88995818, 50.E-3, 4.22340527/sqrt(M_DSTAR*M_D*3.88995818)});
         };
 
         // The reduced amplitude corresponds to the S-wave contact-like interaction
         // however it receives contributions from the propagator of the Z meson
         inline complex reduced_amplitude(cartesian_index i, cartesian_index j)
         {
-            complex decay_amplitude =  _AS * sqrt(M_PION*M_PION + _mpc*_mpc);
-            
             // Being S-wave the s-wave strength gets multiplied by a delta-function
             return _AS * sqrt(M_PION*M_PION + _mpc*_mpc) * delta(i,j);
         };

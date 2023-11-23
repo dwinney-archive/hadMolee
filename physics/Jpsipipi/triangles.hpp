@@ -39,11 +39,11 @@ namespace hadMolee::Jpsipipi
             for (auto j : C_INDICES)
             {
                 // particle c couples to the D1 vertex
-                _pi1 = particle::c;
+                _pi1 = particle::c; // Right peak
                 result += D1_coupling(i, j) * M(j, k);
 
                 // particle b couples to the D1 vertex
-                _pi1 = particle::b;
+                _pi1 = particle::b; // Left peak
                 result -= D1_coupling(i, j) * M(j, k);
             };
             return  _C * result / sqrt(2.);
@@ -62,42 +62,42 @@ namespace hadMolee::Jpsipipi
 
         inline void recalculate()
         {
-            // Y mass and couplings
-            double gy  = _Y->coupling();
-            double M_Y = sqrt(_s);
-            double gz  = _Zc->coupling();
-            double M_Z = M_ZC3900;
-
-            // Update floating masses in triangle 1 and evaluate
-            // Also include the Zc propagator here
-            _T.set_external_masses({_W, sqrt(_sab), M_PION});
+            // Internal masses of triangle 1 are common to both
+            // pion configurations
             _T.set_internal_masses({M_DSTAR, M_D1, M_D}); 
             _T.add_width(2, W_D1); 
-            _T1[0] = _T.eval() * _Zc->propagator(_sab);
-            // Swap pions 
-            _T.set_external_masses({_W, sqrt(_sac), M_PION});
-            _T1[1] = _T.eval() * _Zc->propagator(_sac);
 
             // Couplings at the vertices of the first triangle
-            _C  = gy/sqrt(2.) * sqrt(M_Y*M_D1*M_D);    // Y -> D1 D
+            _C  = _Y->coupling() /sqrt(2.) * sqrt(_Y->mass()*M_D1*M_D);    // Y -> D1 D
             // Skip the D1 -> D* pi coupling which we include above
-            _C *= gz          * sqrt(M_D*M_DSTAR*M_Z); // D* D -> Z 
+            _C *= _Zc->coupling()          * sqrt(M_D*M_DSTAR*_Zc->mass()); // D* D -> Z 
 
+            // ------------------------------------------------------
             // Set up triangle 2
-            // This will depend on the running masses in specific triangle diagram
-            _pi1 = particle::c;
+            _pi1 = particle::c; // c couples to D1
+
+            // Zc couples to ab 
+            _T.set_external_masses({_W, sqrt(_sab), M_PION});
+            _T1[0] = _T.eval() * _Zc->propagator(_sab);
+
             _T.set_external_masses({sqrt(_sab), M_JPSI, M_PION});
             _T.set_internal_masses({_loop_masses[0], _loop_masses[1], _loop_masses[2]});
             _vT2[0]     = _T.eval_vector();
             _q_dot_p[0] = q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
+
+            // ------------------------------------------------------
             // Swap pions 
-            _pi1 = particle::b;
+            _pi1 = particle::b; // b couples to D1
+
+            // Zc coupled to ac 
+            _T.set_external_masses({_W, sqrt(_sac), M_PION});
+            _T1[1] = _T.eval() * _Zc->propagator(_sac);
             _T.set_external_masses({sqrt(_sac), M_JPSI, M_PION});
             _vT2[1]     = _T.eval_vector();
             _q_dot_p[1] = q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
 
             // Gather couplings from the vertices of the second triangle
-            _C *= gz     * sqrt(M_D*M_DSTAR*M_Z); // Z decay vertex
+            _C *= _Zc->coupling() * sqrt(M_D*M_DSTAR*_Zc->mass()); // Z decay vertex
             _C *= _gpi;                           // Coupling at pion vertex
             _C *= _gjpsi;                         // Coupling at psi vertex 
         };
