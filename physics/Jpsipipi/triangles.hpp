@@ -26,7 +26,7 @@ namespace hadMolee::Jpsipipi
         generic_triangle(amplitude_key key, kinematics xkinem, lineshape Y, std::string id = "generic_box")
         : amplitude_base(key, xkinem, Y, 0, "generic_triangle", id), 
         _Y(get_molecular_component(Y)), _Zc(make_molecule(M_DSTAR, M_D)),
-        _T(triangle::kLoopTools)
+        _T(triangle::kLoopTools), _TNR(triangle::kNonrelativistic)
         {
             // Set up Zc propagator
             _Zc->set_parameters({3.9, 50.E-3, 4.66/sqrt(M_DSTAR*M_D*3.9)});
@@ -64,11 +64,12 @@ namespace hadMolee::Jpsipipi
         {
             // Internal masses of triangle 1 are common to both
             // pion configurations
-            _T.set_internal_masses({M_DSTAR, M_D1, M_D}); 
-            _T.add_width(2, W_D1); 
+            _TNR.set_internal_masses({M_DSTAR, M_D1, M_D}); 
+            _TNR.add_width(2, W_D1); 
+            _T.set_internal_masses({_loop_masses[0], _loop_masses[1], _loop_masses[2]});
 
             // Couplings at the vertices of the first triangle
-            _C  = _Y->coupling() /sqrt(2.) * sqrt(_Y->mass()*M_D1*M_D);    // Y -> D1 D
+            _C  = _Y->coupling() /sqrt(2.) * sqrt(_Y->mass()*M_D1*M_D);     // Y -> D1 D
             // Skip the D1 -> D* pi coupling which we include above
             _C *= _Zc->coupling()          * sqrt(M_D*M_DSTAR*_Zc->mass()); // D* D -> Z 
 
@@ -77,11 +78,9 @@ namespace hadMolee::Jpsipipi
             _pi1 = particle::c; // c couples to D1
 
             // Zc couples to ab 
-            _T.set_external_masses({_W, sqrt(_sab), M_PION});
-            _T1[0] = _T.eval() * _Zc->propagator(_sab);
-
+            _TNR.set_external_masses({_W, sqrt(_sab), M_PION});
+            _T1[0]      = _TNR.eval() * _Zc->propagator(_sab);
             _T.set_external_masses({sqrt(_sab), M_JPSI, M_PION});
-            _T.set_internal_masses({_loop_masses[0], _loop_masses[1], _loop_masses[2]});
             _vT2[0]     = _T.eval_vector();
             _q_dot_p[0] = q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
 
@@ -90,8 +89,8 @@ namespace hadMolee::Jpsipipi
             _pi1 = particle::b; // b couples to D1
 
             // Zc coupled to ac 
-            _T.set_external_masses({_W, sqrt(_sac), M_PION});
-            _T1[1] = _T.eval() * _Zc->propagator(_sac);
+            _TNR.set_external_masses({_W, sqrt(_sac), M_PION});
+            _T1[1]      = _TNR.eval() * _Zc->propagator(_sac);
             _T.set_external_masses({sqrt(_sac), M_JPSI, M_PION});
             _vT2[1]     = _T.eval_vector();
             _q_dot_p[1] = q(x)*p2(x) + q(y)*p2(y) + q(z)*p2(z);
@@ -125,7 +124,7 @@ namespace hadMolee::Jpsipipi
 
             // 2 l + (p2 + p1)
             complex pi1_piece = - (2.* vecT2[1] + 2.*vecT2[2] + vecT2[0]);
-            complex pi2_piece = - (2.* vecT2[2] + vecT2[0]);
+            complex pi2_piece = - (2.* vecT2[2]               + vecT2[0]);
             return pi1_piece * p1(i) + pi2_piece * p2(i);
         };
         // The box vector needs to be contracted witlsh the jpsi vertex
@@ -141,7 +140,7 @@ namespace hadMolee::Jpsipipi
         std::array<double,3> _loop_masses;
 
         // Triangle functions, this is used to evaluate both triangles
-        triangle _T;
+        triangle _T, _TNR;
 
         // Cached quantities related to the triangle
         // index 0 couples particle c to the D-wave vertex while 1 is particle b
