@@ -94,7 +94,7 @@ namespace hadMolee
     // ---------------------------------------------------------------------------
     // Couplings associated with HQSS
     
-    const double F_PION     = sqrt(2.)*91E-3;  // Pion decay constant in GeV
+    const double F_PION     = sqrt(2.)*93E-3;  // Pion decay constant in GeV
     const double F_JPSI     = 0.416;
 
     // D1 -> D* pi
@@ -105,15 +105,13 @@ namespace hadMolee
 
     // D* -> D pi
     const double G_TILDE    = 0.57;
-    const double G1_PION    = 2.*G_TILDE*sqrt(M_DSTAR*M_D)/F_PION;
+    const double G1_PION    = 2.*G_TILDE*sqrt(M_DSTAR0*M_D0)/F_PION;
 
     // D* -> D* pi
-    const double G2_PION    = 2.*G_TILDE*M_DSTAR/F_PION;
+    const double G2_PION    = 2.*G_TILDE*M_DSTAR0/F_PION;
 
     // Jpsi to charm
     const double G_PSI      = sqrt(M_JPSI) / (2*M_D*F_JPSI);
-
-    const double CT_TRI     = 0.;
 
     // ---------------------------------------------------------------------------
     // Function for easier comparison of doubles using the EPS value defined above
