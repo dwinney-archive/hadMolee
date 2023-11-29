@@ -39,6 +39,7 @@ namespace hadMolee
     const double RAD2DEG  = (180. / M_PI);
     const double NB2GEV   = 2.56819E-6;  // nb -> GeV^{-2} conversion
     const double GEV2NB   = 0.3894E6;    // GeV^{-2} -> nb 
+    const double GEV2PB   = GEV2NB*1.E3;
 
     // Small offsets
     const double  EPS  = 1.E-8;
