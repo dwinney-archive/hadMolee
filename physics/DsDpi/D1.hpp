@@ -48,7 +48,7 @@ namespace hadMolee::DsDpi
             double swave = gs*sqrt(_mpc*_mpc + _mc2)            * delta(i,j);
             double dwave = gd*_mpc*_mpc*(3.*phat_1(i)*phat_1(j) - delta(i,j));
 
-            return sqrt(M_D1*M_DSTAR)*(swave + dwave);
+            return sqrt(M_D1*M_DSTAR)*(swave - dwave);
         };
 
         // Energy dependent (but scalar) coupling

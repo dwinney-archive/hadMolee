@@ -35,12 +35,38 @@ namespace hadMolee::Jpsipipi
         // The reduced amplitude is a D-wave amplitude
         inline complex reduced_amplitude(cartesian_index i, cartesian_index k)
         {
+            // print("right peak");
+            // _pi1 = particle::c;
+            // for (auto i : C_INDICES)
+            // {
+            //     for (auto j : C_INDICES)
+            //     {
+            //         print(i+1, j+1, M(i, j));
+            //     }
+            // }
+            // line();
+
+            // print("left peak");
+            // _pi1 = particle::b; 
+            // for (auto i : C_INDICES)
+            // {
+            //     for (auto j : C_INDICES)
+            //     {
+            //         print(i+1, j+1, M(i, j));
+            //     }
+            // }
+            // exit(1);
+
+
+            // _pi1 = particle::c; // Right peak
+            // return M(i, k);
+
             complex result = 0.;
             for (auto j : C_INDICES)
             {
-                // particle c couples to the D1 vertex
-                _pi1 = particle::c; // Right peak
-                result += D1_coupling(i, j) * M(j, k);
+                // // particle c couples to the D1 vertex
+                // _pi1 = particle::c; // Right peak
+                // result += D1_coupling(i, j) * M(j, k);
 
                 // particle b couples to the D1 vertex
                 _pi1 = particle::b; // Left peak
@@ -192,7 +218,7 @@ namespace hadMolee::Jpsipipi
 
         inline complex M(cartesian_index j, cartesian_index k)
         {
-            return T1() * p2(j)*q(k);
+            return /* T1() * */ p2(j)*q(k);
         };
     };  
 
@@ -213,7 +239,7 @@ namespace hadMolee::Jpsipipi
 
         inline complex M(cartesian_index j, cartesian_index k)
         {
-            return T1() * (p2(j)*q(k) - p2(k)*q(j) - delta(j, k)*qdotp2());
+            return /* T1() * */ (p2(j)*q(k) - p2(k)*q(j) - delta(j, k)*qdotp2());
         };
     };    
 };

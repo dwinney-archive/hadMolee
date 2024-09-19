@@ -268,7 +268,7 @@ namespace hadMolee
             
             // Calculate relative angles of particles a and b to c
             _cos_b = _kinematics->cos_bc(_s, _sab, _sbc);
-            _sin_b = sqrt(1. - _cos_b*_cos_b);
+            _sin_b =  sqrt(1. - _cos_b*_cos_b);
 
             // Flip out updated flag so amplitudes know to recalculate
             _updated = true;
